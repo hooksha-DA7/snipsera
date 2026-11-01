@@ -8,7 +8,7 @@ Use a fresh version for every published artifact. Preserve the original local ar
 
 The first import contains eight historical numbered builds and three complete scrolling/overlay previews. The external-toolbar `0.5.1` build is marked superseded. Incomplete private staging attempts were excluded. Historical Git commits were reconstructed from archived source ZIPs in chronological order using the actual import date. Release notes retain the original build dates; GitHub publication dates are not backdated.
 
-Windows/source ZIPs are attached to each release with `SHA256SUMS.txt`. GitHub's automatic source downloads are the tagged repository tree and are distinct from those original ZIPs.
+Windows/source ZIPs are attached to each release with `SHA256SUMS.txt`. GitHub's automatic source downloads are the tagged repository tree and are distinct from the attached ZIPs.
 
 ## Add the next version
 
