@@ -405,7 +405,8 @@
           "Kept floating controls inside the image without overlapping each other across the supported layouts."
         ]
       },
-      "notice": "Recommended for capture and annotation. This is the last build tested on a real desktop; scrolling capture and temporary overlay hiding are available in the 0.6 previews."
+      "notice": "Recommended for capture and annotation. This is the last build tested on a real desktop; scrolling capture and temporary overlay hiding are available in the 0.6 previews. Packaging update, 2026-11-01: documentation refreshed; application binaries unchanged.",
+      "repackaged_on": "2026-11-01"
     },
     {
       "version": "0.6.0-preview.2",
@@ -449,7 +450,8 @@
           "Copy, Save, Pin and editing for the completed scrolling image."
         ]
       },
-      "notice": "Early preview. Overlap warnings and Chrome Auto-scroll failures were reported; preview 3 changes the scrolling behavior. The original ZIP filenames omit the preview number."
+      "notice": "Early preview. Overlap warnings and Chrome Auto-scroll failures were reported; preview 3 changes the scrolling behavior. The original ZIP filenames omit the preview number. Packaging update, 2026-11-01: documentation refreshed; application binaries unchanged.",
+      "repackaged_on": "2026-11-01"
     },
     {
       "version": "0.6.0-preview.3",
@@ -503,7 +505,8 @@
           "Checked that the page moved before sending another Auto-scroll step, and stopped pending steps on Done or Cancel."
         ]
       },
-      "notice": "Experimental: automated scrolling checks pass, but these changes have not yet been tested in a live Chrome session. Scrolling capture may still need manual adjustment."
+      "notice": "Experimental: automated scrolling checks pass, but these changes have not yet been tested in a live Chrome session. Scrolling capture may still need manual adjustment. Packaging update, 2026-11-01: documentation refreshed; application binaries unchanged.",
+      "repackaged_on": "2026-11-01"
     },
     {
       "version": "0.6.0-preview.4",
@@ -555,7 +558,8 @@
           "Kept Ctrl+mouse wheel available for pin opacity and left the on-image controls in place."
         ]
       },
-      "notice": "Experimental: hide/restore has passed automated and off-screen rendering checks, but real desktop interaction is still untested. Chrome scrolling also needs live testing. The ZIP's BUILD-STATUS heading says preview 3 in error; the app and filenames correctly identify preview 4."
+      "notice": "Experimental: hide/restore has passed automated and off-screen rendering checks, but real desktop interaction is still untested. Chrome scrolling also needs live testing. The ZIP's BUILD-STATUS heading says preview 3 in error; the app and filenames correctly identify preview 4. Packaging update, 2026-11-01: documentation refreshed; application binaries unchanged.",
+      "repackaged_on": "2026-11-01"
     }
   ]
 }

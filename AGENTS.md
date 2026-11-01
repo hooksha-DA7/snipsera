@@ -12,3 +12,5 @@
 
 - Publish only to the personal repository owned by `hooksha-DA7`. Check the authenticated login before publication.
 - Keep README focused on the app, downloading it and using it. Release notes should describe concrete Added, Improved and Fixed behavior in plain language; keep agent/workflow details and test receipts in developer documentation.
+
+- Public files, comments and release descriptions should use the project and owner identity only. Keep internal tooling, work assignments and development conversations private. Use the personal owner for commit, tag, release and upload attribution.

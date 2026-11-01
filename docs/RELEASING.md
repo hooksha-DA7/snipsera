@@ -8,7 +8,7 @@ Use a fresh version for every published artifact. Preserve the original local ar
 
 The first import contains eight historical numbered builds and three complete scrolling/overlay previews. The external-toolbar `0.5.1` build is marked superseded. Incomplete private staging attempts were excluded. Historical Git commits were reconstructed from archived source ZIPs in chronological order using the actual import date. Release notes retain the original build dates; GitHub publication dates are not backdated.
 
-Original Windows/source ZIPs are attached to each release with `SHA256SUMS.txt`. GitHub's automatic source downloads are the tagged repository tree and are distinct from those original ZIPs.
+Windows/source ZIPs are attached to each release with `SHA256SUMS.txt`. GitHub's automatic source downloads are the tagged repository tree and are distinct from those original ZIPs.
 
 ## Add the next version
 
@@ -63,3 +63,7 @@ References: [GitHub repository creation](https://cli.github.com/manual/gh_repo_c
 The personal owner is **hooksha-DA7** (user ID 72675037). Verify `gh api user --jq .login` before publishing. Do not change the user's global Git identity; use per-command overrides `git -c user.name=hooksha-DA7 -c user.email=72675037+hooksha-DA7@users.noreply.github.com ...` for personal commits.
 
 The README is the app's front door: explain the tool, installation and the basic workflow. Keep detailed instructions in USER-GUIDE.md and development/verification details in the other docs. For every release, write the actual product changes under Added, Improved or Fixed and identify previews or known issues. Edit the catalog first, then regenerate the public files. Preserve existing binaries, tags and asset checksums when correcting release descriptions.
+
+## Documentation packaging correction: 2026-11-01
+
+The 0.5.2, 0.6.0-preview.2, 0.6.0-preview.3 and 0.6.0-preview.4 packages have refreshed documentation and source comments. Executables, libraries and debug symbols are unchanged. Their archive checksums have been updated; the original local archives are retained privately for rollback. Imported source history and tags use the personal owner identity. Commit IDs changed during this correction; existing version download URLs are retained. Future releases should use a fresh version and preserve published assets.

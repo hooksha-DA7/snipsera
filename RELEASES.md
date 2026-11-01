@@ -20,7 +20,7 @@ Clear the floating images out of your way, then bring them back when you need th
 - Added a short slide/fade transition that respects Windows reduced-motion preferences.
 - Kept Ctrl+mouse wheel available for pin opacity and left the on-image controls in place.
 
-Experimental: hide/restore has passed automated and off-screen rendering checks, but real desktop interaction is still untested. Chrome scrolling also needs live testing. The ZIP's BUILD-STATUS heading says preview 3 in error; the app and filenames correctly identify preview 4.
+Experimental: hide/restore has passed automated and off-screen rendering checks, but real desktop interaction is still untested. Chrome scrolling also needs live testing. The ZIP's BUILD-STATUS heading says preview 3 in error; the app and filenames correctly identify preview 4. Packaging update, 2026-11-01: documentation refreshed; application binaries unchanged.
 
 ### Download
 
@@ -47,7 +47,7 @@ Updates to reduce repeated overlap warnings and improve Auto-scroll in Chrome.
 - Refreshed overlapping content and the final view when images finish loading late.
 - Checked that the page moved before sending another Auto-scroll step, and stopped pending steps on Done or Cancel.
 
-Experimental: automated scrolling checks pass, but these changes have not yet been tested in a live Chrome session. Scrolling capture may still need manual adjustment.
+Experimental: automated scrolling checks pass, but these changes have not yet been tested in a live Chrome session. Scrolling capture may still need manual adjustment. Packaging update, 2026-11-01: documentation refreshed; application binaries unchanged.
 
 ### Download
 
@@ -67,7 +67,7 @@ Capture a page or document that is taller than the screen.
 - A growing preview and optional Auto-scroll, with Cancel to discard the session.
 - Copy, Save, Pin and editing for the completed scrolling image.
 
-Early preview. Overlap warnings and Chrome Auto-scroll failures were reported; preview 3 changes the scrolling behavior. The original ZIP filenames omit the preview number.
+Early preview. Overlap warnings and Chrome Auto-scroll failures were reported; preview 3 changes the scrolling behavior. The original ZIP filenames omit the preview number. Packaging update, 2026-11-01: documentation refreshed; application binaries unchanged.
 
 ### Download
 
@@ -91,7 +91,7 @@ Copy, Save, Pin and the other floating actions are back on the screenshot itself
 
 - Kept floating controls inside the image without overlapping each other across the supported layouts.
 
-Recommended for capture and annotation. This is the last build tested on a real desktop; scrolling capture and temporary overlay hiding are available in the 0.6 previews.
+Recommended for capture and annotation. This is the last build tested on a real desktop; scrolling capture and temporary overlay hiding are available in the 0.6 previews. Packaging update, 2026-11-01: documentation refreshed; application binaries unchanged.
 
 ### Download
 
