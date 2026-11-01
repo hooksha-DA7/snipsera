@@ -28,7 +28,7 @@ Use the home buttons or tray menu for the same actions. Expand **Keyboard shortc
 
 Choose **Scrolling capture**, then drag around the content that scrolls. Leave fixed headers, footers and scrollbars outside the selection and enough space around it for the capture controls. Choose **Start capture**, then scroll down slowly, keeping some of the previous view visible. A growing preview shows the image collected so far. **Auto-scroll** is optional; you can turn it off and continue manually. Choose **Done** to send the tall image to the usual preview/history workflow, where you can copy, save, pin or annotate it. **Cancel** or Esc discards the session and restores the previous windows.
 
-This version stitches vertical downward scrolling from visible pixels. Duplicate views and backward motion do not add another copy. If a view cannot be aligned, scroll back slightly and continue more slowly. Framelet keeps the last good portion and reports an alignment/limit warning when applicable. Auto-scroll stops after no movement or an alignment problem; it does not assume that every app has reached the end of its document. The result is limited to 20,000 pixels per side and 40 million total pixels. Read the [scrolling capture notes](docs/SCROLLING-CAPTURE.md) for supported conditions and verification.
+This version stitches vertical downward scrolling from visible pixels. Duplicate views and backward motion do not add another copy. If a view cannot be aligned, scroll back slightly and continue more slowly. Framelet keeps the last good portion and reports an alignment/limit warning when applicable. Auto-scroll stops after no movement or an alignment problem; it does not assume that every app has reached the end of its document. The result is limited to 20,000 pixels per side and 40 million total pixels. Read the [scrolling capture notes](SCROLLING-CAPTURE.md) for supported conditions and verification.
 
 In Chrome, Auto-scroll uses small native wheel events and moves the pointer from its Framelet control into the selected content once. Leave the pointer inside the selection and keep Chrome active. Moving outside, switching apps or holding modifiers pauses Auto-scroll. No clicks or typing are generated. Progress is checked from captured pixels before another step is sent.
 
@@ -51,7 +51,7 @@ Scroll **down one notch over the image** in a preview or pin to hide the floatin
 
 A small rounded tab appears at the bottom left of the initiating monitor, above its taskbar. Move away and hover over it briefly, or click it, to restore the same windows. The tray and Home toggles are keyboard-accessible alternatives. Hiding keeps image data, pin state, positions, sizes and opacity. Editors and history remain available. New captures made while hidden join the hidden group until you restore it. This mode lasts for the current app session.
 
-Cards use a short slide/fade within their existing frames; Windows reduced-motion preferences make this instant. Capture hides cards and the restore tab synchronously before collecting pixels. See [behavior and verification limits](docs/TEMPORARY-HIDE.md).
+Cards use a short slide/fade within their existing frames; Windows reduced-motion preferences make this instant. Capture hides cards and the restore tab synchronously before collecting pixels. See [behavior and verification limits](TEMPORARY-HIDE.md).
 
 ## Windows appearance
 
