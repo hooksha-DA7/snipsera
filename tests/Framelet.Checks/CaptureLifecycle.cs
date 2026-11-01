@@ -19,7 +19,18 @@ internal static class CaptureLifecycle
     {
         output = Path.GetFullPath(output); Directory.CreateDirectory(output); int failure = 0;
         var pixels = UiChecks.White();
-        var app = new CaptureApp(Path.Combine(output, "data"), _ => pixels);
+        CaptureApp? activeApp = null;
+        bool inspectHiddenCapture = false, hiddenCaptureExcludedWindows = false;
+        var app = new CaptureApp(Path.Combine(output, "data"), _ =>
+        {
+            if (inspectHiddenCapture)
+            {
+                var floating = activeApp!.Windows.Cast<Window>().Where(w => w is ImageWindow or OverlayShelfWindow);
+                hiddenCaptureExcludedWindows = !floating.Any(w => Native.IsWindowVisible(new WindowInteropHelper(w).Handle));
+            }
+            return pixels;
+        });
+        activeApp = app;
         app.Startup += async (_, _) =>
         {
             var doc = new EditDocument(pixels); doc.Add(new Mark(MarkKind.Line, [new(10, 10), new(100, 40)]));
@@ -63,7 +74,32 @@ internal static class CaptureLifecycle
                 CaptureService.Save(CaptureService.Capture(Native.Bounds(traySource.Handle)), Path.Combine(output, "tray-native.png"));
                 ((MenuItem)tray.Items[5]).RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent)); await Task.Delay(80);
                 if (tray.IsOpen || app.MainWindow?.IsVisible != true) throw new Exception("Tray history command did not dismiss the menu and show history");
-                File.WriteAllText(Path.Combine(output, "results.json"), JsonSerializer.Serialize(new { status = "passed", overlayProfiles, capturesAfterRapidRequests = 3, capturesAfterModal = 4, originalPreviewOpenAtStart = true, dirtyEditorPreserved = true, pinPreserved = true, pinUnpinPreservedWindowAndSize = true, sixOnImageActionsUnclipped = true, labeledCopySave = true, overlayHidWithWindow = true, trayRemainedOpenAndHistoryCommandWorked = true, captureBackend = "synthetic pixels; native capture pixels are separately tested" }, new JsonSerializerOptions { WriteIndented = true }));
+                app.Pin(pixels, entry); await Task.Delay(80);
+                var retainedPins = app.Windows.Cast<Window>().OfType<ImageWindow>().Where(w => w.IsPinned).Select(w =>
+                    (Window: w, Handle: new WindowInteropHelper(w).Handle, Bounds: Native.Bounds(new WindowInteropHelper(w).Handle))).ToArray();
+                if (retainedPins.Length != 2) throw new Exception("Expected two native pins for hidden-group integration");
+                app.HideOverlays(currentPreview);
+                await Task.Delay(240);
+                var shelf = app.Windows.Cast<Window>().OfType<OverlayShelfWindow>().Single();
+                if (!app.OverlaysHidden || app.HiddenOverlayCount != 3 || !shelf.IsVisible ||
+                    app.Windows.Cast<Window>().OfType<ImageWindow>().Any(w => Native.IsWindowVisible(new WindowInteropHelper(w).Handle)))
+                    throw new Exception("Hidden group left a floating native window visible or lost its restore shelf");
+                if (!editor.IsVisible || !doc.IsDirty) throw new Exception("Temporarily hiding overlays affected the editor");
+                inspectHiddenCapture = true;
+                await app.CaptureAsync(CaptureKind.Screen);
+                inspectHiddenCapture = false;
+                if (!hiddenCaptureExcludedWindows || !app.OverlaysHidden || app.History.Entries.Count != 5)
+                    throw new Exception("Hidden-group capture failed to hide native overlays before the capture callback");
+                var hiddenPreview = app.Windows.Cast<Window>().OfType<ImageWindow>().Single(w => !w.IsPinned);
+                if (hiddenPreview.IsVisible || app.HiddenOverlayCount != 3 || !shelf.IsVisible)
+                    throw new Exception("A new capture escaped the hidden group or lost restoration");
+                app.RestoreOverlays(); await Task.Delay(240);
+                if (app.OverlaysHidden || shelf.IsVisible || !hiddenPreview.IsVisible)
+                    throw new Exception("Restoring the native group did not restore the new preview");
+                foreach (var pin in retainedPins)
+                    if (!pin.Window.IsVisible || !pin.Window.IsPinned || new WindowInteropHelper(pin.Window).Handle != pin.Handle || Native.Bounds(pin.Handle) != pin.Bounds)
+                        throw new Exception("Hide/restore changed a pin's native identity or geometry");
+                File.WriteAllText(Path.Combine(output, "results.json"), JsonSerializer.Serialize(new { status = "passed", overlayProfiles, capturesAfterRapidRequests = 3, capturesAfterModal = 4, capturesAfterHiddenGroup = 5, originalPreviewOpenAtStart = true, dirtyEditorPreserved = true, pinPreserved = true, pinUnpinPreservedWindowAndSize = true, sixOnImageActionsUnclipped = true, labeledCopySave = true, overlayHidWithWindow = true, trayRemainedOpenAndHistoryCommandWorked = true, nativeHiddenGroupAndShelf = true, hiddenCaptureExcludedWindows, newCaptureStayedHidden = true, restoredTwoPinsWithSameHandlesAndBounds = true, captureBackend = "synthetic pixels; native window visibility checked at the capture callback; native capture pixels are separately tested" }, new JsonSerializerOptions { WriteIndented = true }));
                 Console.WriteLine("PASS Repeated capture lifecycle preserves preview workflow, dirty editor and pin; modal queue resumes");
             }
             catch (Exception ex) { failure = 1; File.WriteAllText(Path.Combine(output, "results.json"), JsonSerializer.Serialize(new { status = "failed", error = ex.ToString() })); Console.WriteLine("FAIL Capture lifecycle: " + ex.Message); }
