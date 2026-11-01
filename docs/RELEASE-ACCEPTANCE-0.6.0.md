@@ -1,31 +1,46 @@
 # 0.6.0 acceptance checks
 
-Status on 2026-11-02: testing resumed. The current build is still **0.6.0-preview.4**. A final 0.6.0 release has not been published.
+Release: **0.6.0**, 2026-11-02. This release combines automated and native integration checks with tester-confirmed desktop workflows. Live pixel accuracy has a separate verification limit below.
 
-## Passed
+## Automated and native integration results
 
 - Release compilation: zero warnings and errors.
 - Full suite: 125 checks passed, with no failures. This includes native synthetic-window capture, clipboard restoration, shortcut-conflict recovery, GDI resource checks, image editing and project compatibility, scrolling logic, overlay state and rendered control layout.
 - Capture lifecycle: repeated captures preserve the dirty editor and existing pin; Pin/Unpin keeps the same window and size; capture requests resume after a confirmation dialog; the tray menu retains focus and opens history.
-- Native hidden-group integration: two pins restore with the same window handles and physical bounds, the editor stays open, and a new capture remains hidden until restoration. Native visibility flags confirm that the floating images and restore tab are hidden when the capture callback runs. That callback uses synthetic image data; a live pixel-exclusion check is still required.
+- Native hidden-group integration: two pins restore with the same window handles and physical bounds, the editor stays open, and a new capture remains hidden until restoration. Native visibility flags confirm that the floating images and restore tab are hidden when the capture callback runs. That callback uses synthetic image data; it is not a pixel-level exclusion check.
 - Six off-screen restore-tab template checks passed across light, dark and contrast-template profiles.
-- Nine release-publishing checks passed.
-- Published-preview portable launch: the downloaded 0.6.0-preview.4 archive passed SHA256, ZIP safety/CRC and manifest checks. Its extracted executable reached Ready to capture with empty isolated history. A final-release package still requires its own launch check after staging.
+- Release-publishing regression checks cover draft lookup, retry handling, archive links and README download pointers, including promotion without offering an older preview.
+- The downloaded preview archive passed SHA256, ZIP safety/CRC and manifest checks. Its extracted executable reached Ready to capture with empty isolated history. The final runtime and source archives receive their own integrity, allowlist, parity, documentation-link and relocated-startup checks during release staging.
 
-The live checks used separate test history and synthetic content. Existing user captures and settings were not changed. Detailed receipts are retained under `verification/runs/release-060-acceptance-01` and `verification/runs/release-060-acceptance-02` in the development checkout.
+Development receipts remain under `verification/runs/release-060-acceptance-01` and `verification/runs/release-060-acceptance-02`, with the final build and focused lifecycle repeat under `verification/runs/release-060-final-01`. Test captures, private history and development records are excluded from Git and the release packages.
 
-## Still required
+## Foreground-focus test correction
 
-Manual and Auto scrolling were reported working in the hands-on check. Independent output validation is still pending: the isolated observer has not recorded those captures, so they have not been inspected for stitching continuity.
+The final background-launched lifecycle run failed its tray keyboard-focus assertion. A diagnostic repeat showed a different process owned foreground focus both before and after the menu opened: the menu stayed open but did not receive keyboard focus. Windows restricts background processes from taking foreground focus ([platform reference](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setforegroundwindow)).
 
-Independent Chrome output checks, scrolling Cancel, overlay wheel/hover delivery and pixel-level capture exclusion, and the final staged package launch still need acceptance. These checks are required before promoting 0.6.0.
+A test-only `--capture-stress-ready <fresh-output-folder>` mode now waits for F9 in its own foreground window before exercising the workflow. That repeat passed with the same test process owning foreground focus before and after menu opening, and passed the remaining capture and hidden-group checks. No application focus or menu code was changed. The failed receipts are retained alongside the passing run.
 
-During the scrolling test, the desktop-control capture connection failed while reading the full-screen selector: first `0x8007000E`, then `0x887A0005` (GPU device suspended). The error persisted after reconnecting, including for a small window. This is a verification-tool failure; it does not establish that the application failed or passed those workflows. The selection was canceled safely.
+## Tester-confirmed desktop workflows
 
-Two display adapters were present. No display or security settings were changed to work around the capture failure. The capture-service error persisted after restarting the desktop client. The remaining checks can also be performed by a tester using the real controls while an observer records capture output and native window state. The observer itself does not drive input.
+The tester first reported that manual and Auto scrolling worked in the app used the previous day. A separate current-build checklist was then provided, and the tester confirmed all four steps worked:
 
-For an isolated observed session, build `tests/Framelet.Checks` and run `Framelet.Checks --acceptance-fixture <fresh-output-folder>`. It uses the production UI and capture backend, with history under that output folder. It records button actions, wheel events over floating images, restore-tab mouse events and native visibility/bounds; saved captures remain local. Quit from the tray menu after testing so the final summary is written. The `--acceptance-fixture-smoke` variant checks observer startup and shutdown only.
+1. Chrome scrolling capture: manual scrolling followed by Auto-scroll, Done and Pin.
+2. A second area capture and pin, with both pins moved over the test article.
+3. Wheel-down hiding of both pins, followed by hover restoration at the same positions and sizes.
+4. Another capture while hidden, remaining hidden until restoration, with only article content visible in the resulting image.
+
+These are tester confirmations, not independently recorded native passes. The isolated observer still contained no captures or interaction events after those confirmations, so there are no corresponding saved outputs available for independent inspection.
+
+## Verification limits
+
+Desktop screenshot control failed first with 0x8007000E, then with 0x887A0005 (GPU device suspended), and did not recover after reconnecting or restarting the desktop client. Accessibility reads and the application itself remained available. No display or security settings were changed as a workaround.
+
+Independent live Chrome seam/pixel comparison and pixel-level exclusion of floating controls remain unverified. Native window-state integration and the tester's visual checks support the release, but do not establish byte-exact live output. Exact synthetic stitching checks pass. Active-session native Esc/Cancel, nested scrollers, broader theme/accessibility coverage and mixed-DPI hardware are also outside this release's confirmed hands-on coverage; cancellation and restoration paths have automated coverage. See [scrolling constraints](SCROLLING-CAPTURE.md) when selecting a region.
+
+## Repeating an observed session
+
+Build `tests/Framelet.Checks`, then run `Framelet.Checks --acceptance-fixture <fresh-output-folder>`. It uses the production UI and capture backend, with isolated history under that folder. It records own button actions, wheel events over floating images, restore-tab mouse events and native visibility/bounds. It does not drive input. Quit from the tray menu to write the final summary. `--acceptance-fixture-smoke` checks observer startup and shutdown only.
 
 ## Packaging corrections
 
-The package lists now include `RELEASES.md` and `BUILD-STATUS.md`, so the current README's local links are available after extraction. Stable staging also requires a matching stable informational version, preventing a preview binary from being packaged under a final-release filename.
+Packages include `RELEASES.md` and `BUILD-STATUS.md`, so README links resolve after extraction. Stable staging requires the project version and informational version to match the release filename. Historical archives are preserved.

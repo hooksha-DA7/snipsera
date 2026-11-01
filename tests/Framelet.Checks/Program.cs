@@ -60,6 +60,7 @@ internal static class Program
         if (args.Length == 2 && args[0] == "--scroll-fixture") return ScrollingFixture.Run(args[1]);
         if (args.Length == 2 && args[0] == "--scroll-ui-check") return ScrollingUiChecks.RunOnly(args[1]);
         if (args.Length == 2 && args[0] == "--capture-stress") return CaptureLifecycle.Run(args[1]);
+        if (args.Length == 2 && args[0] == "--capture-stress-ready") return CaptureLifecycle.Run(args[1], true);
         if (args.Length == 2 && args[0] == "--ui-fixture") return UiFixture.Run(args[1]);
         if (args.Length == 2 && args[0] == "--ui-fixture-dark") return UiFixture.Run(args[1], "dark");
         if (args.Length == 2 && args[0] == "--ui-fixture-light") return UiFixture.Run(args[1], "light");

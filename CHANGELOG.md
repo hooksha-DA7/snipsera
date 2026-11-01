@@ -2,6 +2,29 @@
 
 [Downloads and release notes](RELEASES.md)
 
+## 0.6.0 — 2026-11-02
+
+Feature release and bug fixes. Capture scrolling pages and hide your floating screenshots when you need the space.
+
+### Added
+
+- Scrolling capture: select a region, scroll manually or use Auto-scroll, then keep one tall image with Done.
+- Temporarily hide all floating captures with a downward wheel gesture, then restore them from the small left-edge tab.
+- Keep taking captures while the group is hidden; new images stay hidden until you restore it.
+
+### Improved
+
+- Chrome Auto-scroll uses small wheel steps and checks that the page moved before continuing.
+- Pins retain their positions and sizes through hide/restore, with the existing controls kept on the image.
+
+### Fixed
+
+- Reduced repeated overlap warnings on sparse pages and collected intermediate views during continuous scrolling.
+- Corrected accumulated offsets from fractional scrolling and refreshed overlapping content when images finish loading late.
+- Included the release log and build notes in the download so packaged documentation links work.
+
+For scrolling capture, leave fixed headers and scrollbars outside the selection and keep some overlap between views. Very repetitive, animated or changing content may need manual adjustment.
+
 ## 0.6.0-preview.4 — 2026-11-01
 
 Feature preview. Clear the floating images out of your way, then bring them back when you need them.

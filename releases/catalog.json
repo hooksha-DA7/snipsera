@@ -2,8 +2,8 @@
   "schema_version": 1,
   "repository": "hooksha-DA7/framelet",
   "imported_on": "2026-11-01",
-  "verified_baseline": "v0.5.2",
-  "latest_preview": "v0.6.0-preview.4",
+  "verified_baseline": "v0.6.0",
+  "latest_preview": null,
   "releases": [
     {
       "version": "0.1.0",
@@ -363,9 +363,9 @@
       "tag": "v0.5.2",
       "build_date": "2026-11-01",
       "title": "Controls back on the image",
-      "status": "verified-baseline",
+      "status": "previous-baseline",
       "prerelease": false,
-      "latest": true,
+      "latest": false,
       "notes": "releases/notes/v0.5.2.md",
       "release_url": "https://github.com/hooksha-DA7/framelet/releases/tag/v0.5.2",
       "summary": [
@@ -458,7 +458,7 @@
       "tag": "v0.6.0-preview.3",
       "build_date": "2026-11-01",
       "title": "Scrolling reliability fixes",
-      "status": "preview",
+      "status": "superseded-preview",
       "prerelease": true,
       "latest": false,
       "notes": "releases/notes/v0.6.0-preview.3.md",
@@ -513,7 +513,7 @@
       "tag": "v0.6.0-preview.4",
       "build_date": "2026-11-01",
       "title": "Temporarily hide previews and pins",
-      "status": "preview",
+      "status": "superseded-preview",
       "prerelease": true,
       "latest": false,
       "notes": "releases/notes/v0.6.0-preview.4.md",
@@ -560,6 +560,63 @@
       },
       "notice": "Experimental: hide/restore has passed automated and off-screen rendering checks, but real desktop interaction is still untested. Chrome scrolling also needs live testing. The ZIP's BUILD-STATUS heading says preview 3 in error; the app and filenames correctly identify preview 4. Packaging update, 2026-11-01: documentation refreshed; application binaries unchanged.",
       "repackaged_on": "2026-11-01"
+    },
+    {
+      "version": "0.6.0",
+      "tag": "v0.6.0",
+      "build_date": "2026-11-02",
+      "title": "Scrolling capture and temporary hiding",
+      "status": "verified-baseline",
+      "prerelease": false,
+      "latest": true,
+      "notes": "releases/notes/v0.6.0.md",
+      "release_url": "https://github.com/hooksha-DA7/framelet/releases/tag/v0.6.0",
+      "summary": [
+        "Scrolling capture: select a region, scroll manually or use Auto-scroll, then keep one tall image with Done.",
+        "Temporarily hide all floating captures with a downward wheel gesture, then restore them from the small left-edge tab.",
+        "Keep taking captures while the group is hidden; new images stay hidden until you restore it.",
+        "Chrome Auto-scroll uses small wheel steps and checks that the page moved before continuing.",
+        "Pins retain their positions and sizes through hide/restore, with the existing controls kept on the image.",
+        "Reduced repeated overlap warnings on sparse pages and collected intermediate views during continuous scrolling.",
+        "Corrected accumulated offsets from fractional scrolling and refreshed overlapping content when images finish loading late.",
+        "Included the release log and build notes in the download so packaged documentation links work."
+      ],
+      "verification": "125 automated checks, native capture lifecycle and six template checks passed. Tester confirmed Chrome manual/Auto scrolling and pin hide/restore/capture-while-hidden. Observer outputs were unavailable; independent live pixel continuity/exclusion and broader hardware/accessibility coverage remain unverified. Runtime/source archives passed integrity, allowlists, manifests, source/build parity and documentation links; the extracted runtime reached Ready to capture.",
+      "assets": [
+        {
+          "role": "windows-x64",
+          "name": "Framelet-0.6.0-win-x64.zip",
+          "sha256": "0ca935ec66538965525c0b808b33832c0d28d684e87efb90bbd6b29e9f114783",
+          "bytes": 251342,
+          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.6.0/Framelet-0.6.0-win-x64.zip"
+        },
+        {
+          "role": "source",
+          "name": "Framelet-0.6.0-source.zip",
+          "sha256": "590f6ed2f4afcffadde857c0098527f41a048249273c7f24079961054c27a318",
+          "bytes": 214550,
+          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.6.0/Framelet-0.6.0-source.zip"
+        }
+      ],
+      "kind": "Feature release and bug fixes",
+      "intro": "Capture scrolling pages and hide your floating screenshots when you need the space.",
+      "changes": {
+        "Added": [
+          "Scrolling capture: select a region, scroll manually or use Auto-scroll, then keep one tall image with Done.",
+          "Temporarily hide all floating captures with a downward wheel gesture, then restore them from the small left-edge tab.",
+          "Keep taking captures while the group is hidden; new images stay hidden until you restore it."
+        ],
+        "Improved": [
+          "Chrome Auto-scroll uses small wheel steps and checks that the page moved before continuing.",
+          "Pins retain their positions and sizes through hide/restore, with the existing controls kept on the image."
+        ],
+        "Fixed": [
+          "Reduced repeated overlap warnings on sparse pages and collected intermediate views during continuous scrolling.",
+          "Corrected accumulated offsets from fractional scrolling and refreshed overlapping content when images finish loading late.",
+          "Included the release log and build notes in the download so packaged documentation links work."
+        ]
+      },
+      "notice": "For scrolling capture, leave fixed headers and scrollbars outside the selection and keep some overlap between views. Very repetitive, animated or changing content may need manual adjustment."
     }
   ]
 }

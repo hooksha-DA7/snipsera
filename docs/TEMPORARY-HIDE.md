@@ -1,6 +1,6 @@
-# Temporarily hide overlays — preview 4
+# Temporarily hide overlays
 
-Status: development preview, 2026-11-01. Desktop testing resumed; the full suite and capture lifecycle passed, while live wheel/hover and extracted-package acceptance remain pending recovery of the desktop-control GPU connection. See [current acceptance results](RELEASE-ACCEPTANCE-0.6.0.md). Version 0.5.2 remains the last verified stable release.
+Available in 0.6.0. Automated/native window-state checks passed, and the tester confirmed wheel hiding, hover restoration, retained pin geometry and capture while hidden. Independent pixel-level capture exclusion remains unverified. See [acceptance results](RELEASE-ACCEPTANCE-0.6.0.md).
 
 ## Use
 
@@ -21,13 +21,15 @@ Hide state is in memory for the current app session. It does not delete captures
 
 ## Capture, display and preferences
 
-Capture suspension is separate from temporary hiding. The app hides the restore tab and synchronously hides every visible image card, cancelling any transition before it reads pixels. Cleanup resumes visible intent; it does not force a hidden group to reappear. This integration applies to area, window, display, repeat and scrolling capture. Native pixel exclusion still requires live verification.
+Capture suspension is separate from temporary hiding. The app hides the restore tab and synchronously hides every visible image card, cancelling any transition before it reads pixels. Cleanup resumes visible intent; it does not force a hidden group to reappear. This integration applies to area, window, display, repeat and scrolling capture. Native window-visibility checks and tester-confirmed capture exclusion passed; independent pixel-level exclusion remains unverified.
 
 The tab uses the saved monitor work area and live DPI. If a monitor/work area changes, it selects an overlapping or nearest available area and stays above the taskbar. Display, DPI and Windows setting notifications trigger placement checks. If a tiny work area cannot contain a usable tab and its shadow padding, the tab is omitted; tray/Home restoration remains available. The tab repositions; original-card placement on changed physical hardware remains part of native acceptance.
 
 System light/dark brushes, contrast styling and transparency/motion policy use existing Framelet helpers. Reduced motion makes slide/fade and tab rise instant. High contrast uses an outline and omits blur/image effects. Showing/clicking the tab requests no activation. Native focus, screen-reader, animation and hardware behavior are pending verification.
 
-## Verification
+## Historical preview verification
+
+These entries record preview 4 development. Current native integration and tester-confirmed results are listed in the [0.6.0 acceptance report](RELEASE-ACCEPTANCE-0.6.0.md); the preview-stage pause and pending checks below are historical.
 
 - Compilation: zero warnings/errors.
 - 53 no-window checks: 13 visibility-state tests, 8 hide/restore-gesture tests, 3 shelf-layout tests and the 29 unchanged scrolling regressions. State checks use fake cards, covering identity/geometry fields, editor-hidden previews, new captures, cancellation/failure, replacement, nested suspension, re-entrant close and cleanup after presentation failure. They do not substitute for showing real windows.

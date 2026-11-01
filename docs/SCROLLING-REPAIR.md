@@ -1,5 +1,7 @@
 # Scrolling repair — preview 3, 2026-11-01
 
+Historical repair notes. The fixes were carried into 0.6.0; see the [current acceptance report](RELEASE-ACCEPTANCE-0.6.0.md) for later checks and limits.
+
 The user reported repeated recovery warnings and Auto-scroll not working in Chrome. This revision repairs reproduced backend defects. It remains a development preview: desktop testing was paused by the user, so actual Chrome input delivery and final native output quality are pending. Version 0.5.2 remains the last verified release. Existing controls, placement, styling, image/project formats and capture integration are unchanged.
 
 ## Confirmed defects and corrections

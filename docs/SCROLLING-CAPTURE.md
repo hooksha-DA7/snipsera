@@ -30,6 +30,12 @@ Other apps first use an accessibility scroll container in the external window re
 
 ## Verification
 
+The 0.6.0 release passed automated and native integration checks. The tester confirmed Chrome manual/Auto capture and the related pin/hide/restore workflow. Independent live stitching-pixel inspection remains unverified because desktop screenshot control failed and the observer recorded no test outputs. See [acceptance results](RELEASE-ACCEPTANCE-0.6.0.md) for the evidence limits.
+
+### Historical preview checks
+
+The following entries record the preview-stage checks and restrictions as of 2026-11-01. They do not describe the current release status.
+
 **Status: development preview. Desktop acceptance resumed on 2026-11-01; the full 125-check suite and capture lifecycle passed. Live Chrome acceptance is pending recovery of the desktop-control GPU connection. No 0.6.0 stable release has been published.** See [current acceptance results](RELEASE-ACCEPTANCE-0.6.0.md).
 
 ### Preview 3 repair

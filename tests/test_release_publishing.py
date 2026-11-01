@@ -68,11 +68,21 @@ class ReleaseLogChecks(unittest.TestCase):
 
     def test_readme_downloads_follow_the_catalog_preview_pointer(self):
         updated = copy.deepcopy(self.catalog)
+        updated["verified_baseline"] = "v0.5.2"
         updated["latest_preview"] = "v0.6.0-preview.3"
         block = LOG.download_block(updated)
         self.assertIn("0.6.0-preview.3", block)
         self.assertNotIn("0.6.0-preview.4", block)
         self.assertIn("0.5.2", block)
+
+    def test_readme_does_not_offer_an_old_preview_after_stable_promotion(self):
+        updated = copy.deepcopy(self.catalog)
+        updated["latest_preview"] = None
+        baseline = next(entry for entry in updated["releases"] if entry["tag"] == updated["verified_baseline"])
+        block = LOG.download_block(updated)
+        self.assertIn(f"Download for Windows ({baseline['version']})", block)
+        self.assertNotIn("Try the preview", block)
+        self.assertIn("[All releases](RELEASES.md)", block)
 
     def test_public_notes_and_changelog_are_current_with_the_catalog(self):
         root = Path(__file__).resolve().parents[1]

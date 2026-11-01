@@ -9,13 +9,14 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Automation;
 using System.Windows.Interop;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
 using Framelet;
 
 internal static class CaptureLifecycle
 {
-    public static int Run(string output)
+    public static int Run(string output, bool waitForInput = false)
     {
         output = Path.GetFullPath(output); Directory.CreateDirectory(output); int failure = 0;
         var pixels = UiChecks.White();
@@ -34,9 +35,19 @@ internal static class CaptureLifecycle
         app.Startup += async (_, _) =>
         {
             var doc = new EditDocument(pixels); doc.Add(new Mark(MarkKind.Line, [new(10, 10), new(100, 40)]));
-            var editor = new EditorWindow(doc, _ => { }, () => { }); editor.Show();
+            var editor = new EditorWindow(doc, _ => { }, () => { });
             try
             {
+                if (waitForInput)
+                {
+                    app.MainWindow.Title = "Framelet lifecycle check - press F9 to run";
+                    var ready = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+                    KeyEventHandler start = (_, e) => { if (e.Key == Key.F9) { e.Handled = true; ready.TrySetResult(); } };
+                    app.MainWindow.PreviewKeyDown += start;
+                    try { await ready.Task.WaitAsync(TimeSpan.FromSeconds(90)); }
+                    finally { app.MainWindow.PreviewKeyDown -= start; }
+                }
+                editor.Show();
                 var overlayProfiles = await FloatingOverlayChecks.Run(app);
                 var entry = app.History.Add(pixels, CaptureKind.Area); app.OpenEntry(entry); app.Pin(pixels, entry);
                 var preview = app.Windows.Cast<Window>().OfType<ImageWindow>().Single(w => !w.IsPinned);
@@ -67,8 +78,20 @@ internal static class CaptureLifecycle
                 if (!waited || !editor.IsEnabled || !editor.IsVisible) throw new Exception("Modal capture queue did not recover");
                 var currentPreview = app.Windows.Cast<Window>().OfType<ImageWindow>().Single(w => !w.IsPinned);
                 currentPreview.RevealActions(true);
+                object Foreground()
+                {
+                    var foreground = Native.GetForegroundWindow();
+                    Native.GetWindowThreadProcessId(foreground, out uint process);
+                    return new { handle = foreground.ToInt64(), process, testProcess = Environment.ProcessId };
+                }
+                var foregroundBeforeTray = Foreground();
                 app.ShowTrayMenu(); await Task.Delay(250);
                 var tray = PresentationSource.CurrentSources.OfType<HwndSource>().Select(s => FindMenu(s.RootVisual)).FirstOrDefault(m => m?.IsOpen == true);
+                File.WriteAllText(Path.Combine(output, "tray-focus.json"), JsonSerializer.Serialize(new
+                {
+                    before = foregroundBeforeTray, after = Foreground(),
+                    open = tray?.IsOpen == true, keyboardFocus = tray?.IsKeyboardFocusWithin == true
+                }, new JsonSerializerOptions { WriteIndented = true }));
                 if (tray is null || !tray.IsKeyboardFocusWithin) throw new Exception("Tray menu did not remain open with keyboard focus");
                 var traySource = (HwndSource)PresentationSource.FromVisual(tray);
                 CaptureService.Save(CaptureService.Capture(Native.Bounds(traySource.Handle)), Path.Combine(output, "tray-native.png"));

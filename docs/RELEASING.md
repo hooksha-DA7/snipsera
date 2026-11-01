@@ -4,7 +4,7 @@ Repository: [hooksha-DA7/framelet](https://github.com/hooksha-DA7/framelet). The
 
 ## Preserve the release contract
 
-Use a fresh version for every published artifact. Preserve the original local archives and already published assets. Keep experimental builds as prereleases until their required native acceptance is complete. `0.5.2` remains the last locally verified capture/annotation baseline; later previews have explicit pending checks. A checksum proves identity, not runtime correctness.
+Use a fresh version for every published artifact. Preserve the original local archives and already published assets. Keep experimental builds as prereleases until their required native acceptance is complete. `0.6.0` is the current baseline, with automated/native integration and tester-confirmed workflows; independent live pixel comparison remains unverified. Future previews must state their remaining checks. A checksum proves identity, not runtime correctness.
 
 The first import contains eight historical numbered builds and three complete scrolling/overlay previews. The external-toolbar `0.5.1` build is marked superseded. Incomplete private staging attempts were excluded. Historical Git commits were reconstructed from archived source ZIPs in chronological order using the actual import date. Release notes retain the original build dates; GitHub publication dates are not backdated.
 

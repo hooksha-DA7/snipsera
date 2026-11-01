@@ -10,11 +10,11 @@ END = "<!-- FRAMELET_DOWNLOADS_END -->"
 def download_block(catalog):
     entries = {item["tag"]: item for item in catalog["releases"]}
     baseline = entries[catalog["verified_baseline"]]
-    preview = entries[catalog["latest_preview"]]
+    preview = entries.get(catalog.get("latest_preview"))
     windows = next(asset for asset in baseline["assets"] if asset["role"] == "windows-x64")
     return (START + "\n"
             + f"[Download for Windows ({baseline['version']})]({windows['url']}) · "
-            + f"[Try the preview ({preview['version']})]({preview['release_url']}) · "
+            + (f"[Try the preview ({preview['version']})]({preview['release_url']}) · " if preview else "")
             + "[All releases](RELEASES.md)\n" + END)
 
 
@@ -56,7 +56,7 @@ def render(catalog):
     entries = {item["tag"]: item for item in catalog["releases"]}
     baseline = entries[catalog["verified_baseline"]]
     lines = ["# Releases", "",
-             f"Start with [{baseline['version']}]({baseline['release_url']}) for capture and annotation. The 0.6 previews add scrolling capture and temporary overlay hiding; both still need testing on a real desktop.", ""]
+             f"Download [{baseline['version']}]({baseline['release_url']}) for the latest release. Earlier versions and their changes are listed below.", ""]
     for entry in reversed(catalog["releases"]):
         lines += [f"## {entry['version']}: {entry['title']}", "",
                   f"{entry['build_date']} · {entry['kind']} · [Release page]({entry['release_url']})", "",

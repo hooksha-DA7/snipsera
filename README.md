@@ -5,14 +5,14 @@ A screenshot app for Windows 11. Capture part of your screen, mark it up, and co
 ## Download and run
 
 <!-- FRAMELET_DOWNLOADS_START -->
-[Download for Windows (0.5.2)](https://github.com/hooksha-DA7/framelet/releases/download/v0.5.2/Framelet-0.5.2-win-x64.zip) · [Try the preview (0.6.0-preview.4)](https://github.com/hooksha-DA7/framelet/releases/tag/v0.6.0-preview.4) · [All releases](RELEASES.md)
+[Download for Windows (0.6.0)](https://github.com/hooksha-DA7/framelet/releases/download/v0.6.0/Framelet-0.6.0-win-x64.zip) · [All releases](RELEASES.md)
 <!-- FRAMELET_DOWNLOADS_END -->
 
 1. Install the [.NET 10 Desktop Runtime for Windows x64](https://dotnet.microsoft.com/en-us/download/dotnet/10.0).
 2. Download and extract the Windows ZIP.
 3. Open **Framelet.exe**. Keep the extracted files together.
 
-Use **0.5.2** for capture and annotation. The **0.6 previews** add scrolling capture and temporary overlay hiding, but those features still need testing on a real desktop.
+Version **0.6.0** adds scrolling capture and a quick way to hide and restore floating screenshots.
 
 Framelet is portable and currently unsigned. It runs locally, without an account or cloud service.
 
@@ -31,6 +31,8 @@ A small preview appears at the bottom left. Hover over it to **Copy**, **Save**,
 
 ## Work with your captures
 
+- **Capture scrolling pages.** Select the content, start capture, then scroll manually or turn on Auto-scroll. Choose Done to keep one tall image.
+- **Clear your workspace.** Scroll down over a preview or pin to hide the group. Hover or click the small left-edge tab to bring it back.
 - **Pin references.** Keep up to eight images on top of other windows. Drag or resize a pin, or adjust its opacity with Ctrl+mouse wheel.
 - **Annotate and edit.** Add arrows, shapes, text, numbered steps, highlights or freehand marks. Crop, resize and add a background, with undo and redo.
 - **Copy, save or drag.** Copy to the clipboard, save a PNG/JPEG from the editor, or drag an image into another app.
