@@ -81,6 +81,40 @@ internal static class UiChecks
             }
             finally { doc.MarkSaved(); window.Close(); }
         });
+        test("Frosting and motion policies honor contrast, transparency and animation preferences", () =>
+        {
+            Require(!SurfacePolicy.Resolve(true, true, true).Frosting && !SurfacePolicy.Resolve(true, true, true).Animate, "Contrast fallback missing");
+            Require(!SurfacePolicy.Resolve(false, false, true).Frosting, "Transparency opt-out ignored");
+            Require(!SurfacePolicy.Resolve(false, true, false).Animate, "Reduced motion ignored");
+            Require(SurfacePolicy.Resolve(false, true, true).Frosting, "Normal frosting unavailable");
+        });
+        test("Native drag payload retains original PNG pixels and expires only owned old drag exports", () =>
+        {
+            string root = Path.Combine(output, "drag-data"), folder = Path.Combine(root, "drag-exports"); Directory.CreateDirectory(folder);
+            string expired = Path.Combine(folder, Guid.NewGuid().ToString("N") + ".png"), unrelated = Path.Combine(folder, "keep.png");
+            File.WriteAllText(expired, "old owned cache"); File.WriteAllText(unrelated, "unrelated"); File.SetLastWriteTimeUtc(expired, DateTime.UtcNow.AddDays(-8)); File.SetLastWriteTimeUtc(unrelated, DateTime.UtcNow.AddDays(-8));
+            var original = White(); var data = DragExport.CreateData(root, original); var files = data.GetFileDropList();
+            Require(files.Count == 1 && data.ContainsImage(), "Native formats missing");
+            var image = CaptureService.Load(files[0]!); Require(image.PixelWidth == 300 && image.PixelHeight == 240 && Pixels(image).SequenceEqual(Pixels(original)), "Drag changed original pixels");
+            Require(File.Exists(files[0]) && !File.Exists(expired) && File.Exists(unrelated), "Drag cache retention incorrect");
+        });
+        test("Fluent light and dark controls use native window chrome and preserve rendered document pixels", () =>
+        {
+#pragma warning disable WPF0001
+            var app = Application.Current; var previous = app.ThemeMode;
+            try
+            {
+                var doc = new EditDocument(White()); var before = Pixels(EditRenderer.Render(doc));
+                foreach (var mode in new[] { ThemeMode.Light, ThemeMode.Dark })
+                {
+                    app.ThemeMode = mode; Appearance.Current.Refresh(); var window = new EditorWindow(doc, _ => { }, () => { });
+                    try { window.Show(); window.UpdateLayout(); Require(window.WindowStyle == WindowStyle.SingleBorderWindow && !window.AllowsTransparency, "System caption missing"); Require(Find<Button>(window, "EditorCopy").Template is not null, "Fluent template missing"); Require(Pixels(EditRenderer.Render(doc)).SequenceEqual(before), "Theme altered image pixels"); }
+                    finally { doc.MarkSaved(); window.Close(); }
+                }
+            }
+            finally { app.ThemeMode = previous; Appearance.Current.Refresh(); }
+#pragma warning restore WPF0001
+        });
     }
     public static BitmapSource White()
     { var bytes = Enumerable.Repeat((byte)255, 300 * 240 * 4).ToArray(); var b = BitmapSource.Create(300, 240, 96, 96, PixelFormats.Bgra32, null, bytes, 1200); b.Freeze(); return b; }

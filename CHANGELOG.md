@@ -1,5 +1,16 @@
 # Changes
 
+## 0.4.0 — 2026-10-31
+
+- Applied the built-in WPF Fluent theme with system light/dark mode, accent colors and native controls.
+- Replaced macOS-style traffic-light chrome with actual Windows caption buttons, resize borders, system menu and maximize/Snap behavior; main windows use WPF's Mica backdrop on supported systems.
+- Rebuilt preview hover actions around a frosted thumbnail, labeled Copy/Save controls and corner actions. Pinned reference images stay sharp with edge controls.
+- Added native file drag-and-drop from preview images and drag handles on pins/editor, preserving original/edited PNG resolution respectively.
+- Added display-only pin opacity via a slider and Ctrl+wheel, plus arrow-key positioning and Shift+arrow larger steps.
+- Added contrast/transparency/reduced-animation effect policies and live preference refresh. Existing image/project formats remain unchanged.
+- Fixed pin-limit failure so a preview remains accessible when an additional pin cannot be opened.
+- Added native light/dark and file-drop fixtures plus theme/policy/payload regression checks. Preserved earlier release archives.
+
 ## 0.3.0 — 2026-10-30
 
 - Rebuilt previews and pins as compact rounded image cards with hover controls, without permanent title/footer bars.
@@ -13,7 +24,7 @@
 - Added project format version 2 for annotation styles while continuing to read version 1 without changing legacy rendering.
 - Added UI/DPI/stacking/style compatibility checks and a synthetic native UI fixture. Preserved 0.1.0 and 0.2.0 archives.
 
-## 0.2.0 â€” 2026-10-30
+## 0.2.0 — 2026-10-30
 
 - Added an independent editor from previews, pins, imported PNG/JPEG images and saved projects.
 - Added arrows, lines, rectangles, ellipses, text, counters, translucent highlighting and freehand strokes.
@@ -25,7 +36,7 @@
 - Fixed project PNG encoding into ZIP entries by using a seekable intermediate stream.
 - Added editor pixel/project/failure-path checks and versioned portable/source archives. Preserved 0.1.0 release archives.
 
-## 0.1.0 â€” 2026-10-30
+## 0.1.0 — 2026-10-30
 
 - Added area, visible-window, full-display and repeat-area capture.
 - Added configurable global shortcuts, capture buttons and notification-area menu.

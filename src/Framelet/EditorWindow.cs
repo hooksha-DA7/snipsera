@@ -21,7 +21,7 @@ public sealed class EditorWindow : Window
     private string? projectPath;
     private readonly TextBlock status = Ui.Text("Drag on the image to add an arrow.", 12, Ui.Muted);
     private readonly TextBlock dimensions = Ui.Text("", 11, Ui.Muted);
-    private readonly ScrollViewer viewport = new() { HorizontalScrollBarVisibility = ScrollBarVisibility.Auto, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Background = Ui.Brush("#E2E2E7") };
+    private readonly ScrollViewer viewport = new() { HorizontalScrollBarVisibility = ScrollBarVisibility.Auto, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Background = Ui.Canvas };
     private readonly ListBox objects = new() { MinHeight = 100, MaxHeight = 220, Margin = new Thickness(0, 6, 0, 12) };
     private readonly TextBox text = new() { Text = "Add a note", AcceptsReturn = true, Height = 29, MaxLength = 2000, TextWrapping = TextWrapping.Wrap, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
     private readonly TextBox width = Field("ResizeWidth"), height = Field("ResizeHeight"), padding = Field("BackgroundPadding");
@@ -38,12 +38,11 @@ public sealed class EditorWindow : Window
     public EditorWindow(EditDocument document, Action<System.Windows.Media.Imaging.BitmapSource> pin, Action open, string name = "Capture", string? projectPath = null)
     {
         Document = document; this.name = name; this.projectPath = projectPath;
-        Ui.Setup(this); Ui.CustomChrome(this); Width = 1120; Height = 780; MinWidth = 900; MinHeight = 560; WindowStartupLocation = WindowStartupLocation.CenterScreen;
+        Ui.Setup(this); Ui.UseSystemChrome(this); Width = 1120; Height = 780; MinWidth = 900; MinHeight = 560; WindowStartupLocation = WindowStartupLocation.CenterScreen;
         Canvas = new EditCanvas(document) { Report = ex => SetStatus(ex.Message, true) };
         Canvas.MakeMark = (kind, points) => new Mark(kind, points, SelectedColor(colors), Number(strokes, 4), text.Text, Number(fonts, 24),
             Math.Min(999, document.State.Marks.Where(m => m.Kind == MarkKind.Counter).Select(m => m.Number).DefaultIfEmpty(0).Max() + 1), SelectedStyle);
-        var dock = new DockPanel { Background = Ui.Paper };
-        var titlebar = Ui.TitleBar(this, name + " — Framelet"); DockPanel.SetDock(titlebar, Dock.Top); dock.Children.Add(titlebar);
+        var dock = new DockPanel { Background = Brushes.Transparent };
         var toolbar = new DockPanel { Background = Ui.Chrome, LastChildFill = false, Margin = new Thickness(0) };
         var files = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(10, 6, 5, 6) };
         files.Children.Add(Ui.IconButton("Open", "Open image or project", "EditorOpen", open));
@@ -73,9 +72,9 @@ public sealed class EditorWindow : Window
         foreach (double value in new[] { 2d, 4, 8, 12, 20 }) strokes.Items.Add(value); strokes.SelectedItem = 4d;
         foreach (double value in new[] { 12d, 18, 24, 32, 48, 64 }) fonts.Items.Add(value); fonts.SelectedItem = 24d;
         styles.Items.Add("Hand-drawn"); styles.Items.Add("Clean"); styles.SelectedIndex = 0;
-        context.Children.Add(Label("Stroke")); strokes.Width = 54; context.Children.Add(strokes);
-        styles.Width = 116; styles.ToolTip = "Annotation style"; context.Children.Add(styles);
-        context.Children.Add(Label("Text")); fonts.Width = 54; context.Children.Add(fonts);
+        context.Children.Add(Label("Stroke")); strokes.Width = 68; context.Children.Add(strokes);
+        styles.Width = 140; styles.ToolTip = "Annotation style"; context.Children.Add(styles);
+        context.Children.Add(Label("Text")); fonts.Width = 72; context.Children.Add(fonts);
         AutomationProperties.SetAutomationId(text, "AnnotationText"); text.Width = 160; text.Padding = new Thickness(6, 4, 6, 4); text.Margin = new Thickness(4, 0, 5, 0); text.VerticalContentAlignment = VerticalAlignment.Center;
         textOptions.Children.Add(text); context.Children.Add(textOptions);
         var apply = Ui.IconButton("Check", "Update selected annotation", "UpdateAnnotation", UpdateSelected); context.Children.Add(apply);
@@ -84,10 +83,12 @@ public sealed class EditorWindow : Window
         var footer = new DockPanel { Background = Ui.Chrome, Height = 46 };
         var zoomRow = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(12, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center };
         foreach (string value in new[] { "Fit", "25%", "50%", "100%", "150%", "200%", "400%" }) zoom.Items.Add(value);
-        zoom.Width = 72; zoom.SelectedIndex = 0; zoom.Margin = new Thickness(0); zoomRow.Children.Add(zoom); dimensions.Margin = new Thickness(12, 0, 0, 0); dimensions.VerticalAlignment = VerticalAlignment.Center; zoomRow.Children.Add(dimensions); footer.Children.Add(zoomRow);
+        zoom.Width = 88; zoom.SelectedIndex = 0; zoom.Margin = new Thickness(0); zoomRow.Children.Add(zoom); dimensions.Margin = new Thickness(12, 0, 0, 0); dimensions.VerticalAlignment = VerticalAlignment.Center; zoomRow.Children.Add(dimensions); footer.Children.Add(zoomRow);
         var output = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(8, 0, 10, 0) };
         output.Children.Add(Ui.IconButton("Pin", "Pin edited image", "EditorPin", () => pin(Canvas.Image)));
         output.Children.Add(Ui.IconButton("Copy", "Copy edited image · Ctrl+C", "EditorCopy", async () => await CopyImage()));
+        var drag = Ui.IconButton("Drag", "Drag edited PNG to another app", "EditorDrag", () => SetStatus("Drag this handle to another app"));
+        DragExport.Attach(drag, (Application.Current as CaptureApp)?.History.Root ?? Path.Combine(Path.GetTempPath(), "Framelet"), () => Canvas.Image, ex => SetStatus(ex.Message, true)); output.Children.Add(drag);
         output.Children.Add(Action("JPEG…", "ExportJpeg", () => Export(true)));
         output.Children.Add(Action("Save image…", "ExportPng", () => Export(false), true));
         DockPanel.SetDock(output, Dock.Right); footer.Children.Insert(0, output); DockPanel.SetDock(footer, Dock.Bottom); dock.Children.Add(footer);
@@ -195,7 +196,7 @@ public sealed class EditorWindow : Window
     private void ChooseTool(string tool)
     {
         Canvas.CancelGesture(); Canvas.Tool = tool; Canvas.Cursor = tool == "Select" ? Cursors.SizeAll : Cursors.Cross;
-        foreach (var (key, button) in tools) { button.Background = key == tool ? Ui.Blue : Brushes.Transparent; button.Foreground = key == tool ? Brushes.White : Ui.Ink; }
+        foreach (var (key, button) in tools) { button.Background = key == tool ? Ui.Blue : Brushes.Transparent; button.Foreground = key == tool ? Ui.OnAccent : Ui.Ink; }
         textOptions.Visibility = tool == "Text" ? Visibility.Visible : Visibility.Collapsed;
         SetStatus(tool switch { "Text" => "Type a note in the toolbar, then click the image to place it.", "Counter" => "Click to place the next numbered counter.", "Select" => "Click an annotation to select it, then drag to move. Remove is undoable.", "Crop" => "Drag the part of the image to keep. Undo restores the full crop.", "Redact" => "Drag a solid black mask. Projects still contain the original; share a flattened export.", "Blur" or "Pixelate" => "Drag to obscure an area. Use Solid mask for sensitive text; blur and pixelation are not secure redaction.", _ => "Drag on the image to add " + tool.ToLowerInvariant() + ". Esc cancels the current stroke." });
     }

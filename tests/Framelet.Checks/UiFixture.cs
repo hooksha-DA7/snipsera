@@ -13,13 +13,18 @@ using Framelet;
 internal static class UiFixture
 {
     // A separate process with synthetic data for repeatable native UI inspection.
-    public static int Run(string output)
+    public static int Run(string output, string mode = "system")
     {
         output = Path.GetFullPath(output); Directory.CreateDirectory(output);
         Native.SetProcessDpiAwarenessContext(new IntPtr(-4));
         var app = new CaptureApp(Path.Combine(output, "data"));
+#pragma warning disable WPF0001
+        app.ThemeMode = mode == "dark" ? ThemeMode.Dark : mode == "light" ? ThemeMode.Light : ThemeMode.System;
+#pragma warning restore WPF0001
+        Appearance.Current.Refresh();
         app.Startup += (_, _) =>
         {
+            var backdrop = new DropPad(output); backdrop.Show();
             var image = Scene(); CaptureService.Save(image, Path.Combine(output, "sample.png"));
             var entry = app.History.Add(image, CaptureKind.Window);
             var doc = new EditDocument(image);
@@ -35,13 +40,26 @@ internal static class UiFixture
             {
                 timer.Stop(); editor.UpdateLayout();
                 SaveVisual(editor, Path.Combine(output, "editor-ui.png"));
+                var editorHandle = new WindowInteropHelper(editor).Handle;
+                if (Native.GetForegroundWindow() == editorHandle)
+                {
+                    CaptureService.Save(CaptureService.Capture(Native.Bounds(editorHandle)), Path.Combine(output, "editor-native.png"));
+                    // The full-work-area synthetic backdrop prevents unrelated desktop content entering this proof.
+                    CaptureService.Save(CaptureService.Capture(Native.WorkArea(editorHandle)), Path.Combine(output, "workspace-native.png"));
+                }
                 foreach (var window in app.Windows.Cast<Window>().OfType<ImageWindow>()) SaveVisual(window, Path.Combine(output, (window.Title.Contains("preview") ? "preview" : "pin-" + new WindowInteropHelper(window).Handle) + ".png"));
                 var windows = app.Windows.Cast<Window>().Where(w => w.IsVisible).Select(w =>
                 {
                     var handle = new WindowInteropHelper(w).Handle; Native.GetWindowRect(handle, out var r);
-                    return new { w.Title, x = r.Left, y = r.Top, width = r.Right - r.Left, height = r.Bottom - r.Top, dpi = Native.GetDpiForWindow(handle), pinned = w is ImageWindow { IsPinned: true }, sourceWidth = (w as ImageWindow)?.CaptureImage.PixelWidth };
+                    Native.DwmGetWindowAttribute(handle, 38, out int material, sizeof(int));
+                    return new { w.Title, x = r.Left, y = r.Top, width = r.Right - r.Left, height = r.Bottom - r.Top, dpi = Native.GetDpiForWindow(handle), backdropType = material, pinned = w is ImageWindow { IsPinned: true }, sourceWidth = (w as ImageWindow)?.CaptureImage.PixelWidth };
                 });
                 File.WriteAllText(Path.Combine(output, "native-windows.json"), JsonSerializer.Serialize(windows, new JsonSerializerOptions { WriteIndented = true }));
+                var preview = app.Windows.Cast<Window>().OfType<ImageWindow>().Single(w => !w.IsPinned);
+                preview.RevealActions(true);
+                var hover = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(200) };
+                hover.Tick += (_, _) => { hover.Stop(); SaveVisual(preview, Path.Combine(output, "preview-hover.png")); };
+                hover.Start();
             }; timer.Start(); editor.Activate();
         };
         return app.Run();
@@ -50,6 +68,8 @@ internal static class UiFixture
     {
         var content = (FrameworkElement)window.Content; var dpi = VisualTreeHelper.GetDpi(window);
         var bitmap = new RenderTargetBitmap((int)Math.Ceiling(content.ActualWidth * dpi.DpiScaleX), (int)Math.Ceiling(content.ActualHeight * dpi.DpiScaleY), dpi.PixelsPerInchX, dpi.PixelsPerInchY, PixelFormats.Pbgra32);
+        if (window is EditorWindow)
+        { var baseLayer = new DrawingVisual(); using (var dc = baseLayer.RenderOpen()) dc.DrawRectangle(Ui.Paper, null, new Rect(0, 0, content.ActualWidth, content.ActualHeight)); bitmap.Render(baseLayer); }
         bitmap.Render(content); CaptureService.Save(bitmap, path);
     }
     private static BitmapSource Scene()

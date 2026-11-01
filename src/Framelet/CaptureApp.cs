@@ -133,11 +133,11 @@ public sealed class CaptureApp : Application
         catch (Exception ex) { Report(ex); }
     }
 
-    public void Pin(BitmapSource image, CaptureEntry entry)
+    public bool Pin(BitmapSource image, CaptureEntry entry)
     {
-        if (pins.Count >= 8) { Report(new InvalidOperationException("Close a pinned capture before adding another. Up to eight captures can be pinned.")); return; }
+        if (pins.Count >= 8) { Report(new InvalidOperationException("Close a pinned capture before adding another. Up to eight captures can be pinned.")); return false; }
         var window = new ImageWindow(this, image, entry, true);
-        pins.Add(window); window.Closed += (_, _) => { pins.Remove(window); ReflowPins(); }; window.Show();
+        pins.Add(window); window.Closed += (_, _) => { pins.Remove(window); ReflowPins(); }; window.Show(); return true;
     }
 
     public void ReflowPins()

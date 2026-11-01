@@ -34,6 +34,7 @@ public static class Native
     [DllImport("user32.dll")] public static extern bool SetProcessDpiAwarenessContext(IntPtr context);
     [DllImport("user32.dll")] public static extern bool DestroyIcon(IntPtr icon);
     [DllImport("user32.dll")] public static extern IntPtr MonitorFromPoint(Point point, uint flags);
+    [DllImport("user32.dll")] public static extern IntPtr MonitorFromWindow(IntPtr window, uint flags);
     [DllImport("user32.dll", CharSet = CharSet.Unicode)] public static extern bool GetMonitorInfo(IntPtr monitor, ref MonitorInfo info);
     [DllImport("dwmapi.dll")] public static extern int DwmGetWindowAttribute(IntPtr hwnd, int attribute, out Rect value, int size);
     [DllImport("dwmapi.dll")] public static extern int DwmGetWindowAttribute(IntPtr hwnd, int attribute, out int value, int size);
@@ -56,6 +57,12 @@ public static class Native
     {
         if (DwmGetWindowAttribute(handle, 9, out Rect frame, Marshal.SizeOf<Rect>()) == 0) return frame.Rectangle;
         return GetWindowRect(handle, out frame) ? frame.Rectangle : Rectangle.Empty;
+    }
+
+    public static Rectangle WorkArea(IntPtr handle)
+    {
+        var info = new MonitorInfo { Size = Marshal.SizeOf<MonitorInfo>() };
+        return GetMonitorInfo(MonitorFromWindow(handle, 2), ref info) ? info.Work.Rectangle : Desktop;
     }
 
     public static IReadOnlyList<WindowTarget> CaptureTargets()

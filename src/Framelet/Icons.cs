@@ -42,6 +42,7 @@ public sealed class UiIcon : FrameworkElement
             "Redo" => "M16 5 L21 10 L16 15 M21 10 L10 10 C2 10 2 20 9 20",
             "Close" => "M6 6 L18 18 M18 6 L6 18",
             "Check" => "M4 12 L9 17 L20 6",
+            "Drag" => "M9 4 L4 4 L4 20 L20 20 L20 15 M12 3 L21 3 L21 12 M21 3 L10 14",
             "Delete" => "M4 6 L20 6 M9 6 L9 3 L15 3 L15 6 M6 6 L7 21 L17 21 L18 6 M10 10 L10 17 M14 10 L14 17",
             "Settings" => "M4 6 L20 6 M4 12 L20 12 M4 18 L20 18 M8 3 L8 9 M16 9 L16 15 M10 15 L10 21",
             "Screen" => "M3 4 L21 4 L21 17 L3 17 Z M12 17 L12 21 M7 21 L17 21",

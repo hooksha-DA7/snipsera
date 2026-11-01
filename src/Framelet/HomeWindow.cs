@@ -16,10 +16,9 @@ public sealed class HomeWindow : Window
     public HomeWindow(CaptureApp app)
     {
         this.app = app; Ui.Setup(this);
-        Title = "Framelet"; Ui.CustomChrome(this); Width = 880; Height = 670; MinWidth = 760; MinHeight = 570;
+        Title = "Framelet"; Ui.UseSystemChrome(this); Width = 880; Height = 670; MinWidth = 760; MinHeight = 570;
         WindowStartupLocation = WindowStartupLocation.CenterScreen;
         var shell = new DockPanel();
-        var titlebar = Ui.TitleBar(this, "Framelet"); DockPanel.SetDock(titlebar, Dock.Top); shell.Children.Add(titlebar);
         var dock = new DockPanel { Margin = new Thickness(20) };
         var header = new DockPanel { Margin = new Thickness(0, 0, 0, 18) };
         var brand = new StackPanel();
