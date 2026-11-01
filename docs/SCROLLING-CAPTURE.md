@@ -30,7 +30,7 @@ Other apps first use an accessibility scroll container in the external window re
 
 ## Verification
 
-**Status: development preview; final desktop acceptance paused by the user on 2026-11-01. No 0.6.0 stable release has been published.**
+**Status: development preview. Desktop acceptance resumed on 2026-11-01; the full 125-check suite and capture lifecycle passed. Live Chrome acceptance is pending recovery of the desktop-control GPU connection. No 0.6.0 stable release has been published.** See [current acceptance results](RELEASE-ACCEPTANCE-0.6.0.md).
 
 ### Preview 3 repair
 

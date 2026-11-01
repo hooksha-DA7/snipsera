@@ -1,6 +1,6 @@
 # Temporarily hide overlays — preview 4
 
-Status: development preview, 2026-11-01. Desktop testing remains paused at the user's request. This build has not been installed or launched for native acceptance. Version 0.5.2 remains the last verified stable release.
+Status: development preview, 2026-11-01. Desktop testing resumed; the full suite and capture lifecycle passed, while live wheel/hover and extracted-package acceptance remain pending recovery of the desktop-control GPU connection. See [current acceptance results](RELEASE-ACCEPTANCE-0.6.0.md). Version 0.5.2 remains the last verified stable release.
 
 ## Use
 

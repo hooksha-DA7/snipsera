@@ -4,6 +4,7 @@ if ($Version -notmatch '^\d+\.\d+\.\d+$') { throw 'Use a numeric major.minor.pat
 $frameletRoot = $PSScriptRoot
 $frameletProject = [xml](Get-Content -LiteralPath (Join-Path $frameletRoot 'src/Framelet/Framelet.csproj') -Raw)
 if ($frameletProject.Project.PropertyGroup.Version -ne $Version) { throw 'Package version must match the application project version.' }
+if ($frameletProject.Project.PropertyGroup.InformationalVersion -ne $Version) { throw 'A stable package requires the same stable informational version. Finish preview acceptance before staging a stable release.' }
 & (Join-Path $frameletRoot 'build.ps1') -Release
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 $frameletDist = Join-Path $frameletRoot 'dist'
@@ -17,10 +18,11 @@ $frameletBinary = Join-Path $frameletRoot 'src/Framelet/bin/Release/net10.0-wind
 foreach ($file in @('Framelet.exe','Framelet.dll','Framelet.deps.json','Framelet.runtimeconfig.json')) {
     Copy-Item -LiteralPath (Join-Path $frameletBinary $file) -Destination $frameletPackage
 }
-Copy-Item -LiteralPath (Join-Path $frameletRoot 'README.md') -Destination $frameletPackage
-Copy-Item -LiteralPath (Join-Path $frameletRoot 'CHANGELOG.md') -Destination $frameletPackage
+foreach ($file in @('README.md','CHANGELOG.md','RELEASES.md','BUILD-STATUS.md')) {
+    Copy-Item -LiteralPath (Join-Path $frameletRoot $file) -Destination $frameletPackage
+}
 Copy-Item -LiteralPath (Join-Path $frameletRoot 'docs') -Destination $frameletPackage -Recurse
-foreach ($file in @('README.md','CHANGELOG.md','Directory.Build.props','NuGet.Config','build.ps1','test.ps1','publish.ps1','.gitignore')) {
+foreach ($file in @('README.md','CHANGELOG.md','RELEASES.md','BUILD-STATUS.md','Directory.Build.props','NuGet.Config','build.ps1','test.ps1','publish.ps1','.gitignore')) {
     Copy-Item -LiteralPath (Join-Path $frameletRoot $file) -Destination $frameletSource
 }
 Copy-Item -LiteralPath (Join-Path $frameletRoot 'docs') -Destination $frameletSource -Recurse

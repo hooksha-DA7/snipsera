@@ -1,9 +1,9 @@
 # Development preview 4
 
 Build: 0.6.0-preview.4, 2026-11-01.
-53 no-window backend checks and six off-screen template checks passed; compilation has zero warnings/errors.
-Live overlay interaction/animation, capture pixels, Chrome Auto-scroll, full UI/lifecycle regressions and extracted launch are pending.
-Desktop testing remains paused at the user's request. This package has not been launched or installed for native acceptance.
+The full 125-check suite, capture-lifecycle integration and six off-screen template checks passed; compilation has zero warnings/errors.
+Live Chrome scrolling, overlay wheel/hover interaction and capture exclusion, and an extracted-package launch remain pending.
+Desktop testing resumed on 2026-11-01, then the desktop-control GPU capture connection failed. See [release acceptance](docs/RELEASE-ACCEPTANCE-0.6.0.md) for passed checks and remaining work.
 The last locally verified capture/annotation baseline remains 0.5.2.
 
 Extract the full Windows ZIP and quit previous Framelet copies before opening Framelet.exe.

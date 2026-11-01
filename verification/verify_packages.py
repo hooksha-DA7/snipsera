@@ -22,7 +22,7 @@ def digest(data):
 
 
 def expected_source():
-    files = {"README.md", "CHANGELOG.md", "Directory.Build.props", "NuGet.Config",
+    files = {"README.md", "CHANGELOG.md", "RELEASES.md", "BUILD-STATUS.md", "Directory.Build.props", "NuGet.Config",
              "build.ps1", "test.ps1", "publish.ps1", ".gitignore", "verification/verify_packages.py"}
     files |= {p.relative_to(ROOT).as_posix() for p in (ROOT / "docs").rglob("*") if p.is_file()}
     for tree in ("src", "tests"):
@@ -37,7 +37,7 @@ def verify(flavor):
     archive = ROOT / "dist" / f"{stem}.zip"
     runtime = {"Framelet.exe", "Framelet.dll", "Framelet.deps.json", "Framelet.runtimeconfig.json"}
     docs = {p.relative_to(ROOT).as_posix() for p in (ROOT / "docs").rglob("*") if p.is_file()}
-    expected = expected_source() if flavor == "source" else runtime | docs | {"README.md", "CHANGELOG.md"}
+    expected = expected_source() if flavor == "source" else runtime | docs | {"README.md", "CHANGELOG.md", "RELEASES.md", "BUILD-STATUS.md"}
     with zipfile.ZipFile(archive) as bundle:
         assert bundle.testzip() is None, "ZIP CRC failure"
         names = [entry.filename.replace("\\", "/") for entry in bundle.infolist()]
