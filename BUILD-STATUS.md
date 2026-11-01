@@ -1,5 +1,11 @@
-# Framelet 0.6.0 development preview
+# Development preview 3
 
-Manual scrolling was tested end to end. The corrected layout passed rendered checks. The final Auto-scroll driver is compiled but awaits live provider verification. Desktop testing is paused at the user's request. This candidate has not been launched after packaging. Framelet 0.5.2 remains the last verified release.
+Build: 0.6.0-preview.3, 2026-11-01.
+29 no-window scrolling regressions passed; compilation has zero warnings/errors.
+Live Chrome Auto-scroll, native output quality, full UI/lifecycle regressions and extracted launch are pending.
+Desktop testing remains paused at the user's request. This package has not been launched or installed for native acceptance.
+The last verified stable release remains 0.5.2.
 
-See [scrolling capture and verification status](docs/SCROLLING-CAPTURE.md). No installer, autostart or Windows restart is required. Keep the four runtime files together.
+Extract the full folder and quit previous Framelet copies before opening Framelet.exe.
+Keep all four runtime files together. Requires .NET 10 Desktop Runtime x64.
+See docs/SCROLLING-CAPTURE.md and docs/SCROLLING-REPAIR.md for behavior and evidence limits.

@@ -35,6 +35,25 @@ public sealed class ScrollFrame
             }
         return count == 0 ? double.PositiveInfinity : (double)error / count;
     }
+    internal bool IsStableComparedTo(ScrollFrame other)
+    {
+        if (Width != other.Width || Height != other.Height) return false;
+        int movingTiles = 0;
+        for (int row = 0; row < 8; row++) for (int column = 0; column < 8; column++)
+        {
+            int left = column * Width / 8, right = (column + 1) * Width / 8;
+            int top = row * Height / 8, bottom = (row + 1) * Height / 8;
+            long error = 0; int count = 0;
+            for (int y = top; y < bottom; y += Math.Max(1, (bottom - top) / 12))
+                for (int x = left; x < right; x += Math.Max(1, (right - left) / 12))
+                {
+                    int p = (y * Width + x) * 4;
+                    error += Math.Abs(Pixels[p] - other.Pixels[p]) + Math.Abs(Pixels[p + 1] - other.Pixels[p + 1]) + Math.Abs(Pixels[p + 2] - other.Pixels[p + 2]); count += 3;
+                }
+            if (count > 0 && (double)error / count > 1.1 && ++movingTiles > 8) return false;
+        }
+        return true;
+    }
     internal BitmapSource Bitmap()
     {
         var image = BitmapSource.Create(Width, Height, 96, 96, PixelFormats.Bgra32, null, Pixels, Width * 4); image.Freeze(); return image;
@@ -46,6 +65,7 @@ public sealed class ScrollStitcher
     public const int MaxSide = 20_000;
     public const long MaxPixels = 40_000_000;
     private ScrollFrame last;
+    private double fractionalRows;
     private readonly List<(byte[] Pixels, int Height)> strips = [];
     public int Width => last.Width;
     public int Height { get; private set; }
@@ -58,28 +78,32 @@ public sealed class ScrollStitcher
     public ScrollAppendStatus Add(ScrollFrame frame)
     {
         if (frame.Width != Width || frame.Height != last.Height) throw new InvalidOperationException("The scrolling area changed size. Start a new capture.");
-        double zero = last.Distance(frame);
-        if (zero <= .65) return ScrollAppendStatus.Unchanged;
+        if (last.Pixels.AsSpan().SequenceEqual(frame.Pixels)) return ScrollAppendStatus.Unchanged;
         if (Height >= MaxSide || (long)Width * Height >= MaxPixels || Frames >= 1000) return ScrollAppendStatus.LimitReached;
-        int limit = last.Height - Math.Max(32, last.Height / 4), best = 0;
-        double bestError = double.PositiveInfinity;
-        var errors = new double[2 * limit + 1];
-        for (int shift = -limit; shift <= limit; shift++)
-        {
-            double error = last.Distance(frame, shift); errors[shift + limit] = error;
-            if (error < bestError) { bestError = error; best = shift; }
-        }
-        double alternative = double.PositiveInfinity;
-        for (int shift = -limit; shift <= limit; shift++)
-            if (Math.Abs(shift - best) > 2) alternative = Math.Min(alternative, errors[shift + limit]);
-        // Repeated patterns and blank areas cannot prove how far the page moved. Keep the last good image.
-        if (best == 0 || bestError > 4 || bestError > zero * .45 || alternative - bestError < Math.Max(.6, bestError * .45)) return ScrollAppendStatus.NeedsOverlap;
-        if (best < 0) return ScrollAppendStatus.Backwards;
+        double? match = ScrollAlignment.Find(last, frame);
+        if (match is null) return ScrollAppendStatus.NeedsOverlap;
+        // Refresh only a certified zero-offset match; an ambiguous repeated page must never advance the anchor.
+        if (match.Value == 0) { last = frame; return ScrollAppendStatus.Unchanged; }
+        if (match.Value < 0) return ScrollAppendStatus.Backwards;
+        double movement = match.Value + fractionalRows;
+        int best = (int)Math.Round(movement, MidpointRounding.AwayFromZero);
+        if (best == 0) { fractionalRows = movement; last = frame; return ScrollAppendStatus.Unchanged; }
         if (Height + best > MaxSide || (long)Width * (Height + best) > MaxPixels || Frames >= 1000) return ScrollAppendStatus.LimitReached;
         var added = new byte[checked(Width * best * 4)];
         Buffer.BlockCopy(frame.Pixels, (frame.Height - best) * Width * 4, added, 0, added.Length);
-        strips.Add((added, best)); Height += best; Frames++; last = frame;
+        strips.Add((added, best)); Height += best; Frames++; last = frame; fractionalRows = movement - best;
+        RefreshLastView(frame);
         return ScrollAppendStatus.Added;
+    }
+    internal void RefreshLastView(ScrollFrame frame)
+    {
+        int start = Height - frame.Height, top = 0;
+        foreach (var strip in strips)
+        {
+            int from = Math.Max(start, top), to = Math.Min(Height, top + strip.Height);
+            if (to > from) Buffer.BlockCopy(frame.Pixels, (from - start) * Width * 4, strip.Pixels, (from - top) * Width * 4, (to - from) * Width * 4);
+            top += strip.Height;
+        }
     }
     public BitmapSource Image()
     {

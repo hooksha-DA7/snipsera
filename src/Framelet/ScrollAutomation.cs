@@ -34,7 +34,7 @@ internal sealed class ScrollAutomation : IDisposable
     }
     private void Work()
     {
-        ScrollPattern? pattern = null;
+        ScrollPattern? pattern = null; bool searched = false;
         foreach (var request in requests.GetConsumingEnumerable())
         {
             bool moved = false;
@@ -42,7 +42,7 @@ internal sealed class ScrollAutomation : IDisposable
             {
                 if (!disposed && !request.Token.IsCancellationRequested)
                 {
-                    pattern ??= FindPattern();
+                    if (!searched) { searched = true; pattern = FindPattern(); }
                     if (pattern is not null && !disposed && !request.Token.IsCancellationRequested)
                     { pattern.Scroll(ScrollAmount.NoAmount, ScrollAmount.SmallIncrement); moved = true; }
                 }

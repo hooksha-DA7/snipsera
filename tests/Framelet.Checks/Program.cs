@@ -52,6 +52,7 @@ internal static class Program
     [STAThread]
     public static int Main(string[] args)
     {
+        if (args.Length == 2 && args[0] == "--scroll-backend-check") return ScrollingBackendChecks.Run(args[1]);
         if (args.Length == 2 && args[0] == "--scroll-fixture") return ScrollingFixture.Run(args[1]);
         if (args.Length == 2 && args[0] == "--scroll-ui-check") return ScrollingUiChecks.RunOnly(args[1]);
         if (args.Length == 2 && args[0] == "--capture-stress") return CaptureLifecycle.Run(args[1]);

@@ -1,6 +1,6 @@
 # Framelet 0.6.0
 
-**Development preview:** scrolling capture is implemented, but final live Auto-scroll acceptance is pending while desktop testing is paused at the user's request. Version 0.5.2 remains the last verified release. See [verification status](docs/SCROLLING-CAPTURE.md#verification).
+**Development preview 3:** the scrolling backend has been revised after reports of overlap warnings and Auto-scroll failing in Chrome. Automated regressions pass; live Chrome acceptance remains pending while desktop testing is paused at the user's request. Version 0.5.2 remains the last verified release. See [verification status](docs/SCROLLING-CAPTURE.md#verification).
 
 A local Windows screenshot app with an editable annotation workspace. The interface combines CleanShot-inspired capture interactions with Windows 11 Fluent controls, system light/dark styling, native caption buttons and Mica on the main windows. Framelet is an independent implementation; the original CleanShot installer, code and artwork are not included.
 
@@ -31,6 +31,8 @@ Use the home buttons or tray menu for the same actions. Expand **Keyboard shortc
 Choose **Scrolling capture**, then drag around the content that scrolls. Leave fixed headers, footers and scrollbars outside the selection and enough space around it for the capture controls. Choose **Start capture**, then scroll down slowly, keeping some of the previous view visible. A growing preview shows the image collected so far. **Auto-scroll** is optional; you can turn it off and continue manually. Choose **Done** to send the tall image to the usual preview/history workflow, where you can copy, save, pin or annotate it. **Cancel** or Esc discards the session and restores the previous windows.
 
 This version stitches vertical downward scrolling from visible pixels. Duplicate views and backward motion do not add another copy. If a view cannot be aligned, scroll back slightly and continue more slowly. Framelet keeps the last good portion and reports an alignment/limit warning when applicable. Auto-scroll stops after no movement or an alignment problem; it does not assume that every app has reached the end of its document. The result is limited to 20,000 pixels per side and 40 million total pixels. Read the [scrolling capture notes](docs/SCROLLING-CAPTURE.md) for supported conditions and verification.
+
+In Chrome, Auto-scroll uses small native wheel events and moves the pointer from its Framelet control into the selected content once. Leave the pointer inside the selection and keep Chrome active. Moving outside, switching apps or holding modifiers pauses Auto-scroll. No clicks or typing are generated. Progress is checked from captured pixels before another step is sent.
 
 ## Preview, save and pin
 

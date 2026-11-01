@@ -1,5 +1,15 @@
 # Changes
 
+### 0.6.0 preview 3 — scrolling backend repair, 2026-11-01
+
+- Collect intermediate views during continuous scrolling, rather than discarding every moving frame until overlap is lost.
+- Match visible detail on sparse pages, tolerate small changing widgets and fractional text rendering, and preserve cumulative vertical offsets. Keep ambiguity checks and original, unfiltered output pixels.
+- Refresh a certified stationary view after hover/widget updates without appending rows. Delay recovery warnings for transient mismatches.
+- Use guarded native wheel input in Chrome, with a one-time pointer move from the Auto-scroll control into the selection. Stop on pointer exit, app switching or held modifiers. Other apps retain accessibility scrolling with a separately bounded provider attempt and wheel fallback.
+- Wait for movement and settling between Auto steps; fall back when a provider reports success without pixel movement. Done/Cancel stop pending input. Cache unsuccessful accessibility lookups for the session.
+- Add a no-window scrolling test entry point and regressions for sparse/repeated articles, short overlap, continuous motion, fractional rendering, driver fallback, pacing and cancellation. UI/layout and on-image controls are unchanged. Live Chrome verification remains pending while desktop testing is paused; this is not a stable release.
+- Refresh still-visible overlap and the final settled viewport to repair late-painted placeholders. Correct smooth-gradient matching and low-contrast ambiguity; bound warnings for continuously changing mismatches. Throttle preview rebuilds and deduplicate unchanged state notifications. follow-up findings were checked against source and added regressions.
+
 ## 0.6.0 — Development preview, 2026-11-01
 
 - Added vertical scrolling capture: select a scrolling region, Start, scroll manually or enable optional Auto-scroll, then Done/Cancel. - Added stable-view pixel alignment, exact new-row stitching, duplicate/backward-motion handling, ambiguity/gap rejection and bounded output. A warning identifies any unmatched final view or capture limit.
