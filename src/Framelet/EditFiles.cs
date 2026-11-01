@@ -50,7 +50,7 @@ public static class EditFiles
     public static void SaveProject(EditDocument document, string path)
     {
         EditDocument.Validate(document.State, document.Original.PixelWidth, document.Original.PixelHeight);
-        byte[] metadata = JsonSerializer.SerializeToUtf8Bytes(new ProjectData(1, document.Original.PixelWidth, document.Original.PixelHeight, document.State), Json);
+        byte[] metadata = JsonSerializer.SerializeToUtf8Bytes(new ProjectData(2, document.Original.PixelWidth, document.Original.PixelHeight, document.State), Json);
         if (metadata.Length > JsonLimit) throw new InvalidDataException("This project has too much annotation data. Split it into smaller projects.");
         using var png = new MemoryStream();
         CaptureService.WritePng(document.Original, png);
@@ -74,7 +74,7 @@ public static class EditFiles
             throw new InvalidDataException("This project must contain only project.json and original.png.");
         using var json = ReadEntry(archive.GetEntry("project.json")!, JsonLimit);
         var data = JsonSerializer.Deserialize<ProjectData>(json, Json) ?? throw new InvalidDataException("The project is empty.");
-        if (data.Version != 1 || data.State is null) throw new InvalidDataException("This project version is not supported.");
+        if (data.Version is not (1 or 2) || data.State is null) throw new InvalidDataException("This project version is not supported.");
         EditDocument.ValidateSize(data.OriginalWidth, data.OriginalHeight);
         EditDocument.Validate(data.State, data.OriginalWidth, data.OriginalHeight);
         using var png = ReadEntry(archive.GetEntry("original.png")!, ImageLimit);

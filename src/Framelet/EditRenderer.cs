@@ -64,6 +64,7 @@ public static class EditRenderer
         {
             case MarkKind.Line: dc.DrawLine(pen, start, end); break;
             case MarkKind.Arrow:
+                if (mark.Style == MarkStyle.Sketch) { SketchArrow(dc, pen, start, end); break; }
                 dc.DrawLine(pen, start, end);
                 Vector direction = end - start;
                 if (direction.Length < 1) break;
@@ -73,7 +74,10 @@ public static class EditRenderer
                 using (var path = arrow.Open()) { path.BeginFigure(end, true, true); path.LineTo(end - direction * length + side * length * 0.45, true, false); path.LineTo(end - direction * length - side * length * 0.45, true, false); }
                 dc.DrawGeometry(brush, null, arrow); break;
             case MarkKind.Rectangle: dc.DrawRectangle(null, pen, bounds); break;
-            case MarkKind.Ellipse: dc.DrawEllipse(null, pen, new Point(bounds.X + bounds.Width / 2, bounds.Y + bounds.Height / 2), bounds.Width / 2, bounds.Height / 2); break;
+            case MarkKind.Ellipse:
+                if (mark.Style == MarkStyle.Sketch) SketchEllipse(dc, pen, bounds);
+                else dc.DrawEllipse(null, pen, new Point(bounds.X + bounds.Width / 2, bounds.Y + bounds.Height / 2), bounds.Width / 2, bounds.Height / 2);
+                break;
             case MarkKind.Highlight: brush.Opacity = 0.35; dc.DrawRectangle(brush, null, bounds); break;
             case MarkKind.Redact: dc.DrawRectangle(Brushes.Black, null, bounds); break;
             case MarkKind.Text: dc.DrawText(Text(mark.Text, mark.FontSize, brush), start); break;
@@ -88,6 +92,39 @@ public static class EditRenderer
                 dc.DrawGeometry(null, pen, geometry); break;
             default: dc.DrawRectangle(Ui.Line, new Pen(Ui.Blue, 2), bounds); break;
         }
+    }
+
+    private static void SketchArrow(DrawingContext dc, Pen pen, Point start, Point end)
+    {
+        Vector span = end - start;
+        if (span.Length < 1) return;
+        double distance = span.Length; Vector direction = span; direction.Normalize();
+        Vector normal = new(-direction.Y, direction.X);
+        double bow = Math.Min(50, distance * .18);
+        Point control1 = start + span * .36 + normal * bow;
+        Point control2 = start + span * .76 + normal * bow * .65;
+        var curve = new StreamGeometry();
+        using (var path = curve.Open()) { path.BeginFigure(start, false, false); path.BezierTo(control1, control2, end, true, true); }
+        dc.DrawGeometry(null, pen, curve);
+        Vector tangent = end - control2; tangent.Normalize(); Vector side = new(-tangent.Y, tangent.X);
+        double length = Math.Min(distance * .35, Math.Max(14, pen.Thickness * 4.5));
+        var head = new StreamGeometry();
+        using (var path = head.Open()) { path.BeginFigure(end - tangent * length + side * length * .5, false, false); path.LineTo(end, true, true); path.LineTo(end - tangent * length - side * length * .5, true, true); }
+        dc.DrawGeometry(null, pen, head);
+    }
+    private static void SketchEllipse(DrawingContext dc, Pen pen, Rect b)
+    {
+        Point At(double x, double y) => new(b.X + b.Width * x, b.Y + b.Height * y);
+        var oval = new StreamGeometry();
+        using (var path = oval.Open())
+        {
+            path.BeginFigure(At(.51, .015), false, true);
+            path.BezierTo(At(.83, -.025), At(1.015, .20), At(.985, .50), true, true);
+            path.BezierTo(At(1.01, .83), At(.79, 1.015), At(.47, .98), true, true);
+            path.BezierTo(At(.17, 1.015), At(-.02, .78), At(.015, .47), true, true);
+            path.BezierTo(At(-.005, .17), At(.22, -.01), At(.51, .015), true, true);
+        }
+        dc.DrawGeometry(null, pen, oval);
     }
 
     private static FormattedText Text(string value, double size, System.Windows.Media.Brush brush) =>

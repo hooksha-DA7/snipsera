@@ -10,12 +10,13 @@ using System.Windows.Media.Imaging;
 namespace Framelet;
 
 public enum MarkKind { Arrow, Line, Rectangle, Ellipse, Text, Counter, Highlight, Pen, Blur, Pixelate, Redact }
+public enum MarkStyle { Clean, Sketch }
 public readonly record struct EditPoint(double X, double Y)
 {
     [JsonIgnore] public Point Point => new(X, Y);
 }
 public sealed record Mark(MarkKind Kind, ImmutableArray<EditPoint> Points, string Color = "#EB4D3D",
-    double Width = 4, string Text = "", double FontSize = 24, int Number = 1)
+    double Width = 4, string Text = "", double FontSize = 24, int Number = 1, MarkStyle Style = MarkStyle.Clean)
 {
     [JsonIgnore] public Rect Bounds
     {
@@ -24,6 +25,7 @@ public sealed record Mark(MarkKind Kind, ImmutableArray<EditPoint> Points, strin
             var rect = new Rect(new Point(Points.Min(p => p.X), Points.Min(p => p.Y)), new Point(Points.Max(p => p.X), Points.Max(p => p.Y)));
             if (Kind == MarkKind.Text) return new Rect(rect.Location, new Size(Math.Max(FontSize, Text.Split('\n').Max(l => l.Length) * FontSize * 0.65), Text.Split('\n').Length * FontSize * 1.4));
             if (Kind == MarkKind.Counter) return new Rect(rect.X - FontSize, rect.Y - FontSize, FontSize * 2, FontSize * 2);
+            if (Kind == MarkKind.Arrow && Style == MarkStyle.Sketch) rect.Inflate(Math.Min(50, (Points[^1].Point - Points[0].Point).Length * .18) + Width * 5, Math.Min(50, (Points[^1].Point - Points[0].Point).Length * .18) + Width * 5);
             return rect;
         }
     }
@@ -81,7 +83,7 @@ public sealed class EditDocument
         long points = 0;
         foreach (var mark in state.Marks)
         {
-            if (mark is null || !Enum.IsDefined(mark.Kind) || mark.Points.IsDefaultOrEmpty || mark.Points.Length > 10000 ||
+            if (mark is null || !Enum.IsDefined(mark.Kind) || !Enum.IsDefined(mark.Style) || mark.Points.IsDefaultOrEmpty || mark.Points.Length > 10000 ||
                 !IsColor(mark.Color) || !double.IsFinite(mark.Width) || mark.Width is < 1 or > 100 || !double.IsFinite(mark.FontSize) || mark.FontSize is < 8 or > 200 ||
                 mark.Text is null || mark.Text.Length > 2000 || mark.Number is < 1 or > 999)
                 throw new ArgumentException("This project contains an unsupported annotation.");

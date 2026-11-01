@@ -137,7 +137,17 @@ public sealed class CaptureApp : Application
     {
         if (pins.Count >= 8) { Report(new InvalidOperationException("Close a pinned capture before adding another. Up to eight captures can be pinned.")); return; }
         var window = new ImageWindow(this, image, entry, true);
-        pins.Add(window); window.Closed += (_, _) => pins.Remove(window); window.Show();
+        pins.Add(window); window.Closed += (_, _) => { pins.Remove(window); ReflowPins(); }; window.Show();
+    }
+
+    public void ReflowPins()
+    {
+        foreach (var group in pins.Where(p => p.IsLoaded && p.IsDocked).Reverse().GroupBy(p => p.DockWorkArea))
+        {
+            var docked = group.ToArray(); double scale = docked[0].DockScale;
+            var bounds = FloatingLayout.Pins(group.Key, docked.Select(p => new Size(p.CaptureImage.PixelWidth, p.CaptureImage.PixelHeight)).ToArray(), scale);
+            for (int i = 0; i < docked.Length; i++) docked[i].Place(bounds[i], scale);
+        }
     }
 
     public void EditImage(BitmapSource image) { ShowEditor(new EditDocument(image)); preview?.Hide(); }

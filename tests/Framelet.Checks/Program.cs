@@ -52,6 +52,7 @@ internal static class Program
     [STAThread]
     public static int Main(string[] args)
     {
+        if (args.Length == 2 && args[0] == "--ui-fixture") return UiFixture.Run(args[1]);
         output = Path.GetFullPath(args.Length > 0 ? args[0] : "check-results"); Directory.CreateDirectory(output);
         var application = new Application { ShutdownMode = ShutdownMode.OnExplicitShutdown }; Ui.Install(application);
         Test("Default shortcuts map to four distinct native keys", () =>
@@ -95,6 +96,7 @@ internal static class Program
         { var store = new HistoryStore(Folder()); var settings = new AppSettings("Ctrl+Alt+Q", "Ctrl+Alt+W", "Ctrl+Alt+E", "Ctrl+Alt+R"); store.SaveSettings(settings); Equal(settings, new HistoryStore(store.Root).LoadSettings()); });
 
         EditorChecks.Run(output, Test, Pump);
+        UiChecks.Run(output, Test);
 
         var fixture = new FixtureWindow { Topmost = true }; fixture.Show(); fixture.Activate(); Pump(350); Native.DwmFlush();
         Test("Live native capture returns the synthetic window pixels", () =>
