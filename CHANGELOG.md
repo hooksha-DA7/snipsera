@@ -1,5 +1,11 @@
 # Changes
 
+## 0.5.2 — 2026-11-01
+
+- Restored capture controls on the image after the user rejected the external toolbar. - Scoped floating-button styling preserves readable material and pinned accent states during interaction, with rounded focus treatment and theme/policy fallbacks. Main app controls and editor tool layouts retain their existing design.
+- Retained 0.5.1's shared preview/pin sizing, source proportions, same-window direct Pin/Unpin, bottom-left preview and pin-stack clearance.
+- Added on-image bounds/nonoverlap and source-pixel checks across six image profiles. Updated capture-lifecycle verification for the restored layout. Previous releases and user history/settings remain unchanged.
+
 ## 0.5.1 — 2026-10-31
 
 - Unified preview/pin size limits and removed independent minimum image dimensions that added empty space to wide/tall captures.

@@ -1,10 +1,10 @@
-# Framelet 0.5.1
+# Framelet 0.5.2
 
 A local Windows screenshot app with an editable annotation workspace. The interface combines CleanShot-inspired capture interactions with Windows 11 Fluent controls, system light/dark styling, native caption buttons and Mica on the main windows. Framelet is an independent implementation; the original CleanShot installer, code and artwork are not included.
 
 ## Run
 
-Extract the entire `Framelet-0.5.1-win-x64.zip` folder, then double-click **Framelet.exe**. Keep the DLL, JSON and EXE files together. This portable build requires the **.NET 10 Desktop Runtime x64**, which is already installed on the development/test machine. Close earlier Framelet copies using their tray menu before starting this version, so the shortcuts are available. There is no installer, account or cloud service.
+Extract the entire `Framelet-0.5.2-win-x64.zip` folder, then double-click **Framelet.exe**. Keep the DLL, JSON and EXE files together. This portable build requires the **.NET 10 Desktop Runtime x64**, which is already installed on the development/test machine. Close earlier Framelet copies using their tray menu before starting this version, so the shortcuts are available. There is no installer, account or cloud service.
 
 Closing the home window keeps Framelet running in the notification area. Double-click its tray icon or launch Framelet again to reopen history. Use **Quit Framelet** in the tray menu to exit and release the hotkeys. It does not automatically start with Windows.
 
@@ -25,20 +25,20 @@ Use the home buttons or tray menu for the same actions. Expand **Keyboard shortc
 
 ## Preview, save and pin
 
-The preview is a small rounded thumbnail at the **bottom left** of the monitor under the pointer. Preview and pins share the same 240 × 166 logical-pixel limit including shadow space and preserve the image's proportions. Hover for a compact toolbar outside the image: Pin/Unpin, Annotate, Copy, Save, Drag and Close. Its buttons have tooltips; **Tab** opens it for keyboard use. The image remains sharp and its frame does not grow or change shape to fit controls. The toolbar adjusts at screen edges and hides when you leave it; it is not part of the screenshot.
+The preview is a small rounded thumbnail at the **bottom left** of the monitor under the pointer. Preview and pins share the same 240 × 166 logical-pixel limit including shadow space and preserve the image's proportions. Hover for controls **on the image**: Pin/Unpin and Close in the top corners, Annotate and Drag in the bottom corners, and labeled Copy/Save pills in the center. **Tab** reveals the controls for keyboard use. Very shallow or slender captures use compact on-image controls and a More menu when needed. The frame keeps its size and proportions while controls appear. A soft shade behind the controls helps readability; the image stays sharp and exports exclude every display effect.
 
 - **Copy** puts the image on the Windows clipboard. **Ctrl+C** also works in a preview or pin.
 - **Save…** exports a PNG to a location you choose. **Ctrl+S** opens the same dialog. The native dialog asks before overwriting an existing file.
 - **Pin** turns the same preview window into an always-on-top reference. The button changes to **Unpin**, which returns it to the preview area at the bottom left, keeping its size. Options are available by right-clicking the image. Up to eight pins stack at the left above space reserved for the next preview; crowded stacks can fit smaller cards or use more columns. Drag the image to move it independently; use its bottom-right grip to resize it. Double-click to toggle a larger view. Manually moved/resized pins leave the automatic stack; remaining docked pins reflow as captures are added or closed. Pins last for the current session; the underlying capture remains in history until removed or expired. Unpin replaces an existing preview, whose original remains in history.
 - **History** in the right-click menu opens the home window. Select **Open** on an older capture to copy, save or pin it again.
 - **Annotate** (pencil icon) opens an independent document in the image editor. The original capture stays in history. The floating preview hides to give you room to edit; a new capture still produces a preview.
-- **Drag & drop:** drag the preview image, or use the toolbar's Drag button, to send an original-resolution PNG to another compatible Windows app. Pins themselves drag to move; their toolbar Drag button exports. The editor has its own drag handle for the flattened edited PNG.
-- **Pin opacity:** open Pin options or right-click for the opacity slider, or use Ctrl+wheel for 5% steps. Opacity affects the on-screen image only; copy/save/drag retain full opacity and resolution. Arrow keys move a focused pin by one logical pixel; Shift+arrow moves ten.
-- **Esc** dismisses an open toolbar/menu; otherwise it closes the preview or pin. Closing it does not remove its history entry.
+- **Drag & drop:** drag the preview image, or use its Drag button, to send an original-resolution PNG to another compatible Windows app. Pins themselves drag to move; their Drag action exports. Drag stays visible when other actions fold into More. On an exceptionally tiny manually resized pin, the other actions remain in the right-click menu. The editor has its own drag handle for the flattened edited PNG.
+- **Pin opacity:** right-click for the opacity slider, or use Ctrl+wheel for 5% steps. Opacity affects the on-screen image only; copy/save/drag retain full opacity and resolution. Arrow keys move a focused pin by one logical pixel; Shift+arrow moves ten.
+- **Esc** dismisses open controls/menu; otherwise it closes the preview or pin. Closing it does not remove its history entry.
 
 ## Windows appearance
 
-The app follows Windows app light/dark mode and accent colors. Editor/history use the real Windows title bar, resize border, system menu and maximize/Snap behavior. Main-window Mica is supplied by WPF on supported Windows versions. The floating toolbar has its own rounded themed surface; previews and pins remain sharp while using it. Pin opacity blends the reference image with the desktop and is not desktop Acrylic. Windows contrast, transparency and motion preferences retain their effect fallbacks. Presentation never changes source pixels.
+The app follows Windows app light/dark mode and accent colors. Editor/history use the real Windows title bar, resize border, system menu and maximize/Snap behavior. Main-window Mica is supplied by WPF on supported Windows versions. On-image controls have rounded themed surfaces; previews and pins remain sharp while using them. Pin opacity blends the reference image with the desktop and is not desktop Acrylic. Windows contrast, transparency and motion preferences retain their effect fallbacks. Presentation never changes source pixels.
 
 ## Local storage
 
@@ -97,6 +97,6 @@ Requires a .NET 10 SDK on Windows x64. Scripts prefer a project-local SDK at `.t
 
 Close running development copies, including the synthetic fixture, before rebuilding to avoid locking the EXE. `Framelet.exe --fixture` opens a blue/yellow test card without hotkeys or history. The verification harness briefly shows this card and exercises the clipboard, attempting to restore its previous contents afterward. Run tests on an unlocked desktop.
 
-See [floating image sizing and pin fixes](docs/FLOATING-IMAGE-FIXES.md), [annotation and capture refinement](docs/ANNOTATION-REFINEMENT.md), [Windows 11 design and verification](docs/WINDOWS11-DESIGN.md), [UI redesign verification](docs/UI-REDESIGN-VERIFICATION.md), [visual references](docs/UI-REFERENCES.md), [Phase 2 verification](docs/PHASE2-VERIFICATION.md), [Phase 1 verification](docs/VERIFICATION.md), [architecture](docs/ARCHITECTURE.md) and [changes](CHANGELOG.md). Release ZIPs also have per-file SHA256 manifests. After publishing, the optional standard-library Python verifier is `python verification/verify_packages.py`; it checks packaged file contents, CRC, paths, hashes, source parity and documentation links.
+See [on-image controls](docs/ON-IMAGE-CONTROLS.md), [floating image sizing and pin fixes](docs/FLOATING-IMAGE-FIXES.md), [annotation and capture refinement](docs/ANNOTATION-REFINEMENT.md), [Windows 11 design and verification](docs/WINDOWS11-DESIGN.md), [UI redesign verification](docs/UI-REDESIGN-VERIFICATION.md), [visual references](docs/UI-REFERENCES.md), [Phase 2 verification](docs/PHASE2-VERIFICATION.md), [Phase 1 verification](docs/VERIFICATION.md), [architecture](docs/ARCHITECTURE.md) and [changes](CHANGELOG.md). Release ZIPs also have per-file SHA256 manifests. After publishing, the optional standard-library Python verifier is `python verification/verify_packages.py`; it checks packaged file contents, CRC, paths, hashes, source parity and documentation links.
 
 Microsoft runtime download: https://dotnet.microsoft.com/en-us/download/dotnet/10.0 (choose Windows Desktop Runtime x64).

@@ -10,15 +10,16 @@ public sealed class UiIcon : FrameworkElement
     public string Symbol { get; }
     public static readonly DependencyProperty InkProperty = DependencyProperty.Register(nameof(Ink), typeof(Brush), typeof(UiIcon), new FrameworkPropertyMetadata(Brushes.Black, FrameworkPropertyMetadataOptions.AffectsRender));
     public Brush Ink { get => (Brush)GetValue(InkProperty); set => SetValue(InkProperty, value); }
-    public UiIcon(string symbol, double size = 18)
+    private readonly double weight;
+    public UiIcon(string symbol, double size = 18, double weight = 1.7)
     {
-        Symbol = symbol; Width = Height = size; IsHitTestVisible = false;
+        Symbol = symbol; Width = Height = size; IsHitTestVisible = false; this.weight = weight;
         SetBinding(InkProperty, new Binding("Foreground") { RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(Button), 1) });
     }
     protected override void OnRender(DrawingContext dc)
     {
         dc.PushTransform(new ScaleTransform(ActualWidth / 24, ActualHeight / 24));
-        var pen = new Pen(Ink, 1.7) { StartLineCap = PenLineCap.Round, EndLineCap = PenLineCap.Round, LineJoin = PenLineJoin.Round };
+        var pen = new Pen(Ink, weight) { StartLineCap = PenLineCap.Round, EndLineCap = PenLineCap.Round, LineJoin = PenLineJoin.Round };
         string path = Symbol switch
         {
             "Select" => "M5 3 L6 20 L10 15 L14 21 L17 19 L13 13 L20 12 Z",

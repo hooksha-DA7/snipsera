@@ -11,7 +11,8 @@ public static class Ui
     public static readonly FontFamily Font = new("Segoe UI Variable Text, Segoe UI");
     public static readonly Brush Ink = Appearance.Token(nameof(Appearance.Ink)), Muted = Appearance.Token(nameof(Appearance.Muted)), Blue = Appearance.Token(nameof(Appearance.Accent)),
         OnAccent = Appearance.Token(nameof(Appearance.OnAccent)), Paper = Appearance.Token(nameof(Appearance.Paper)), Surface = Appearance.Token(nameof(Appearance.Surface)),
-        Line = Appearance.Token(nameof(Appearance.Line)), Chrome = Appearance.Token(nameof(Appearance.Chrome)), Canvas = Appearance.Token(nameof(Appearance.Canvas)), Glass = Appearance.Token(nameof(Appearance.Glass));
+        Line = Appearance.Token(nameof(Appearance.Line)), Chrome = Appearance.Token(nameof(Appearance.Chrome)), Canvas = Appearance.Token(nameof(Appearance.Canvas)), Glass = Appearance.Token(nameof(Appearance.Glass)),
+        Floating = Appearance.Token(nameof(Appearance.Floating));
     public static Brush Brush(string hex) => (Brush)new BrushConverter().ConvertFromString(hex)!;
 
     public static void Install(Application application)

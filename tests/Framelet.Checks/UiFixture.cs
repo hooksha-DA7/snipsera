@@ -59,6 +59,18 @@ internal static class UiFixture
             }
             app.MainWindow.Hide(); app.OpenEntry(entry);
             app.Pin(image, entry); app.Pin(floating ? FloatingScene(1187, 547) : EditRenderer.Render(doc), entry); app.Pin(floating ? FloatingScene(400, 2400) : new CroppedBitmap(image, new Int32Rect(60, 65, 540, 310)), entry);
+            var hoverSamples = new System.Collections.Generic.Dictionary<string, int>();
+            var hoverProof = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(250) };
+            hoverProof.Tick += (_, _) =>
+            {
+                foreach (var window in app.Windows.Cast<Window>().OfType<ImageWindow>().Where(w => w.IsVisible))
+                    foreach (var button in FloatingOverlayChecks.Descendants(window).OfType<System.Windows.Controls.Button>().Where(b => b.IsVisible && b.IsMouseOver))
+                    {
+                        string key = new WindowInteropHelper(window).Handle + "-" + System.Windows.Automation.AutomationProperties.GetAutomationId(button);
+                        hoverSamples.TryGetValue(key, out int seen); hoverSamples[key] = seen + 1;
+                        if (seen == 2) SaveVisual(window, Path.Combine(output, "hover-state-" + key + ".png"));
+                    }
+            }; hoverProof.Start(); app.Exit += (_, _) => hoverProof.Stop();
             var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2) };
             timer.Tick += (_, _) =>
             {

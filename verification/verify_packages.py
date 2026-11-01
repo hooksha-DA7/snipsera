@@ -9,8 +9,8 @@ from pathlib import Path, PurePosixPath
 
 ROOT = Path(__file__).resolve().parents[1]
 parser = argparse.ArgumentParser()
-parser.add_argument("--version", default="0.5.1")
-parser.add_argument("--run", default="floating-package-01")
+parser.add_argument("--version", default="0.5.2")
+parser.add_argument("--run", default="on-image-controls-package-01")
 ARGS = parser.parse_args()
 if not re.fullmatch(r"\d+\.\d+\.\d+", ARGS.version) or not re.fullmatch(r"[A-Za-z0-9_-]+", ARGS.run):
     parser.error("Use a numeric release version and a plain run folder name")

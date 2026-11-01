@@ -26,14 +26,16 @@ internal static class CaptureLifecycle
             var editor = new EditorWindow(doc, _ => { }, () => { }); editor.Show();
             try
             {
+                var overlayProfiles = await FloatingOverlayChecks.Run(app);
                 var entry = app.History.Add(pixels, CaptureKind.Area); app.OpenEntry(entry); app.Pin(pixels, entry);
                 var preview = app.Windows.Cast<Window>().OfType<ImageWindow>().Single(w => !w.IsPinned);
                 var handle = new WindowInteropHelper(preview).Handle; var size = Native.Bounds(handle).Size;
                 preview.RevealActions(true); await Task.Delay(140);
                 var bar = (FrameworkElement)LogicalTreeHelper.FindLogicalNode(preview, "CaptureActionBar");
-                var buttons = ((Panel)((Border)bar).Child).Children.OfType<Button>().ToArray();
+                var buttons = FloatingOverlayChecks.Descendants(bar).OfType<Button>().Where(b => b.IsVisible).ToArray();
                 var pinButton = buttons.Single(b => AutomationProperties.GetAutomationId(b) == "PinCapture");
-                if (buttons.Length != 6 || buttons.Any(b => b.ActualWidth < 28 || b.ActualHeight < 28)) throw new Exception("Floating toolbar controls are clipped");
+                if (buttons.Length != 6 || buttons.Any(b => b.ActualWidth < 28 || b.ActualHeight < 28)) throw new Exception("Normal capture overlay actions are missing or clipped");
+                if (copyLabel(buttons, "CopyCapture") != "Copy" || copyLabel(buttons, "SaveCapture") != "Save") throw new Exception("Normal capture lost labeled Copy and Save actions");
                 pinButton.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
                 if (!preview.IsPinned || new WindowInteropHelper(preview).Handle != handle || Native.Bounds(handle).Size != size) throw new Exception("Pin replaced or resized the preview");
                 if (AutomationProperties.GetName(pinButton) != "Unpin") throw new Exception("Pin button did not become Unpin");
@@ -41,7 +43,7 @@ internal static class CaptureLifecycle
                 if (preview.IsPinned || !preview.IsVisible || Native.Bounds(handle).Size != size) throw new Exception("Unpin failed to keep the preview");
                 if (app.Windows.Cast<Window>().OfType<ImageWindow>().Where(w => w.IsPinned).Any(w => Native.Bounds(new WindowInteropHelper(w).Handle).IntersectsWith(Native.Bounds(handle)))) throw new Exception("Unpinned preview overlaps the reflowed stack");
                 preview.RevealActions(true); preview.Hide();
-                if (((Popup)LogicalTreeHelper.GetParent(bar)).IsOpen) throw new Exception("Toolbar survived hidden capture window");
+                if (buttons.Any(b => b.IsVisible)) throw new Exception("On-image actions survived hidden capture window");
                 preview.Show();
                 var first = app.CaptureAsync(CaptureKind.Screen); await app.CaptureAsync(CaptureKind.Screen); await first;
                 await Until(() => app.History.Entries.Count == 3);
@@ -61,7 +63,7 @@ internal static class CaptureLifecycle
                 CaptureService.Save(CaptureService.Capture(Native.Bounds(traySource.Handle)), Path.Combine(output, "tray-native.png"));
                 ((MenuItem)tray.Items[5]).RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent)); await Task.Delay(80);
                 if (tray.IsOpen || app.MainWindow?.IsVisible != true) throw new Exception("Tray history command did not dismiss the menu and show history");
-                File.WriteAllText(Path.Combine(output, "results.json"), JsonSerializer.Serialize(new { status = "passed", capturesAfterRapidRequests = 3, capturesAfterModal = 4, originalPreviewOpenAtStart = true, dirtyEditorPreserved = true, pinPreserved = true, pinUnpinPreservedWindowAndSize = true, sixToolbarActionsUnclipped = true, toolbarHidWithWindow = true, trayRemainedOpenAndHistoryCommandWorked = true, captureBackend = "synthetic pixels; native capture pixels are separately tested" }, new JsonSerializerOptions { WriteIndented = true }));
+                File.WriteAllText(Path.Combine(output, "results.json"), JsonSerializer.Serialize(new { status = "passed", overlayProfiles, capturesAfterRapidRequests = 3, capturesAfterModal = 4, originalPreviewOpenAtStart = true, dirtyEditorPreserved = true, pinPreserved = true, pinUnpinPreservedWindowAndSize = true, sixOnImageActionsUnclipped = true, labeledCopySave = true, overlayHidWithWindow = true, trayRemainedOpenAndHistoryCommandWorked = true, captureBackend = "synthetic pixels; native capture pixels are separately tested" }, new JsonSerializerOptions { WriteIndented = true }));
                 Console.WriteLine("PASS Repeated capture lifecycle preserves preview workflow, dirty editor and pin; modal queue resumes");
             }
             catch (Exception ex) { failure = 1; File.WriteAllText(Path.Combine(output, "results.json"), JsonSerializer.Serialize(new { status = "failed", error = ex.ToString() })); Console.WriteLine("FAIL Capture lifecycle: " + ex.Message); }
@@ -71,6 +73,7 @@ internal static class CaptureLifecycle
     }
     private static async Task Until(Func<bool> ready)
     { var clock = Stopwatch.StartNew(); while (!ready()) { if (clock.ElapsedMilliseconds > 5000) throw new TimeoutException("Queued capture did not complete"); await Task.Delay(30); } }
+    private static string? copyLabel(Button[] buttons, string id) => buttons.Single(b => AutomationProperties.GetAutomationId(b) == id).Content as string;
     private static ContextMenu? FindMenu(DependencyObject? node)
     {
         if (node is ContextMenu menu) return menu;

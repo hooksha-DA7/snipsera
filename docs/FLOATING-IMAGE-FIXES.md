@@ -1,5 +1,7 @@
 # Floating image sizing and Pin/Unpin — 0.5.1
 
+Historical release notes: the user rejected the external toolbar introduced here. Version 0.5.2 restores [on-image controls](ON-IMAGE-CONTROLS.md), retaining the sizing and same-window Pin/Unpin corrections below.
+
 This update addresses the user's two 2026-10-31 screenshots showing wide captures, crowded hover overlays and a pin icon that opened a menu.
 
 ## Confirmed causes and changes

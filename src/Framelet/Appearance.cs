@@ -28,6 +28,7 @@ public sealed class Appearance : INotifyPropertyChanged
     public Color Line { get; private set; } = Colors.LightGray;
     public Color Canvas { get; private set; } = Colors.LightGray;
     public Color Glass { get; private set; } = Colors.WhiteSmoke;
+    public Color Floating { get; private set; } = Colors.White;
     public bool Dark { get; private set; }
     public SurfacePolicy Policy { get; private set; }
     public static Brush Token(string property)
@@ -66,6 +67,8 @@ public sealed class Appearance : INotifyPropertyChanged
         Line = hc ? SystemColors.WindowTextColor : C(Dark ? "#28FFFFFF" : "#16000000");
         Canvas = hc ? SystemColors.WindowColor : C(Dark ? "#181818" : "#E9E9E9");
         Glass = Policy.Frosting ? C(Dark ? "#70242424" : "#A6F7F7F7") : Surface;
+        // Controls laid over a capture: translucent but dense enough to stay legible on any image.
+        Floating = Policy.Frosting ? C(Dark ? "#D92B2B2B" : "#DEFAFAFA") : Surface;
         var accent = Application.Current?.TryFindResource("AccentFillColorDefaultBrush") as SolidColorBrush;
         var onAccent = Application.Current?.TryFindResource("TextOnAccentFillColorPrimaryBrush") as SolidColorBrush;
         Accent = hc ? SystemColors.HighlightColor : accent?.Color ?? C(Dark ? "#60CDFF" : "#0067C0");
