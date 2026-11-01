@@ -1,0 +1,114 @@
+using System;
+using System.IO;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
+
+namespace Framelet;
+
+public sealed class HomeWindow : Window
+{
+    private readonly CaptureApp app;
+    private readonly StackPanel history = new();
+    private readonly TextBlock status = Ui.Text("Ready to capture", 12, Ui.Muted);
+    private readonly TextBox[] shortcuts = new TextBox[4];
+    private readonly TextBlock[] badges = new TextBlock[4];
+    public HomeWindow(CaptureApp app)
+    {
+        this.app = app; Ui.Setup(this);
+        Title = "Framelet"; Width = 1010; Height = 750; MinWidth = 760; MinHeight = 570;
+        WindowStartupLocation = WindowStartupLocation.CenterScreen;
+        var dock = new DockPanel { Margin = new Thickness(28) };
+        var header = new DockPanel { Margin = new Thickness(0, 0, 0, 24) };
+        var brand = new StackPanel();
+        var name = Ui.Text("Framelet", 34, Ui.Ink, true); name.FontFamily = new FontFamily("Bahnschrift");
+        brand.Children.Add(name); brand.Children.Add(Ui.Text("Capture it. Keep it close.", 14, Ui.Muted));
+        var hide = Ui.Button("Keep in tray", "HideToTray", Hide); hide.VerticalAlignment = VerticalAlignment.Center;
+        DockPanel.SetDock(hide, Dock.Right); header.Children.Add(hide); header.Children.Add(brand);
+        DockPanel.SetDock(header, Dock.Top); dock.Children.Add(header);
+        status.Margin = new Thickness(0, 16, 0, 0); DockPanel.SetDock(status, Dock.Bottom); dock.Children.Add(status);
+        var columns = new Grid(); columns.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(300) });
+        columns.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(22) }); columns.ColumnDefinitions.Add(new ColumnDefinition());
+        var left = new StackPanel();
+        var capturePanel = new StackPanel();
+        capturePanel.Children.Add(Ui.Text("NEW CAPTURE", 11, Ui.Blue, true));
+        string[] labels = ["Select an area", "Choose a window", "Capture this display", "Repeat last area"];
+        string[] descriptions = ["Drag a rectangle across your screen.", "Bring a visible window forward and capture it.", "Use the display under your pointer.", "Capture the same area again."];
+        CaptureKind[] kinds = [CaptureKind.Area, CaptureKind.Window, CaptureKind.Screen, CaptureKind.PreviousArea];
+        for (int i = 0; i < kinds.Length; i++)
+        {
+            int index = i;
+            var stack = new StackPanel(); stack.Children.Add(Ui.Text(labels[i], 16, Ui.Ink, true));
+            stack.Children.Add(Ui.Text(descriptions[i], 11, Ui.Muted));
+            badges[i] = Ui.Text(app.Settings.Bindings[i], 11, Ui.Blue); badges[i].Margin = new Thickness(0, 8, 0, 0);
+            badges[i].FontFamily = new FontFamily("Cascadia Mono, Consolas"); stack.Children.Add(badges[i]);
+            var button = Ui.Button(labels[i], "Capture" + kinds[i], async () => await app.CaptureAsync(kinds[index]));
+            button.Content = stack; button.HorizontalContentAlignment = HorizontalAlignment.Left; button.Margin = new Thickness(0, 12, 0, 0);
+            capturePanel.Children.Add(button);
+        }
+        left.Children.Add(Ui.Card(capturePanel));
+        var settings = new StackPanel(); settings.Children.Add(Ui.Text("Use Ctrl and/or Alt, optionally Shift, plus a letter, number or F1–F11.", 11, Ui.Muted));
+        for (int i = 0; i < shortcuts.Length; i++)
+        {
+            settings.Children.Add(Ui.Text(labels[i], 11));
+            shortcuts[i] = new TextBox { Text = app.Settings.Bindings[i], FontSize = 12, Padding = new Thickness(7), Margin = new Thickness(0, 3, 0, 8) };
+            System.Windows.Automation.AutomationProperties.SetAutomationId(shortcuts[i], "Shortcut" + i);
+            settings.Children.Add(shortcuts[i]);
+        }
+        settings.Children.Add(Ui.Button("Save shortcuts", "SaveShortcuts", () =>
+        {
+            try
+            {
+                app.UpdateSettings(new AppSettings(shortcuts[0].Text, shortcuts[1].Text, shortcuts[2].Text, shortcuts[3].Text));
+                for (int i = 0; i < badges.Length; i++) badges[i].Text = app.Settings.Bindings[i];
+                SetStatus("Shortcuts saved");
+            }
+            catch (Exception ex) { SetStatus(ex.Message, true); }
+        }));
+        left.Children.Add(new Expander { Header = "Keyboard shortcuts", Content = settings, Margin = new Thickness(0, 16, 0, 0), Padding = new Thickness(8) });
+        var leftScroll = new ScrollViewer { Content = left, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
+        columns.Children.Add(leftScroll);
+        var recent = new DockPanel();
+        var recentHeader = new StackPanel { Margin = new Thickness(0, 0, 0, 14) };
+        recentHeader.Children.Add(Ui.Text("Recent captures", 22, Ui.Ink, true));
+        recentHeader.Children.Add(Ui.Text("The latest 100 captures, stored on this PC.", 12, Ui.Muted));
+        DockPanel.SetDock(recentHeader, Dock.Top); recent.Children.Add(recentHeader);
+        recent.Children.Add(new ScrollViewer { Content = history, VerticalScrollBarVisibility = ScrollBarVisibility.Auto });
+        Grid.SetColumn(recent, 2); columns.Children.Add(recent); dock.Children.Add(columns); Content = dock;
+        Closing += (_, e) => { if (!app.Quitting) { e.Cancel = true; Hide(); } };
+        RefreshHistory();
+    }
+
+    public void SetStatus(string message, bool error = false) { status.Text = message; status.Foreground = error ? Ui.Brush("#A33E16") : Ui.Muted; }
+    public void RefreshHistory()
+    {
+        history.Children.Clear();
+        if (app.History.Entries.Count == 0)
+        {
+            var empty = new StackPanel { Margin = new Thickness(14, 60, 14, 60) };
+            empty.Children.Add(Ui.Text("Your next good catch starts here.", 20, Ui.Ink, true));
+            empty.Children.Add(Ui.Text("Take a capture with a button or shortcut. It will appear here with copy, save and pin actions.", 14, Ui.Muted));
+            history.Children.Add(Ui.Card(empty)); return;
+        }
+        foreach (var entry in app.History.Entries)
+        {
+            var row = new DockPanel();
+            var image = new Image { Width = 142, Height = 84, Stretch = Stretch.Uniform, Margin = new Thickness(0, 0, 16, 0) };
+            try { image.Source = CaptureService.Load(app.History.ImagePath(entry), 280); }
+            catch (Exception ex) when (ex is IOException or NotSupportedException or ArgumentException or FileFormatException) { image.ToolTip = "Image could not be opened. Capture again or remove this entry."; }
+            DockPanel.SetDock(image, Dock.Left); row.Children.Add(image);
+            var text = new StackPanel(); text.Children.Add(Ui.Text(entry.Label, 14, Ui.Ink, true)); text.Children.Add(Ui.Text(entry.TimeLabel, 11, Ui.Muted));
+            var actions = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 10, 0, 0) };
+            actions.Children.Add(Ui.Button("Open", "Open" + entry.Id, () => app.OpenEntry(entry)));
+            actions.Children.Add(Ui.Button("Copy", "Copy" + entry.Id, async () =>
+            { try { await CaptureService.Copy(CaptureService.Load(app.History.ImagePath(entry))); SetStatus("Copied to clipboard"); } catch (Exception ex) { SetStatus(ex.Message, true); } }));
+            actions.Children.Add(Ui.Button("Remove", "Remove" + entry.Id, () =>
+            {
+                if (MessageBox.Show(this, "Remove this capture from local history? Saved copies elsewhere are kept.", "Remove capture", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes) return;
+                try { app.History.Remove(entry); RefreshHistory(); } catch (Exception ex) { SetStatus(ex.Message, true); }
+            }));
+            text.Children.Add(actions); row.Children.Add(text);
+            var card = Ui.Card(row, new Thickness(12)); card.Margin = new Thickness(0, 0, 0, 10); history.Children.Add(card);
+        }
+    }
+}

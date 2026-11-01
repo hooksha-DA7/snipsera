@@ -1,0 +1,6 @@
+.tools/
+**/bin/
+**/obj/
+verification/runs/
+dist/
+*.user
