@@ -22,7 +22,7 @@ Original Windows/source ZIPs are attached to each release with `SHA256SUMS.txt`.
    The ordinary full suite opens windows and must wait while desktop testing is paused.
 
 2. Build/package fresh Windows and source ZIPs. Check ZIP paths/CRC, allowlisted contents, manifests, source/build parity and documentation links. Inspect the exact files for public disclosure. Never include reference media/installers, user screenshots/history, credentials, private logs or agent transcripts. Do not relabel an old ZIP as a new binary build.
-3. Add a curated entry to `releases/catalog.json` and a notes file under `releases/notes`. Record the real build date, runtime/source asset names, byte sizes and SHA256, status, summary and verification limits. Mark previews `prerelease: true`, `latest: false`. Update the verified baseline only after its acceptance is complete.
+3. Add a curated entry to `releases/catalog.json` with `kind`, `intro`, categorized `changes` (Added/Improved/Fixed) and any user-facing `notice`. Record the real build date, runtime/source asset names, byte sizes and SHA256, status, verification limits. Describe behavior users will notice; avoid agent attribution, test-count reports and private workflow history in public notes. Mark previews `prerelease: true`, `latest: false`. Update the verified baseline only after its acceptance is complete.
 4. Commit the source with the git-commit workflow. Tag the exact source snapshot as `v<VERSION>` and push that commit/tag to the personal repository. The release script uses `--verify-tag` and does not create or push source for you.
 5. Plan the upload (no remote mutation):
 
@@ -38,7 +38,7 @@ Original Windows/source ZIPs are attached to each release with `SHA256SUMS.txt`.
 
    The script checks archive hashes/manifests, creates a draft, uploads both ZIPs/checksums, verifies the uploaded digests, publishes with the curated prerelease/latest state, then downloads each asset anonymously to verify public access and SHA256. It never overwrites an existing asset. An existing public release is only verified. If a matching draft was interrupted, inspect it before using `--resume`.
 
-7. Run `python scripts/update_release_log.py`; it updates both `RELEASES.md` and the marked README download block from the catalog pointers. Commit/push the updated catalog, curated notes, log and README. Verify the public repository, tagged source, release states and download links. Report the actual URLs and any pending native checks.
+7. Run `python scripts/update_release_log.py`; it generates `RELEASES.md`, `CHANGELOG.md`, individual `releases/notes` and the marked README download block from the catalog pointers. Commit/push the updated catalog, curated notes, log and README. Verify the public repository, tagged source, release states and download links. Report the actual URLs and any pending native checks.
 
 The publisher requires Python 3.10+ and GitHub CLI. It uses GitHub CLI's existing authentication/environment; it does not print, collect or persist credentials. The application itself has no publishing dependency or network service.
 
@@ -57,3 +57,9 @@ python scripts/publish_release.py --version <VERSION> --verify-only
 ```
 
 References: [GitHub repository creation](https://cli.github.com/manual/gh_repo_create), [release creation/assets](https://cli.github.com/manual/gh_release_create), [GitHub CLI authentication environment](https://cli.github.com/manual/gh_help_environment).
+
+## Repository ownership and public copy
+
+The personal owner is **hooksha-DA7** (user ID 72675037). Verify `gh api user --jq .login` before publishing. Do not change the user's global Git identity; use per-command overrides `git -c user.name=hooksha-DA7 -c user.email=72675037+hooksha-DA7@users.noreply.github.com ...` for personal commits.
+
+The README is the app's front door: explain the tool, installation and the basic workflow. Keep detailed instructions in USER-GUIDE.md and development/verification details in the other docs. For every release, write the actual product changes under Added, Improved or Fixed and identify previews or known issues. Edit the catalog first, then regenerate the public files. Preserve existing binaries, tags and asset checksums when correcting release descriptions.

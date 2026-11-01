@@ -1,123 +1,269 @@
-# Framelet download log
+# Releases
 
-A chronological record of the app, with the newest entries first. Build dates come from the original local changelogs; GitHub publication dates reflect the later import. Historical source commits were reconstructed from archived source ZIPs, not backdated.
+Start with [0.5.2](https://github.com/hooksha-DA7/framelet/releases/tag/v0.5.2) for capture and annotation. The 0.6 previews add scrolling capture and temporary overlay hiding; both still need testing on a real desktop.
 
-- **Last locally verified capture/annotation baseline:** [0.5.2](https://github.com/hooksha-DA7/framelet/releases/tag/v0.5.2).
-- **Latest experimental feature preview:** [0.6.0-preview.4](https://github.com/hooksha-DA7/framelet/releases/tag/v0.6.0-preview.4).
-- Windows ZIPs require .NET 10 Desktop Runtime x64. Extract the full folder, keep its files together and quit earlier copies before opening Framelet.exe.
-- Previews remain unverified for native desktop acceptance while desktop testing is paused. Downloading a preview does not make it a stable release.
+## 0.6.0-preview.4: Temporarily hide previews and pins
 
-| Build date | Version | Changes | Status | Downloads |
-| --- | --- | --- | --- | --- |
-| 2026-11-01 | [0.6.0-preview.4](https://github.com/hooksha-DA7/framelet/releases/tag/v0.6.0-preview.4) | Temporarily hide overlays | preview | [Windows ZIP](https://github.com/hooksha-DA7/framelet/releases/download/v0.6.0-preview.4/Framelet-0.6.0-preview.4-win-x64.zip) · [Source ZIP](https://github.com/hooksha-DA7/framelet/releases/download/v0.6.0-preview.4/Framelet-0.6.0-preview.4-source.zip) · [SHA256](https://github.com/hooksha-DA7/framelet/releases/download/v0.6.0-preview.4/SHA256SUMS.txt) |
-| 2026-11-01 | [0.6.0-preview.3](https://github.com/hooksha-DA7/framelet/releases/tag/v0.6.0-preview.3) | Scrolling backend repair | preview | [Windows ZIP](https://github.com/hooksha-DA7/framelet/releases/download/v0.6.0-preview.3/Framelet-0.6.0-preview.3-win-x64.zip) · [Source ZIP](https://github.com/hooksha-DA7/framelet/releases/download/v0.6.0-preview.3/Framelet-0.6.0-preview.3-source.zip) · [SHA256](https://github.com/hooksha-DA7/framelet/releases/download/v0.6.0-preview.3/SHA256SUMS.txt) |
-| 2026-11-01 | [0.6.0-preview.2](https://github.com/hooksha-DA7/framelet/releases/tag/v0.6.0-preview.2) | Initial scrolling capture | superseded-preview | [Windows ZIP](https://github.com/hooksha-DA7/framelet/releases/download/v0.6.0-preview.2/Framelet-0.6.0-preview-win-x64.zip) · [Source ZIP](https://github.com/hooksha-DA7/framelet/releases/download/v0.6.0-preview.2/Framelet-0.6.0-preview-source.zip) · [SHA256](https://github.com/hooksha-DA7/framelet/releases/download/v0.6.0-preview.2/SHA256SUMS.txt) |
-| 2026-11-01 | [0.5.2](https://github.com/hooksha-DA7/framelet/releases/tag/v0.5.2) | On-image controls restored | verified-baseline | [Windows ZIP](https://github.com/hooksha-DA7/framelet/releases/download/v0.5.2/Framelet-0.5.2-win-x64.zip) · [Source ZIP](https://github.com/hooksha-DA7/framelet/releases/download/v0.5.2/Framelet-0.5.2-source.zip) · [SHA256](https://github.com/hooksha-DA7/framelet/releases/download/v0.5.2/SHA256SUMS.txt) |
-| 2026-10-31 | [0.5.1](https://github.com/hooksha-DA7/framelet/releases/tag/v0.5.1) | Superseded external-toolbar experiment | superseded-design | [Windows ZIP](https://github.com/hooksha-DA7/framelet/releases/download/v0.5.1/Framelet-0.5.1-win-x64.zip) · [Source ZIP](https://github.com/hooksha-DA7/framelet/releases/download/v0.5.1/Framelet-0.5.1-source.zip) · [SHA256](https://github.com/hooksha-DA7/framelet/releases/download/v0.5.1/SHA256SUMS.txt) |
-| 2026-10-31 | [0.5.0](https://github.com/hooksha-DA7/framelet/releases/tag/v0.5.0) | Arrow styles and repeated captures | historical | [Windows ZIP](https://github.com/hooksha-DA7/framelet/releases/download/v0.5.0/Framelet-0.5.0-win-x64.zip) · [Source ZIP](https://github.com/hooksha-DA7/framelet/releases/download/v0.5.0/Framelet-0.5.0-source.zip) · [SHA256](https://github.com/hooksha-DA7/framelet/releases/download/v0.5.0/SHA256SUMS.txt) |
-| 2026-10-31 | [0.4.1](https://github.com/hooksha-DA7/framelet/releases/tag/v0.4.1) | Capture-row polish | historical | [Windows ZIP](https://github.com/hooksha-DA7/framelet/releases/download/v0.4.1/Framelet-0.4.1-win-x64.zip) · [Source ZIP](https://github.com/hooksha-DA7/framelet/releases/download/v0.4.1/Framelet-0.4.1-source.zip) · [SHA256](https://github.com/hooksha-DA7/framelet/releases/download/v0.4.1/SHA256SUMS.txt) |
-| 2026-10-31 | [0.4.0](https://github.com/hooksha-DA7/framelet/releases/tag/v0.4.0) | Windows 11 Fluent styling | historical | [Windows ZIP](https://github.com/hooksha-DA7/framelet/releases/download/v0.4.0/Framelet-0.4.0-win-x64.zip) · [Source ZIP](https://github.com/hooksha-DA7/framelet/releases/download/v0.4.0/Framelet-0.4.0-source.zip) · [SHA256](https://github.com/hooksha-DA7/framelet/releases/download/v0.4.0/SHA256SUMS.txt) |
-| 2026-10-30 | [0.3.0](https://github.com/hooksha-DA7/framelet/releases/tag/v0.3.0) | Floating cards and compact editor | historical | [Windows ZIP](https://github.com/hooksha-DA7/framelet/releases/download/v0.3.0/Framelet-0.3.0-win-x64.zip) · [Source ZIP](https://github.com/hooksha-DA7/framelet/releases/download/v0.3.0/Framelet-0.3.0-source.zip) · [SHA256](https://github.com/hooksha-DA7/framelet/releases/download/v0.3.0/SHA256SUMS.txt) |
-| 2026-10-30 | [0.2.0](https://github.com/hooksha-DA7/framelet/releases/tag/v0.2.0) | Annotations and image editing | historical | [Windows ZIP](https://github.com/hooksha-DA7/framelet/releases/download/v0.2.0/Framelet-0.2.0-win-x64.zip) · [Source ZIP](https://github.com/hooksha-DA7/framelet/releases/download/v0.2.0/Framelet-0.2.0-source.zip) · [SHA256](https://github.com/hooksha-DA7/framelet/releases/download/v0.2.0/SHA256SUMS.txt) |
-| 2026-10-30 | [0.1.0](https://github.com/hooksha-DA7/framelet/releases/tag/v0.1.0) | Capture foundation | historical | [Windows ZIP](https://github.com/hooksha-DA7/framelet/releases/download/v0.1.0/Framelet-0.1.0-win-x64.zip) · [Source ZIP](https://github.com/hooksha-DA7/framelet/releases/download/v0.1.0/Framelet-0.1.0-source.zip) · [SHA256](https://github.com/hooksha-DA7/framelet/releases/download/v0.1.0/SHA256SUMS.txt) |
+2026-11-01 · Feature preview · [Release page](https://github.com/hooksha-DA7/framelet/releases/tag/v0.6.0-preview.4)
 
-## Release notes
+Clear the floating images out of your way, then bring them back when you need them.
 
-### 2026-11-01 — 0.6.0-preview.4: Temporarily hide overlays
+### Added
 
-- Wheel-down hiding for the floating group, with a small bottom-left restore tab and tray/Home alternatives.
-- slide/fade, image hint, hover/click restoration and preference fallbacks.
-- 53 no-window backend checks and six off-screen template checks passed; compilation had zero warnings/errors.
+- Scroll down one notch over a preview or pin to hide the floating group.
+- A small tab at the bottom left: click it or hover briefly to restore the images.
+- Hide/restore actions in the image right-click menu, tray menu and home window.
+- Kept pin positions, sizes and opacity while hidden; new captures join the hidden group until you restore it.
 
-Latest feature preview. Native hover/focus/animation, real capture exclusion, full lifecycle, mixed-DPI preferences and extracted launch are pending. Chrome scrolling acceptance remains pending. Desktop testing is still paused.
+### Improved
 
-[Full release and downloads](https://github.com/hooksha-DA7/framelet/releases/tag/v0.6.0-preview.4) · [Archived notes](releases/notes/v0.6.0-preview.4.md)
+- Added a short slide/fade transition that respects Windows reduced-motion preferences.
+- Kept Ctrl+mouse wheel available for pin opacity and left the on-image controls in place.
 
-### 2026-11-01 — 0.6.0-preview.3: Scrolling backend repair
+Experimental: hide/restore has passed automated and off-screen rendering checks, but real desktop interaction is still untested. Chrome scrolling also needs live testing. The ZIP's BUILD-STATUS heading says preview 3 in error; the app and filenames correctly identify preview 4.
 
-- Continuous-frame collection, sparse/short-overlap and fractional text matching, late-paint repair and guarded Chrome wheel input.
-- 29 no-window backend checks passed; compilation had zero warnings/errors.
+### Download
 
-Experimental. Live Chrome input/output quality, full native lifecycle and extracted launch remain unverified because desktop testing was paused. Preview 4 includes this same scrolling code.
+[Windows ZIP](https://github.com/hooksha-DA7/framelet/releases/download/v0.6.0-preview.4/Framelet-0.6.0-preview.4-win-x64.zip) · [Source ZIP](https://github.com/hooksha-DA7/framelet/releases/download/v0.6.0-preview.4/Framelet-0.6.0-preview.4-source.zip) · [Checksums](https://github.com/hooksha-DA7/framelet/releases/download/v0.6.0-preview.4/SHA256SUMS.txt)
 
-[Full release and downloads](https://github.com/hooksha-DA7/framelet/releases/tag/v0.6.0-preview.3) · [Archived notes](releases/notes/v0.6.0-preview.3.md)
+Extract the Windows ZIP and open **Framelet.exe**. Requires Windows 11 x64 and the [.NET 10 Desktop Runtime x64](https://dotnet.microsoft.com/en-us/download/dotnet/10.0). Quit any older Framelet copy from its tray menu first.
 
-### 2026-11-01 — 0.6.0-preview.2: Initial scrolling capture
+## 0.6.0-preview.3: Scrolling reliability fixes
 
-- Select a scrolling region, collect a tall image and use the existing preview/history workflow.
-- Growing preview and optional Auto-scroll controls.
+2026-11-01 · Bug-fix preview · [Release page](https://github.com/hooksha-DA7/framelet/releases/tag/v0.6.0-preview.3)
 
-Early scrolling preview, superseded by previews 3 and 4. Recovery warnings and Chrome Auto-scroll failures were subsequently reported. Imported as preview.2 to distinguish the original unnumbered preview ZIPs; their bytes and filenames are unchanged.
+Updates to reduce repeated overlap warnings and improve Auto-scroll in Chrome.
 
-[Full release and downloads](https://github.com/hooksha-DA7/framelet/releases/tag/v0.6.0-preview.2) · [Archived notes](releases/notes/v0.6.0-preview.2.md)
+### Improved
 
-### 2026-11-01 — 0.5.2: On-image controls restored
+- Matched pages with sparse text, short overlaps and small changing widgets more reliably in automated checks.
+- Changed Chrome Auto-scroll to small native wheel steps. It pauses if you leave the selected area, switch apps or hold a modifier key.
+- Reduced preview rebuilds while scrolling and delayed warnings during brief page changes.
 
-- corner actions and centered Copy/Save pills restored on the image.
-- Adaptive compact layouts retain drag access and same-window Pin/Unpin.
+### Fixed
 
-Last locally verified capture/annotation baseline. Its packaged launch and on-image controls were checked before the later desktop-testing pause. It does not include scrolling capture or temporary overlay hiding.
+- Collected intermediate views during continuous scrolling so useful overlap is not discarded.
+- Corrected accumulated offsets when text moves by fractional pixels.
+- Refreshed overlapping content and the final view when images finish loading late.
+- Checked that the page moved before sending another Auto-scroll step, and stopped pending steps on Done or Cancel.
 
-[Full release and downloads](https://github.com/hooksha-DA7/framelet/releases/tag/v0.5.2) · [Archived notes](releases/notes/v0.5.2.md)
+Experimental: automated scrolling checks pass, but these changes have not yet been tested in a live Chrome session. Scrolling capture may still need manual adjustment.
 
-### 2026-10-31 — 0.5.1: Superseded external-toolbar experiment
+### Download
 
-- Shared preview/pin sizing and same-window Pin/Unpin.
-- Experimented with floating controls outside the image.
+[Windows ZIP](https://github.com/hooksha-DA7/framelet/releases/download/v0.6.0-preview.3/Framelet-0.6.0-preview.3-win-x64.zip) · [Source ZIP](https://github.com/hooksha-DA7/framelet/releases/download/v0.6.0-preview.3/Framelet-0.6.0-preview.3-source.zip) · [Checksums](https://github.com/hooksha-DA7/framelet/releases/download/v0.6.0-preview.3/SHA256SUMS.txt)
 
-Archived for completeness. The external-toolbar design was rejected and replaced in 0.5.2. Do not use this as the recommended UI.
+Extract the Windows ZIP and open **Framelet.exe**. Requires Windows 11 x64 and the [.NET 10 Desktop Runtime x64](https://dotnet.microsoft.com/en-us/download/dotnet/10.0). Quit any older Framelet copy from its tray menu first.
 
-[Full release and downloads](https://github.com/hooksha-DA7/framelet/releases/tag/v0.5.1) · [Archived notes](releases/notes/v0.5.1.md)
+## 0.6.0-preview.2: Scrolling capture
 
-### 2026-10-31 — 0.5.0: Arrow styles and repeated captures
+2026-11-01 · Feature preview · [Release page](https://github.com/hooksha-DA7/framelet/releases/tag/v0.6.0-preview.2)
 
-- Four arrow styles, editable endpoints/curve handles and smoother freehand marks.
-- Themed confirmations, improved floating edges and queued/repeated captures.
+Capture a page or document that is taller than the screen.
 
-Historical feature build; later floating-card behavior supersedes it.
+### Added
 
-[Full release and downloads](https://github.com/hooksha-DA7/framelet/releases/tag/v0.5.0) · [Archived notes](releases/notes/v0.5.0.md)
+- Select a scrolling region, start capture, scroll down and choose Done to create one tall image.
+- A growing preview and optional Auto-scroll, with Cancel to discard the session.
+- Copy, Save, Pin and editing for the completed scrolling image.
 
-### 2026-10-31 — 0.4.1: Capture-row polish
+Early preview. Overlap warnings and Chrome Auto-scroll failures were reported; preview 3 changes the scrolling behavior. The original ZIP filenames omit the preview number.
 
-- Consistent capture rows and larger hit targets with quieter resting surfaces.
+### Download
 
-Small historical interface refinement.
+[Windows ZIP](https://github.com/hooksha-DA7/framelet/releases/download/v0.6.0-preview.2/Framelet-0.6.0-preview-win-x64.zip) · [Source ZIP](https://github.com/hooksha-DA7/framelet/releases/download/v0.6.0-preview.2/Framelet-0.6.0-preview-source.zip) · [Checksums](https://github.com/hooksha-DA7/framelet/releases/download/v0.6.0-preview.2/SHA256SUMS.txt)
 
-[Full release and downloads](https://github.com/hooksha-DA7/framelet/releases/tag/v0.4.1) · [Archived notes](releases/notes/v0.4.1.md)
+Extract the Windows ZIP and open **Framelet.exe**. Requires Windows 11 x64 and the [.NET 10 Desktop Runtime x64](https://dotnet.microsoft.com/en-us/download/dotnet/10.0). Quit any older Framelet copy from its tray menu first.
 
-### 2026-10-31 — 0.4.0: Windows 11 Fluent styling
+## 0.5.2: Controls back on the image
 
-- System light/dark styling, Windows caption controls and supported Mica backdrop.
-- Native file drag, pin opacity controls and preference fallbacks.
+2026-11-01 · Interface correction and bug fixes · [Release page](https://github.com/hooksha-DA7/framelet/releases/tag/v0.5.2)
 
-Historical Windows styling build; superseded by later interface corrections.
+Copy, Save, Pin and the other floating actions are back on the screenshot itself.
 
-[Full release and downloads](https://github.com/hooksha-DA7/framelet/releases/tag/v0.4.0) · [Archived notes](releases/notes/v0.4.0.md)
+### Improved
 
-### 2026-10-30 — 0.3.0: Floating cards and compact editor
+- Restored corner actions and centered Copy/Save buttons on previews and pins.
+- Added compact layouts for shallow or narrow images, keeping drag access available.
+- Improved button contrast, pinned states and rounded keyboard-focus outlines.
 
-- Compact left-side preview/pin cards and stacking with aspect-aware sizing.
-- Horizontal editor tools, annotation styles and project-version compatibility.
+### Fixed
 
-Historical UI iteration; superseded by the Windows Fluent and on-image-control updates.
+- Kept floating controls inside the image without overlapping each other across the supported layouts.
 
-[Full release and downloads](https://github.com/hooksha-DA7/framelet/releases/tag/v0.3.0) · [Archived notes](releases/notes/v0.3.0.md)
+Recommended for capture and annotation. This is the last build tested on a real desktop; scrolling capture and temporary overlay hiding are available in the 0.6 previews.
 
-### 2026-10-30 — 0.2.0: Annotations and image editing
+### Download
 
-- Independent annotation editor with shapes, text, counters, highlighting and freehand strokes.
-- Crop, resize, backgrounds, blur/pixelation, editable projects and flattened export.
+[Windows ZIP](https://github.com/hooksha-DA7/framelet/releases/download/v0.5.2/Framelet-0.5.2-win-x64.zip) · [Source ZIP](https://github.com/hooksha-DA7/framelet/releases/download/v0.5.2/Framelet-0.5.2-source.zip) · [Checksums](https://github.com/hooksha-DA7/framelet/releases/download/v0.5.2/SHA256SUMS.txt)
 
-Historical editor build; superseded by later fixes and interface updates.
+Extract the Windows ZIP and open **Framelet.exe**. Requires Windows 11 x64 and the [.NET 10 Desktop Runtime x64](https://dotnet.microsoft.com/en-us/download/dotnet/10.0). Quit any older Framelet copy from its tray menu first.
 
-[Full release and downloads](https://github.com/hooksha-DA7/framelet/releases/tag/v0.2.0) · [Archived notes](releases/notes/v0.2.0.md)
+## 0.5.1: Preview and pin sizing fixes
 
-### 2026-10-30 — 0.1.0: Capture foundation
+2026-10-31 · Bug-fix and interface update · [Release page](https://github.com/hooksha-DA7/framelet/releases/tag/v0.5.1)
 
-- Area, visible-window, display and repeat-area capture with configurable hotkeys.
-- Floating preview, copy/save, up to eight pins and local capture history.
+Previews and pins use the same size limits, and Pin/Unpin acts on the image you clicked.
 
-Historical capture build. Use 0.5.2 for the last locally verified capture/annotation baseline.
+### Improved
 
-[Full release and downloads](https://github.com/hooksha-DA7/framelet/releases/tag/v0.1.0) · [Archived notes](releases/notes/v0.1.0.md)
+- Moved floating actions into a hover toolbar outside the image in this version.
+
+### Fixed
+
+- Removed extra space around very wide or tall captures and preserved their proportions.
+- Kept Pin/Unpin in the same window at the same size, with a visible active pin state.
+- Returned unpinned images to the preview area without overlapping the remaining pin stack.
+
+Superseded by 0.5.2, which returns the controls to the image. Use 0.5.2 for the current capture interface.
+
+### Download
+
+[Windows ZIP](https://github.com/hooksha-DA7/framelet/releases/download/v0.5.1/Framelet-0.5.1-win-x64.zip) · [Source ZIP](https://github.com/hooksha-DA7/framelet/releases/download/v0.5.1/Framelet-0.5.1-source.zip) · [Checksums](https://github.com/hooksha-DA7/framelet/releases/download/v0.5.1/SHA256SUMS.txt)
+
+Extract the Windows ZIP and open **Framelet.exe**. Requires Windows 11 x64 and the [.NET 10 Desktop Runtime x64](https://dotnet.microsoft.com/en-us/download/dotnet/10.0). Quit any older Framelet copy from its tray menu first.
+
+## 0.5.0: Four arrow styles and repeated captures
+
+2026-10-31 · Feature and bug-fix release · [Release page](https://github.com/hooksha-DA7/framelet/releases/tag/v0.5.0)
+
+More annotation choices, smoother floating images and fixes for taking another screenshot while the last one is still open.
+
+### Added
+
+- Classic, Filled, Open and Curved arrows, with visual style samples.
+- Draggable arrow endpoints and a bend handle for curved arrows; each drag is one undo step.
+- Capture actions in the preview and pin right-click menus.
+
+### Improved
+
+- Smoothed new hand-drawn freehand strokes.
+- Replaced the old tray menu and confirmation boxes with themed menus and clearly named Save, Discard and Cancel buttons.
+- Softened floating-image shadows and smoothed image edges and thumbnails.
+
+### Fixed
+
+- Allowed new captures while previews, pins and editors remain open. Requests made while a capture finishes are queued.
+- Made pin edges fade with the image when changing opacity.
+- Pressing Escape in a pin menu now dismisses the menu without closing the image.
+
+### Download
+
+[Windows ZIP](https://github.com/hooksha-DA7/framelet/releases/download/v0.5.0/Framelet-0.5.0-win-x64.zip) · [Source ZIP](https://github.com/hooksha-DA7/framelet/releases/download/v0.5.0/Framelet-0.5.0-source.zip) · [Checksums](https://github.com/hooksha-DA7/framelet/releases/download/v0.5.0/SHA256SUMS.txt)
+
+Extract the Windows ZIP and open **Framelet.exe**. Requires Windows 11 x64 and the [.NET 10 Desktop Runtime x64](https://dotnet.microsoft.com/en-us/download/dotnet/10.0). Quit any older Framelet copy from its tray menu first.
+
+## 0.4.1: Easier capture buttons
+
+2026-10-31 · Interface improvement · [Release page](https://github.com/hooksha-DA7/framelet/releases/tag/v0.4.1)
+
+Capture actions on the home screen are easier to find and click.
+
+### Improved
+
+- Made capture actions consistent, full-width rows with larger click targets.
+- Reduced visual clutter when the rows are not being hovered or selected.
+
+### Download
+
+[Windows ZIP](https://github.com/hooksha-DA7/framelet/releases/download/v0.4.1/Framelet-0.4.1-win-x64.zip) · [Source ZIP](https://github.com/hooksha-DA7/framelet/releases/download/v0.4.1/Framelet-0.4.1-source.zip) · [Checksums](https://github.com/hooksha-DA7/framelet/releases/download/v0.4.1/SHA256SUMS.txt)
+
+Extract the Windows ZIP and open **Framelet.exe**. Requires Windows 11 x64 and the [.NET 10 Desktop Runtime x64](https://dotnet.microsoft.com/en-us/download/dotnet/10.0). Quit any older Framelet copy from its tray menu first.
+
+## 0.4.0: Windows 11 styling and drag and drop
+
+2026-10-31 · Feature and interface update · [Release page](https://github.com/hooksha-DA7/framelet/releases/tag/v0.4.0)
+
+Framelet follows Windows light/dark mode and adds drag and drop for screenshots.
+
+### Added
+
+- Drag and drop from previews, pins and the editor into compatible Windows apps.
+- Pin opacity controls in the right-click menu and with Ctrl+mouse wheel.
+- Arrow-key positioning for pins; hold Shift to move in larger steps.
+
+### Improved
+
+- Used Windows caption buttons, resize borders, Snap behavior and Mica where supported.
+- Updated floating controls, Copy/Save buttons and pin edges to follow the Windows theme.
+- Added fallbacks for Windows contrast, transparency and animation preferences.
+
+### Fixed
+
+- Kept the preview accessible when the eight-pin limit is reached.
+
+### Download
+
+[Windows ZIP](https://github.com/hooksha-DA7/framelet/releases/download/v0.4.0/Framelet-0.4.0-win-x64.zip) · [Source ZIP](https://github.com/hooksha-DA7/framelet/releases/download/v0.4.0/Framelet-0.4.0-source.zip) · [Checksums](https://github.com/hooksha-DA7/framelet/releases/download/v0.4.0/SHA256SUMS.txt)
+
+Extract the Windows ZIP and open **Framelet.exe**. Requires Windows 11 x64 and the [.NET 10 Desktop Runtime x64](https://dotnet.microsoft.com/en-us/download/dotnet/10.0). Quit any older Framelet copy from its tray menu first.
+
+## 0.3.0: Smaller previews and a compact editor
+
+2026-10-30 · Interface update · [Release page](https://github.com/hooksha-DA7/framelet/releases/tag/v0.3.0)
+
+Previews and pins take up less room, and the editor puts its tools in a compact horizontal toolbar.
+
+### Added
+
+- A resize grip and a double-click toggle between compact and larger pin views.
+- Hand-drawn arrow and ellipse styles, with a Clean option for regular shapes.
+- Undoable style changes for selected annotations.
+
+### Improved
+
+- Moved new previews to the bottom left and limited their initial size independently of screenshot resolution.
+- Pins stack along the left, leaving room for the next capture. Pins you move or resize stay where you put them.
+- Replaced large editor buttons and side panels with an icon toolbar and a collapsible image/layers panel.
+- Updated typography, spacing and colors across the editor and history window.
+
+### Download
+
+[Windows ZIP](https://github.com/hooksha-DA7/framelet/releases/download/v0.3.0/Framelet-0.3.0-win-x64.zip) · [Source ZIP](https://github.com/hooksha-DA7/framelet/releases/download/v0.3.0/Framelet-0.3.0-source.zip) · [Checksums](https://github.com/hooksha-DA7/framelet/releases/download/v0.3.0/SHA256SUMS.txt)
+
+Extract the Windows ZIP and open **Framelet.exe**. Requires Windows 11 x64 and the [.NET 10 Desktop Runtime x64](https://dotnet.microsoft.com/en-us/download/dotnet/10.0). Quit any older Framelet copy from its tray menu first.
+
+## 0.2.0: Annotations and image editing
+
+2026-10-30 · Feature release · [Release page](https://github.com/hooksha-DA7/framelet/releases/tag/v0.2.0)
+
+Screenshots can now be annotated and edited before you share them.
+
+### Added
+
+- An editor for captures, imported PNG/JPEG images and saved Framelet projects.
+- Arrows, lines, rectangles, ellipses, text, numbered counters, highlighting and freehand drawing.
+- Crop, resize, backgrounds, padding and zoom, with undo and redo.
+- Blur, pixelation and solid masks, plus flattened PNG/JPEG export, Copy and Pin.
+- Editable .framelet projects and a save prompt when closing unsaved work.
+
+### Fixed
+
+- Project saving when writing the original image into a .framelet file.
+
+Projects keep the original image and editable layers. To share a masked image, export a flattened PNG/JPEG; blur and pixelation are not secure redaction.
+
+### Download
+
+[Windows ZIP](https://github.com/hooksha-DA7/framelet/releases/download/v0.2.0/Framelet-0.2.0-win-x64.zip) · [Source ZIP](https://github.com/hooksha-DA7/framelet/releases/download/v0.2.0/Framelet-0.2.0-source.zip) · [Checksums](https://github.com/hooksha-DA7/framelet/releases/download/v0.2.0/SHA256SUMS.txt)
+
+Extract the Windows ZIP and open **Framelet.exe**. Requires Windows 11 x64 and the [.NET 10 Desktop Runtime x64](https://dotnet.microsoft.com/en-us/download/dotnet/10.0). Quit any older Framelet copy from its tray menu first.
+
+## 0.1.0: First release
+
+2026-10-30 · First release · [Release page](https://github.com/hooksha-DA7/framelet/releases/tag/v0.1.0)
+
+Capture a screenshot, copy or save it, and keep references pinned beside your work.
+
+### Added
+
+- Area, window and full-display capture, plus a shortcut to capture the last area again.
+- Custom global shortcuts and a tray menu for capture actions.
+- A floating preview with Copy and Save, and up to eight movable, resizable pins.
+- Local history for the latest 100 captures, available after restarting the app.
+
+### Download
+
+[Windows ZIP](https://github.com/hooksha-DA7/framelet/releases/download/v0.1.0/Framelet-0.1.0-win-x64.zip) · [Source ZIP](https://github.com/hooksha-DA7/framelet/releases/download/v0.1.0/Framelet-0.1.0-source.zip) · [Checksums](https://github.com/hooksha-DA7/framelet/releases/download/v0.1.0/SHA256SUMS.txt)
+
+Extract the Windows ZIP and open **Framelet.exe**. Requires Windows 11 x64 and the [.NET 10 Desktop Runtime x64](https://dotnet.microsoft.com/en-us/download/dotnet/10.0). Quit any older Framelet copy from its tray menu first.

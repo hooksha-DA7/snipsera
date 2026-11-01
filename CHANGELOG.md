@@ -1,99 +1,181 @@
-# Changes
+# Changelog
 
-### 0.6.0 preview 4 — temporary overlay hiding, 2026-11-01
+[Downloads and release notes](RELEASES.md)
 
-- Added wheel-down hiding for the floating preview/pins, with right-click, tray and Home alternatives. Existing on-image actions, pin dragging and Ctrl+wheel opacity remain in place.
-- Added a small bottom-left restore tab with image hint, count, hover dwell, click/keyboard restoration, themed surfaces, focus styling and reduced-motion fallbacks. Cards use a short slide/fade without moving their native frames.
-- Added visibility intent separate from temporary hiding and capture suspension. New captures remain hidden until explicit restoration; previews hidden for editing stay hidden. Capture cleanup preserves the mode across success, cancellation, replacement and errors.
-- Added hover arming to avoid immediately undoing a hide under the pointer, safe work-area fallback, one-time card placement and synchronous animation cancellation before capture. Closing the restore tab restores the group instead of stranding it.
-- Added pure state, gesture, hover and layout checks, plus off-screen production-template rendering. Desktop interaction, animation/native-pixel acceptance and full lifecycle testing remain paused; this is a development preview. The scrolling backend from preview 3 is unchanged.
+## 0.6.0-preview.4 — 2026-11-01
 
-### 0.6.0 preview 3 — scrolling backend repair, 2026-11-01
+Feature preview. Clear the floating images out of your way, then bring them back when you need them.
 
-- Collect intermediate views during continuous scrolling, rather than discarding every moving frame until overlap is lost.
-- Match visible detail on sparse pages, tolerate small changing widgets and fractional text rendering, and preserve cumulative vertical offsets. Keep ambiguity checks and original, unfiltered output pixels.
-- Refresh a certified stationary view after hover/widget updates without appending rows. Delay recovery warnings for transient mismatches.
-- Use guarded native wheel input in Chrome, with a one-time pointer move from the Auto-scroll control into the selection. Stop on pointer exit, app switching or held modifiers. Other apps retain accessibility scrolling with a separately bounded provider attempt and wheel fallback.
-- Wait for movement and settling between Auto steps; fall back when a provider reports success without pixel movement. Done/Cancel stop pending input. Cache unsuccessful accessibility lookups for the session.
-- Add a no-window scrolling test entry point and regressions for sparse/repeated articles, short overlap, continuous motion, fractional rendering, driver fallback, pacing and cancellation. UI/layout and on-image controls are unchanged. Live Chrome verification remains pending while desktop testing is paused; this is not a stable release.
-- Refresh still-visible overlap and the final settled viewport to repair late-painted placeholders. Correct smooth-gradient matching and low-contrast ambiguity; bound warnings for continuously changing mismatches. Throttle preview rebuilds and deduplicate unchanged state notifications. follow-up findings were checked against source and added regressions.
+### Added
 
-## 0.6.0 — Development preview, 2026-11-01
+- Scroll down one notch over a preview or pin to hide the floating group.
+- A small tab at the bottom left: click it or hover briefly to restore the images.
+- Hide/restore actions in the image right-click menu, tray menu and home window.
+- Kept pin positions, sizes and opacity while hidden; new captures join the hidden group until you restore it.
 
-- Added vertical scrolling capture: select a scrolling region, Start, scroll manually or enable optional Auto-scroll, then Done/Cancel. - Added stable-view pixel alignment, exact new-row stitching, duplicate/backward-motion handling, ambiguity/gap rejection and bounded output. A warning identifies any unmatched final view or capture limit.
-- Connected scrolling output to existing history, preview, copy/save/pin/drag and editing. Existing capture shortcuts, on-image controls, project formats and capture restoration/queue behavior are preserved.
-- Added pixel-level stitching, session cancellation/failure/finish tests and a separate synthetic numbered scrolling document for native verification.
+### Improved
+
+- Added a short slide/fade transition that respects Windows reduced-motion preferences.
+- Kept Ctrl+mouse wheel available for pin opacity and left the on-image controls in place.
+
+Experimental: hide/restore has passed automated and off-screen rendering checks, but real desktop interaction is still untested. Chrome scrolling also needs live testing. The ZIP's BUILD-STATUS heading says preview 3 in error; the app and filenames correctly identify preview 4.
+
+## 0.6.0-preview.3 — 2026-11-01
+
+Bug-fix preview. Updates to reduce repeated overlap warnings and improve Auto-scroll in Chrome.
+
+### Improved
+
+- Matched pages with sparse text, short overlaps and small changing widgets more reliably in automated checks.
+- Changed Chrome Auto-scroll to small native wheel steps. It pauses if you leave the selected area, switch apps or hold a modifier key.
+- Reduced preview rebuilds while scrolling and delayed warnings during brief page changes.
+
+### Fixed
+
+- Collected intermediate views during continuous scrolling so useful overlap is not discarded.
+- Corrected accumulated offsets when text moves by fractional pixels.
+- Refreshed overlapping content and the final view when images finish loading late.
+- Checked that the page moved before sending another Auto-scroll step, and stopped pending steps on Done or Cancel.
+
+Experimental: automated scrolling checks pass, but these changes have not yet been tested in a live Chrome session. Scrolling capture may still need manual adjustment.
+
+## 0.6.0-preview.2 — 2026-11-01
+
+Feature preview. Capture a page or document that is taller than the screen.
+
+### Added
+
+- Select a scrolling region, start capture, scroll down and choose Done to create one tall image.
+- A growing preview and optional Auto-scroll, with Cancel to discard the session.
+- Copy, Save, Pin and editing for the completed scrolling image.
+
+Early preview. Overlap warnings and Chrome Auto-scroll failures were reported; preview 3 changes the scrolling behavior. The original ZIP filenames omit the preview number.
 
 ## 0.5.2 — 2026-11-01
 
-- Restored capture controls on the image after the user rejected the external toolbar. - Scoped floating-button styling preserves readable material and pinned accent states during interaction, with rounded focus treatment and theme/policy fallbacks. Main app controls and editor tool layouts retain their existing design.
-- Retained 0.5.1's shared preview/pin sizing, source proportions, same-window direct Pin/Unpin, bottom-left preview and pin-stack clearance.
-- Added on-image bounds/nonoverlap and source-pixel checks across six image profiles. Updated capture-lifecycle verification for the restored layout. Previous releases and user history/settings remain unchanged.
+Interface correction and bug fixes. Copy, Save, Pin and the other floating actions are back on the screenshot itself.
+
+### Improved
+
+- Restored corner actions and centered Copy/Save buttons on previews and pins.
+- Added compact layouts for shallow or narrow images, keeping drag access available.
+- Improved button contrast, pinned states and rounded keyboard-focus outlines.
+
+### Fixed
+
+- Kept floating controls inside the image without overlapping each other across the supported layouts.
+
+Recommended for capture and annotation. This is the last build tested on a real desktop; scrolling capture and temporary overlay hiding are available in the 0.6 previews.
 
 ## 0.5.1 — 2026-10-31
 
-- Unified preview/pin size limits and removed independent minimum image dimensions that added empty space to wide/tall captures.
-- Moved floating actions into one compact hover toolbar outside the image, keeping all six controls usable regardless of image proportions. Images remain sharp and retain their dimensions while controls are visible.
-- Made Pin/Unpin toggle the same window directly, with a distinct active icon. Unpin returns to the preview area without overlapping the reflowed stack. Right-click retains options and opacity controls.
-- Kept native file drag, resizing, keyboard access, repeated captures, original history pixels and project format version 3. Added aspect-ratio, in-place toggle, toolbar sizing/visibility and stack-clearance verification.
+Bug-fix and interface update. Previews and pins use the same size limits, and Pin/Unpin acts on the image you clicked.
+
+### Improved
+
+- Moved floating actions into a hover toolbar outside the image in this version.
+
+### Fixed
+
+- Removed extra space around very wide or tall captures and preserved their proportions.
+- Kept Pin/Unpin in the same window at the same size, with a visible active pin state.
+- Returned unpinned images to the preview area without overlapping the remaining pin stack.
+
+Superseded by 0.5.2, which returns the controls to the image. Use 0.5.2 for the current capture interface.
 
 ## 0.5.0 — 2026-10-31
 
-- Added four arrow choices: tapered Classic, Filled, Open and Curved, with graphical samples and editable endpoint/bend handles. A handle drag is a single undo operation.
-- Smoothed newly drawn Hand-drawn freehand paths. Version 3 projects preserve arrow geometry and smoothing; versions 1 and 2 retain their legacy rendered pixels.
-- Replaced the legacy tray menu and unsaved-edit/history confirmations with themed WPF Fluent controls and explicit action labels.
-- Applied antialiased alpha masks and high-quality thumbnail scaling to floating cards, softened shadows/tint, and made pin edges follow image opacity. Escape dismisses the pin menu without closing its image.
-- Made capture selection asynchronous, moved global hotkeys to an independent message-only window and queued the latest request during capture or a modal dialog. Added capture commands directly to preview/pin context menus.
-- Added arrow/project/alpha-edge/nonmodal-selector/confirmation regressions and a separate capture lifecycle integration test. Preserved previous release archives and existing user history/settings.
+Feature and bug-fix release. More annotation choices, smoother floating images and fixes for taking another screenshot while the last one is still open.
+
+### Added
+
+- Classic, Filled, Open and Curved arrows, with visual style samples.
+- Draggable arrow endpoints and a bend handle for curved arrows; each drag is one undo step.
+- Capture actions in the preview and pin right-click menus.
+
+### Improved
+
+- Smoothed new hand-drawn freehand strokes.
+- Replaced the old tray menu and confirmation boxes with themed menus and clearly named Save, Discard and Cancel buttons.
+- Softened floating-image shadows and smoothed image edges and thumbnails.
+
+### Fixed
+
+- Allowed new captures while previews, pins and editors remain open. Requests made while a capture finishes are queued.
+- Made pin edges fade with the image when changing opacity.
+- Pressing Escape in a pin menu now dismisses the menu without closing the image.
 
 ## 0.4.1 — 2026-10-31
 
-- Made capture actions consistent full-width rows with larger hit targets and quiet resting surfaces.
+Interface improvement. Capture actions on the home screen are easier to find and click.
+
+### Improved
+
+- Made capture actions consistent, full-width rows with larger click targets.
+- Reduced visual clutter when the rows are not being hovered or selected.
 
 ## 0.4.0 — 2026-10-31
 
-- Applied the built-in WPF Fluent theme with system light/dark mode, accent colors and native controls.
-- Replaced macOS-style traffic-light chrome with actual Windows caption buttons, resize borders, system menu and maximize/Snap behavior; main windows use WPF's Mica backdrop on supported systems.
-- Rebuilt preview hover actions around a frosted thumbnail, labeled Copy/Save controls and corner actions. Pinned reference images stay sharp with edge controls.
-- Added native file drag-and-drop from preview images and drag handles on pins/editor, preserving original/edited PNG resolution respectively.
-- Added display-only pin opacity via a slider and Ctrl+wheel, plus arrow-key positioning and Shift+arrow larger steps.
-- Added contrast/transparency/reduced-animation effect policies and live preference refresh. Existing image/project formats remain unchanged.
-- Fixed pin-limit failure so a preview remains accessible when an additional pin cannot be opened.
-- Added native light/dark and file-drop fixtures plus theme/policy/payload regression checks. Preserved earlier release archives.
+Feature and interface update. Framelet follows Windows light/dark mode and adds drag and drop for screenshots.
+
+### Added
+
+- Drag and drop from previews, pins and the editor into compatible Windows apps.
+- Pin opacity controls in the right-click menu and with Ctrl+mouse wheel.
+- Arrow-key positioning for pins; hold Shift to move in larger steps.
+
+### Improved
+
+- Used Windows caption buttons, resize borders, Snap behavior and Mica where supported.
+- Updated floating controls, Copy/Save buttons and pin edges to follow the Windows theme.
+- Added fallbacks for Windows contrast, transparency and animation preferences.
+
+### Fixed
+
+- Kept the preview accessible when the eight-pin limit is reached.
 
 ## 0.3.0 — 2026-10-30
 
-- Rebuilt previews and pins as compact rounded image cards with hover controls, without permanent title/footer bars.
-- Moved the capture preview to the bottom left and bounded initial sizes in logical pixels, independent of source image resolution.
-- Added left-side pin stacking, preview clearance, multiple columns when needed and DPI-aware physical placement. Dragging/resizing a pin keeps it independent of subsequent stack reflows.
-- Added a pin resize grip and double-click larger/compact toggle; copy/save/edit retain full original pixels.
-- Replaced editor side tool walls and large text buttons with a horizontal icon toolbar, contextual color/style controls, neutral canvas and collapsible size/background/layers inspector.
-- Applied consistent Segoe typography, quieter colors and compact custom window chrome to editor/history.
-- Added hand-drawn-style curved arrows with open rounded heads and gently irregular ellipses; new marks default to this style. Clean remains available.
-- Added immediate undoable style changes for selected annotations.
-- Added project format version 2 for annotation styles while continuing to read version 1 without changing legacy rendering.
-- Added UI/DPI/stacking/style compatibility checks and a synthetic native UI fixture. Preserved 0.1.0 and 0.2.0 archives.
+Interface update. Previews and pins take up less room, and the editor puts its tools in a compact horizontal toolbar.
+
+### Added
+
+- A resize grip and a double-click toggle between compact and larger pin views.
+- Hand-drawn arrow and ellipse styles, with a Clean option for regular shapes.
+- Undoable style changes for selected annotations.
+
+### Improved
+
+- Moved new previews to the bottom left and limited their initial size independently of screenshot resolution.
+- Pins stack along the left, leaving room for the next capture. Pins you move or resize stay where you put them.
+- Replaced large editor buttons and side panels with an icon toolbar and a collapsible image/layers panel.
+- Updated typography, spacing and colors across the editor and history window.
 
 ## 0.2.0 — 2026-10-30
 
-- Added an independent editor from previews, pins, imported PNG/JPEG images and saved projects.
-- Added arrows, lines, rectangles, ellipses, text, counters, translucent highlighting and freehand strokes.
-- Added selection/movement, restyling, object removal, crop, aspect-aware resize, backgrounds/padding, zoom and undo/redo.
-- Added blur, pixelation and opaque black masks; projects clearly retain the unredacted original while exports flatten the result.
-- Added self-contained versioned `.framelet` projects, atomic save, bounded input validation and unsaved-edit prompts on editor close/app quit.
-- Added flattened PNG/JPEG export, edited clipboard copy and edited pinning.
-- Preserved capture hotkeys, previews, pins, original history images and the existing history/settings schema. Editors hide during capture and restore with their state intact.
-- Fixed project PNG encoding into ZIP entries by using a seekable intermediate stream.
-- Added editor pixel/project/failure-path checks and versioned portable/source archives. Preserved 0.1.0 release archives.
+Feature release. Screenshots can now be annotated and edited before you share them.
+
+### Added
+
+- An editor for captures, imported PNG/JPEG images and saved Framelet projects.
+- Arrows, lines, rectangles, ellipses, text, numbered counters, highlighting and freehand drawing.
+- Crop, resize, backgrounds, padding and zoom, with undo and redo.
+- Blur, pixelation and solid masks, plus flattened PNG/JPEG export, Copy and Pin.
+- Editable .framelet projects and a save prompt when closing unsaved work.
+
+### Fixed
+
+- Project saving when writing the original image into a .framelet file.
+
+Projects keep the original image and editable layers. To share a masked image, export a flattened PNG/JPEG; blur and pixelation are not secure redaction.
 
 ## 0.1.0 — 2026-10-30
 
-- Added area, visible-window, full-display and repeat-area capture.
-- Added configurable global shortcuts, capture buttons and notification-area menu.
-- Added floating preview, clipboard copy, atomic PNG export and up to eight resizable pins.
-- Added local history with 100-capture retention, restart persistence, backup index and image recovery.
-- Added physical-pixel coordinate conversion, canceled-selection restoration and exclusion of the app's capture chrome.
-- Fixed a native pixel-copy error found by the live fixture tests.
-- Excluded input-transparent/nonactivating utility overlays from window selection.
-- Made selection, preview and pin windows available through the taskbar/Alt+Tab and kept actions accessible on small pins.
-- Added offline build scripts, native verification harness and portable packaging.
+First release. Capture a screenshot, copy or save it, and keep references pinned beside your work.
+
+### Added
+
+- Area, window and full-display capture, plus a shortcut to capture the last area again.
+- Custom global shortcuts and a tray menu for capture actions.
+- A floating preview with Copy and Save, and up to eight movable, resizable pins.
+- Local history for the latest 100 captures, available after restarting the app.

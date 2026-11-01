@@ -9,3 +9,6 @@
 - Publish only reviewed source and runtime packages plus checksums. Keep `.tools`, `design`, private verification records, agent logs, capture history, test captures, credentials and the original reference installers/media out of Git and releases.
 - Historical commits were imported from original source ZIPs on 2026-11-01; do not backdate or claim they are the original development commits. Build dates and original archive SHA256 values are recorded separately.
 - No background sync or automatic native testing is configured. Follow the documented release steps during authorized Framelet work.
+
+- Publish only to the personal repository owned by `hooksha-DA7`. Check the authenticated login before publication.
+- Keep README focused on the app, downloading it and using it. Release notes should describe concrete Added, Improved and Fixed behavior in plain language; keep agent/workflow details and test receipts in developer documentation.

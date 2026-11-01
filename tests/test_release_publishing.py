@@ -74,6 +74,14 @@ class ReleaseLogChecks(unittest.TestCase):
         self.assertNotIn("0.6.0-preview.4", block)
         self.assertIn("0.5.2", block)
 
+    def test_public_notes_and_changelog_are_current_with_the_catalog(self):
+        root = Path(__file__).resolve().parents[1]
+        for entry in self.catalog["releases"]:
+            with self.subTest(version=entry["version"]):
+                self.assertEqual((root / entry["notes"]).read_text(encoding="utf-8"), LOG.render_notes(self.catalog, entry))
+        self.assertEqual((root / "RELEASES.md").read_text(encoding="utf-8"), LOG.render(self.catalog))
+        self.assertEqual((root / "CHANGELOG.md").read_text(encoding="utf-8"), LOG.render_changelog(self.catalog))
+
 
 if __name__ == "__main__":
     unittest.main()
