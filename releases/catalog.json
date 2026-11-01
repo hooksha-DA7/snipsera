@@ -616,7 +616,8 @@
           "Included the release log and build notes in the download so packaged documentation links work."
         ]
       },
-      "notice": "For scrolling capture, leave fixed headers and scrollbars outside the selection and keep some overlap between views. Very repetitive, animated or changing content may need manual adjustment."
+      "notice": "For scrolling capture, leave fixed headers and scrollbars outside the selection and keep some overlap between views. Very repetitive, animated or changing content may need manual adjustment.",
+      "source_commit": "5db9eb1bf14a588faa3cc74acb64d1ac83c7dd81"
     }
   ]
 }
