@@ -1,0 +1,372 @@
+{
+  "schema_version": 1,
+  "repository": "hooksha-DA7/framelet",
+  "imported_on": "2026-11-01",
+  "verified_baseline": "v0.5.2",
+  "latest_preview": "v0.6.0-preview.4",
+  "releases": [
+    {
+      "version": "0.1.0",
+      "tag": "v0.1.0",
+      "build_date": "2026-10-30",
+      "title": "Capture foundation",
+      "status": "historical",
+      "prerelease": false,
+      "latest": false,
+      "notes": "releases/notes/v0.1.0.md",
+      "release_url": "https://github.com/hooksha-DA7/framelet/releases/tag/v0.1.0",
+      "summary": [
+        "Area, visible-window, display and repeat-area capture with configurable hotkeys.",
+        "Floating preview, copy/save, up to eight pins and local capture history."
+      ],
+      "verification": "Historical capture build. Use 0.5.2 for the last locally verified capture/annotation baseline.",
+      "assets": [
+        {
+          "role": "windows-x64",
+          "name": "Framelet-0.1.0-win-x64.zip",
+          "sha256": "3b1ddaa05a51777af469d2fb0c02ecc541b217f228cec9e40a5432679796edaf",
+          "bytes": 114879,
+          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.1.0/Framelet-0.1.0-win-x64.zip"
+        },
+        {
+          "role": "source",
+          "name": "Framelet-0.1.0-source.zip",
+          "sha256": "355dc0997dd9664e193928e5481acc3970229473b5f8a187849ef2a54854832e",
+          "bytes": 40092,
+          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.1.0/Framelet-0.1.0-source.zip"
+        }
+      ],
+      "source_commit": "143f09254321cac7fe494dca1d07a3ded87985d9"
+    },
+    {
+      "version": "0.2.0",
+      "tag": "v0.2.0",
+      "build_date": "2026-10-30",
+      "title": "Annotations and image editing",
+      "status": "historical",
+      "prerelease": false,
+      "latest": false,
+      "notes": "releases/notes/v0.2.0.md",
+      "release_url": "https://github.com/hooksha-DA7/framelet/releases/tag/v0.2.0",
+      "summary": [
+        "Independent annotation editor with shapes, text, counters, highlighting and freehand strokes.",
+        "Crop, resize, backgrounds, blur/pixelation, editable projects and flattened export."
+      ],
+      "verification": "Historical editor build; superseded by later fixes and interface updates.",
+      "assets": [
+        {
+          "role": "windows-x64",
+          "name": "Framelet-0.2.0-win-x64.zip",
+          "sha256": "08362cb67e59ed4a38423e4ffa8bfdb419e6f88dcdd5d7a2513241840096f8d7",
+          "bytes": 144638,
+          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.2.0/Framelet-0.2.0-win-x64.zip"
+        },
+        {
+          "role": "source",
+          "name": "Framelet-0.2.0-source.zip",
+          "sha256": "37a61b4aa6b60f889a6c57be2f4944250ad4bb169ca3f8190358eb23805d2bc3",
+          "bytes": 70333,
+          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.2.0/Framelet-0.2.0-source.zip"
+        }
+      ],
+      "source_commit": "ca239829ffe73687d946d4208cfdd54b95b9e911"
+    },
+    {
+      "version": "0.3.0",
+      "tag": "v0.3.0",
+      "build_date": "2026-10-30",
+      "title": "Floating cards and compact editor",
+      "status": "historical",
+      "prerelease": false,
+      "latest": false,
+      "notes": "releases/notes/v0.3.0.md",
+      "release_url": "https://github.com/hooksha-DA7/framelet/releases/tag/v0.3.0",
+      "summary": [
+        "Compact left-side preview/pin cards and stacking with aspect-aware sizing.",
+        "Horizontal editor tools, annotation styles and project-version compatibility."
+      ],
+      "verification": "Historical UI iteration; superseded by the Windows Fluent and on-image-control updates.",
+      "assets": [
+        {
+          "role": "windows-x64",
+          "name": "Framelet-0.3.0-win-x64.zip",
+          "sha256": "db99aab456f6c6f8b0a24f0259c677b918b503882265bc6dd44982b5cc63fc08",
+          "bytes": 158295,
+          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.3.0/Framelet-0.3.0-win-x64.zip"
+        },
+        {
+          "role": "source",
+          "name": "Framelet-0.3.0-source.zip",
+          "sha256": "90fa78de600ab00721340ec77120e138aadd43180b468f8548e6e61e00f8c765",
+          "bytes": 87840,
+          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.3.0/Framelet-0.3.0-source.zip"
+        }
+      ],
+      "source_commit": "8515fe18cfb51bbe0857431584981d2899c6261a"
+    },
+    {
+      "version": "0.4.0",
+      "tag": "v0.4.0",
+      "build_date": "2026-10-31",
+      "title": "Windows 11 Fluent styling",
+      "status": "historical",
+      "prerelease": false,
+      "latest": false,
+      "notes": "releases/notes/v0.4.0.md",
+      "release_url": "https://github.com/hooksha-DA7/framelet/releases/tag/v0.4.0",
+      "summary": [
+        "System light/dark styling, Windows caption controls and supported Mica backdrop.",
+        "Native file drag, pin opacity controls and preference fallbacks."
+      ],
+      "verification": "Historical Windows styling build; superseded by later interface corrections.",
+      "assets": [
+        {
+          "role": "windows-x64",
+          "name": "Framelet-0.4.0-win-x64.zip",
+          "sha256": "fa4cef18442542de336e60903a39390de428c49df5994c2077aef4aed25ac4b0",
+          "bytes": 167891,
+          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.4.0/Framelet-0.4.0-win-x64.zip"
+        },
+        {
+          "role": "source",
+          "name": "Framelet-0.4.0-source.zip",
+          "sha256": "d945535bfd2cf9601a066aea4940e1dcbee7831762d608cbe39005c4d730edd1",
+          "bytes": 98682,
+          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.4.0/Framelet-0.4.0-source.zip"
+        }
+      ],
+      "source_commit": "a44660b82835670e50872a03f326f6b41e65d46c"
+    },
+    {
+      "version": "0.4.1",
+      "tag": "v0.4.1",
+      "build_date": "2026-10-31",
+      "title": "Capture-row polish",
+      "status": "historical",
+      "prerelease": false,
+      "latest": false,
+      "notes": "releases/notes/v0.4.1.md",
+      "release_url": "https://github.com/hooksha-DA7/framelet/releases/tag/v0.4.1",
+      "summary": [
+        "Consistent capture rows and larger hit targets with quieter resting surfaces."
+      ],
+      "verification": "Small historical interface refinement.",
+      "assets": [
+        {
+          "role": "windows-x64",
+          "name": "Framelet-0.4.1-win-x64.zip",
+          "sha256": "2a2d34ec5040ac8f11b0c569e6183aeb37a4e6cc48a548569b40867594e8eb51",
+          "bytes": 167971,
+          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.4.1/Framelet-0.4.1-win-x64.zip"
+        },
+        {
+          "role": "source",
+          "name": "Framelet-0.4.1-source.zip",
+          "sha256": "c341ba576cdb0aad180b24b29a441c4c47abb848eb054c2f9d090f461820c2ed",
+          "bytes": 98777,
+          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.4.1/Framelet-0.4.1-source.zip"
+        }
+      ],
+      "source_commit": "33633091dd3c981bfa327ded779c5444d90dd108"
+    },
+    {
+      "version": "0.5.0",
+      "tag": "v0.5.0",
+      "build_date": "2026-10-31",
+      "title": "Arrow styles and repeated captures",
+      "status": "historical",
+      "prerelease": false,
+      "latest": false,
+      "notes": "releases/notes/v0.5.0.md",
+      "release_url": "https://github.com/hooksha-DA7/framelet/releases/tag/v0.5.0",
+      "summary": [
+        "Four arrow styles, editable endpoints/curve handles and smoother freehand marks.",
+        "Themed confirmations, improved floating edges and queued/repeated captures."
+      ],
+      "verification": "Historical feature build; later floating-card behavior supersedes it.",
+      "assets": [
+        {
+          "role": "windows-x64",
+          "name": "Framelet-0.5.0-win-x64.zip",
+          "sha256": "a89fa3e36a1e49cc76d03c19d5bae0bd95b3c0adbd5c6090602637e26a4b68e4",
+          "bytes": 178438,
+          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.5.0/Framelet-0.5.0-win-x64.zip"
+        },
+        {
+          "role": "source",
+          "name": "Framelet-0.5.0-source.zip",
+          "sha256": "cbbdf3d706817b253dcd5212c9cb0c4f8fcdf27736b3a37b729d2804ee507ab2",
+          "bytes": 114594,
+          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.5.0/Framelet-0.5.0-source.zip"
+        }
+      ],
+      "source_commit": "25df3aa3e8aa9b73e73e1ff0cfdffc9abde2f329"
+    },
+    {
+      "version": "0.5.1",
+      "tag": "v0.5.1",
+      "build_date": "2026-10-31",
+      "title": "Superseded external-toolbar experiment",
+      "status": "superseded-design",
+      "prerelease": true,
+      "latest": false,
+      "notes": "releases/notes/v0.5.1.md",
+      "release_url": "https://github.com/hooksha-DA7/framelet/releases/tag/v0.5.1",
+      "summary": [
+        "Shared preview/pin sizing and same-window Pin/Unpin.",
+        "Experimented with floating controls outside the image."
+      ],
+      "verification": "Archived for completeness. The external-toolbar design was rejected and replaced in 0.5.2. Do not use this as the recommended UI.",
+      "assets": [
+        {
+          "role": "windows-x64",
+          "name": "Framelet-0.5.1-win-x64.zip",
+          "sha256": "59c9ce59999fd0e8852979496458efaea7ff8a98e55c70e58a03c8f1fc376948",
+          "bytes": 182792,
+          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.5.1/Framelet-0.5.1-win-x64.zip"
+        },
+        {
+          "role": "source",
+          "name": "Framelet-0.5.1-source.zip",
+          "sha256": "0931dda19e81cace830f2a04a903f9232a1510f54bb96c402589004a15b3524c",
+          "bytes": 119836,
+          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.5.1/Framelet-0.5.1-source.zip"
+        }
+      ],
+      "source_commit": "28943cda46f706580308982e242c6a65144a9242"
+    },
+    {
+      "version": "0.5.2",
+      "tag": "v0.5.2",
+      "build_date": "2026-11-01",
+      "title": "On-image controls restored",
+      "status": "verified-baseline",
+      "prerelease": false,
+      "latest": true,
+      "notes": "releases/notes/v0.5.2.md",
+      "release_url": "https://github.com/hooksha-DA7/framelet/releases/tag/v0.5.2",
+      "summary": [
+        "corner actions and centered Copy/Save pills restored on the image.",
+        "Adaptive compact layouts retain drag access and same-window Pin/Unpin."
+      ],
+      "verification": "Last locally verified capture/annotation baseline. Its packaged launch and on-image controls were checked before the later desktop-testing pause. It does not include scrolling capture or temporary overlay hiding.",
+      "assets": [
+        {
+          "role": "windows-x64",
+          "name": "Framelet-0.5.2-win-x64.zip",
+          "sha256": "5c633286f10170b6cdf9cb583564706d80266e52fe52b2cb5a905bbb7ab66947",
+          "bytes": 191279,
+          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.5.2/Framelet-0.5.2-win-x64.zip"
+        },
+        {
+          "role": "source",
+          "name": "Framelet-0.5.2-source.zip",
+          "sha256": "64fa9accc4343fae42b3aea60e4eabe9c54f826e3a4f36113532eba46b28760f",
+          "bytes": 130410,
+          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.5.2/Framelet-0.5.2-source.zip"
+        }
+      ],
+      "source_commit": "724798e65e5d410704f84880567bc9fe66a3a8b9"
+    },
+    {
+      "version": "0.6.0-preview.2",
+      "tag": "v0.6.0-preview.2",
+      "build_date": "2026-11-01",
+      "title": "Initial scrolling capture",
+      "status": "superseded-preview",
+      "prerelease": true,
+      "latest": false,
+      "notes": "releases/notes/v0.6.0-preview.2.md",
+      "release_url": "https://github.com/hooksha-DA7/framelet/releases/tag/v0.6.0-preview.2",
+      "summary": [
+        "Select a scrolling region, collect a tall image and use the existing preview/history workflow.",
+        "Growing preview and optional Auto-scroll controls."
+      ],
+      "verification": "Early scrolling preview, superseded by previews 3 and 4. Recovery warnings and Chrome Auto-scroll failures were subsequently reported. Imported as preview.2 to distinguish the original unnumbered preview ZIPs; their bytes and filenames are unchanged.",
+      "assets": [
+        {
+          "role": "windows-x64",
+          "name": "Framelet-0.6.0-preview-win-x64.zip",
+          "sha256": "25c47eecff0190bcc4782cbff2375a0dbd89432e8bd7b982e2bf166ab730ac2b",
+          "bytes": 215893,
+          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.6.0-preview.2/Framelet-0.6.0-preview-win-x64.zip"
+        },
+        {
+          "role": "source",
+          "name": "Framelet-0.6.0-preview-source.zip",
+          "sha256": "acc2eabc37191d1e0cf03d5f572c73c74acf460f98314c514a0fbd3689627b75",
+          "bytes": 161774,
+          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.6.0-preview.2/Framelet-0.6.0-preview-source.zip"
+        }
+      ],
+      "source_commit": "2fc6785e1be0ac01fa28809a233690c67a2a3ecf"
+    },
+    {
+      "version": "0.6.0-preview.3",
+      "tag": "v0.6.0-preview.3",
+      "build_date": "2026-11-01",
+      "title": "Scrolling backend repair",
+      "status": "preview",
+      "prerelease": true,
+      "latest": false,
+      "notes": "releases/notes/v0.6.0-preview.3.md",
+      "release_url": "https://github.com/hooksha-DA7/framelet/releases/tag/v0.6.0-preview.3",
+      "summary": [
+        "Continuous-frame collection, sparse/short-overlap and fractional text matching, late-paint repair and guarded Chrome wheel input.",
+        "29 no-window backend checks passed; compilation had zero warnings/errors."
+      ],
+      "verification": "Experimental. Live Chrome input/output quality, full native lifecycle and extracted launch remain unverified because desktop testing was paused. Preview 4 includes this same scrolling code.",
+      "assets": [
+        {
+          "role": "windows-x64",
+          "name": "Framelet-0.6.0-preview.3-win-x64.zip",
+          "sha256": "57fa85c65b0bfbeac956ca49e23681d08c11f2e2120b59003c331228cb8ae682",
+          "bytes": 226061,
+          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.6.0-preview.3/Framelet-0.6.0-preview.3-win-x64.zip"
+        },
+        {
+          "role": "source",
+          "name": "Framelet-0.6.0-preview.3-source.zip",
+          "sha256": "1b04a42f4c866cda7be2b2d237c8fdf329f308332ac1c0c3ecf715237bebdf11",
+          "bytes": 177226,
+          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.6.0-preview.3/Framelet-0.6.0-preview.3-source.zip"
+        }
+      ],
+      "source_commit": "44c98707138e93d5ccf155ef12c9b89a442dd09e"
+    },
+    {
+      "version": "0.6.0-preview.4",
+      "tag": "v0.6.0-preview.4",
+      "build_date": "2026-11-01",
+      "title": "Temporarily hide overlays",
+      "status": "preview",
+      "prerelease": true,
+      "latest": false,
+      "notes": "releases/notes/v0.6.0-preview.4.md",
+      "release_url": "https://github.com/hooksha-DA7/framelet/releases/tag/v0.6.0-preview.4",
+      "summary": [
+        "Wheel-down hiding for the floating group, with a small bottom-left restore tab and tray/Home alternatives.",
+        "slide/fade, image hint, hover/click restoration and preference fallbacks.",
+        "53 no-window backend checks and six off-screen template checks passed; compilation had zero warnings/errors."
+      ],
+      "verification": "Latest feature preview. Native hover/focus/animation, real capture exclusion, full lifecycle, mixed-DPI preferences and extracted launch are pending. Chrome scrolling acceptance remains pending. Desktop testing is still paused.",
+      "assets": [
+        {
+          "role": "windows-x64",
+          "name": "Framelet-0.6.0-preview.4-win-x64.zip",
+          "sha256": "01e89098b72137b937986ad82ed5dabd83056000efec428fd74f017f8d9d6cc2",
+          "bytes": 239279,
+          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.6.0-preview.4/Framelet-0.6.0-preview.4-win-x64.zip"
+        },
+        {
+          "role": "source",
+          "name": "Framelet-0.6.0-preview.4-source.zip",
+          "sha256": "4930ac37653ff54bd8c68087c9ff49c9061f13c9f0a9753a82296256d4888614",
+          "bytes": 200110,
+          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.6.0-preview.4/Framelet-0.6.0-preview.4-source.zip"
+        }
+      ],
+      "source_commit": "6865ee5e93bdda175cd132606550f2914f17d5f1"
+    }
+  ]
+}

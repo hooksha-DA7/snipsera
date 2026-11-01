@@ -1,5 +1,11 @@
 # Framelet 0.6.0
 
+<!-- FRAMELET_DOWNLOADS_START -->
+**Downloads:** [last locally verified build (0.5.2)](https://github.com/hooksha-DA7/framelet/releases/tag/v0.5.2) · [latest feature preview (0.6.0-preview.4)](https://github.com/hooksha-DA7/framelet/releases/tag/v0.6.0-preview.4) · [all versions and download log](RELEASES.md).
+<!-- FRAMELET_DOWNLOADS_END -->
+
+The original Windows and source ZIPs are attached to each release with SHA256 checksums. Historical versions are retained; previews and the superseded toolbar experiment are labeled. See [publishing a new version](docs/RELEASING.md).
+
 **Development preview 4:** temporary overlay hiding is implemented with the restore-tab design. Backend and off-screen template checks pass; live interaction and Chrome scrolling acceptance remain pending while desktop testing is paused at the user's request. Version 0.5.2 remains the last verified release. See [temporary hiding](docs/TEMPORARY-HIDE.md) and [scrolling verification](docs/SCROLLING-CAPTURE.md#verification).
 
 A local Windows screenshot app with an editable annotation workspace. The interface combines CleanShot-inspired capture interactions with Windows 11 Fluent controls, system light/dark styling, native caption buttons and Mica on the main windows. Framelet is an independent implementation; the original CleanShot installer, code and artwork are not included.

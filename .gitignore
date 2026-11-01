@@ -4,3 +4,17 @@
 verification/runs/
 dist/
 *.user
+design/
+verification/*
+!verification/verify_packages.py
+!verification/verify_editor_artifacts.py
+**/__pycache__/
+*.pyc
+.env
+.env.*
+*.pfx
+*.p12
+*.key
+*.pem
+*.dmg
+*.mp4
