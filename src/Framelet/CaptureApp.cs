@@ -114,6 +114,7 @@ public sealed class CaptureApp : Application
             { entry = new CaptureEntry(Guid.NewGuid().ToString("N"), DateTimeOffset.UtcNow, kind.ToString(), image.PixelWidth, image.PixelHeight); warning = "History could not be saved. Use Copy or Save to keep this capture."; }
             preview?.Close();
             foreach (var pin in pins.ToArray()) pin.Show();
+            foreach (var editor in visible.OfType<EditorWindow>()) editor.Show();
             preview = new ImageWindow(this, image, entry, false, warning); preview.Show();
             home.RefreshHistory(); home.SetStatus(warning ?? "Capture ready");
             completed = true;
@@ -139,6 +140,28 @@ public sealed class CaptureApp : Application
         pins.Add(window); window.Closed += (_, _) => pins.Remove(window); window.Show();
     }
 
+    public void EditImage(BitmapSource image) { ShowEditor(new EditDocument(image)); preview?.Hide(); }
+
+    public void OpenImageOrProject()
+    {
+        var dialog = new OpenFileDialog { Title = "Open image or editable project", Filter = "Images and Framelet projects|*.png;*.jpg;*.jpeg;*.framelet|PNG and JPEG images|*.png;*.jpg;*.jpeg|Framelet project|*.framelet", CheckFileExists = true };
+        var owner = Windows.Cast<Window>().FirstOrDefault(w => w.IsActive) ?? home;
+        if (dialog.ShowDialog(owner) != true) return;
+        try
+        {
+            bool project = Path.GetExtension(dialog.FileName).Equals(".framelet", StringComparison.OrdinalIgnoreCase);
+            var document = project ? EditFiles.LoadProject(dialog.FileName) : new EditDocument(EditFiles.LoadImage(dialog.FileName));
+            ShowEditor(document, Path.GetFileNameWithoutExtension(dialog.FileName), project ? dialog.FileName : null);
+        }
+        catch (Exception ex) { Report(ex); }
+    }
+
+    private void ShowEditor(EditDocument document, string name = "Capture", string? projectPath = null)
+    {
+        var editor = new EditorWindow(document, image => Pin(image, new CaptureEntry(Guid.NewGuid().ToString("N"), DateTimeOffset.UtcNow, "Edited", image.PixelWidth, image.PixelHeight)), OpenImageOrProject, name, projectPath);
+        editor.Show(); editor.Activate();
+    }
+
     public void SaveImage(BitmapSource image, Window owner)
     {
         var dialog = new SaveFileDialog { Title = "Save capture", Filter = "PNG image (*.png)|*.png", DefaultExt = ".png", AddExtension = true,
@@ -155,5 +178,9 @@ public sealed class CaptureApp : Application
         if (home?.IsVisible != true) MessageBox.Show(message, "Framelet", MessageBoxButton.OK, MessageBoxImage.Information);
     }
 
-    public void Quit() { Quitting = true; tray?.Dispose(); foreach (Window window in Windows.Cast<Window>().ToArray()) window.Close(); Shutdown(); }
+    public void Quit()
+    {
+        foreach (var editor in Windows.Cast<Window>().OfType<EditorWindow>().ToArray()) if (!editor.ConfirmClose()) return;
+        Quitting = true; tray?.Dispose(); foreach (Window window in Windows.Cast<Window>().ToArray()) window.Close(); Shutdown();
+    }
 }

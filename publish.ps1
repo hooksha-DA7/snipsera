@@ -1,7 +1,9 @@
-param([string]$Version = '0.1.0')
+param([string]$Version = '0.2.0')
 $ErrorActionPreference = 'Stop'
 if ($Version -notmatch '^\d+\.\d+\.\d+$') { throw 'Use a numeric major.minor.patch version.' }
 $frameletRoot = $PSScriptRoot
+$frameletProject = [xml](Get-Content -LiteralPath (Join-Path $frameletRoot 'src/Framelet/Framelet.csproj') -Raw)
+if ($frameletProject.Project.PropertyGroup.Version -ne $Version) { throw 'Package version must match the application project version.' }
 & (Join-Path $frameletRoot 'build.ps1') -Release
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 $frameletDist = Join-Path $frameletRoot 'dist'
@@ -22,6 +24,8 @@ foreach ($file in @('README.md','CHANGELOG.md','Directory.Build.props','NuGet.Co
     Copy-Item -LiteralPath (Join-Path $frameletRoot $file) -Destination $frameletSource
 }
 Copy-Item -LiteralPath (Join-Path $frameletRoot 'docs') -Destination $frameletSource -Recurse
+$null = New-Item -ItemType Directory -Path (Join-Path $frameletSource 'verification') -Force
+Copy-Item -LiteralPath (Join-Path $frameletRoot 'verification/verify_packages.py') -Destination (Join-Path $frameletSource 'verification')
 foreach ($tree in @('src','tests')) {
     $treeRoot = Join-Path $frameletRoot $tree
     foreach ($file in Get-ChildItem -LiteralPath $treeRoot -Recurse -File) {

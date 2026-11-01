@@ -17,9 +17,9 @@ public sealed class ImageWindow : Window
         CaptureImage = image;
         Ui.Setup(this);
         Title = pinned ? "Framelet — pinned capture" : "Framelet — preview";
-        Width = pinned ? Math.Clamp(image.PixelWidth + 32, 340, 900) : 380;
+        Width = pinned ? Math.Clamp(image.PixelWidth + 32, 400, 900) : 446;
         Height = pinned ? Math.Clamp(image.PixelHeight + 90, 220, 720) : 300;
-        MinWidth = pinned ? 340 : 380; MinHeight = 180; ShowInTaskbar = true; Topmost = true;
+        MinWidth = pinned ? 400 : 446; MinHeight = 180; ShowInTaskbar = true; Topmost = true;
         ShowActivated = pinned; ResizeMode = pinned ? ResizeMode.CanResizeWithGrip : ResizeMode.NoResize;
         WindowStyle = WindowStyle.SingleBorderWindow;
         var dock = new DockPanel { Margin = new Thickness(12) };
@@ -33,6 +33,8 @@ public sealed class ImageWindow : Window
         { try { await CaptureService.Copy(image); status.Text = "Copied to clipboard"; } catch (Exception ex) { app.Report(ex); } }, true));
         actions.Children.Add(Ui.Button("Save…", "SaveCapture", () => app.SaveImage(image, this)));
         if (!pinned) actions.Children.Add(Ui.Button("Pin", "PinCapture", () => app.Pin(image, entry)));
+        actions.Children.Add(Ui.Button("Edit", "EditCapture", () =>
+        { try { app.EditImage(image); } catch (Exception ex) { app.Report(ex); } }));
         actions.Children.Add(Ui.Button("History", "OpenHistory", app.ShowHome));
         status.Margin = new Thickness(0, 8, 0, 0);
         bottom.Children.Add(actions); bottom.Children.Add(status);

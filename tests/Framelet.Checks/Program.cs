@@ -94,6 +94,8 @@ internal static class Program
         Test("Valid shortcut settings survive restart", () =>
         { var store = new HistoryStore(Folder()); var settings = new AppSettings("Ctrl+Alt+Q", "Ctrl+Alt+W", "Ctrl+Alt+E", "Ctrl+Alt+R"); store.SaveSettings(settings); Equal(settings, new HistoryStore(store.Root).LoadSettings()); });
 
+        EditorChecks.Run(output, Test, Pump);
+
         var fixture = new FixtureWindow { Topmost = true }; fixture.Show(); fixture.Activate(); Pump(350); Native.DwmFlush();
         Test("Live native capture returns the synthetic window pixels", () =>
         {

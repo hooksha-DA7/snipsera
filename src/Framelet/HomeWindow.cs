@@ -25,6 +25,9 @@ public sealed class HomeWindow : Window
         brand.Children.Add(name); brand.Children.Add(Ui.Text("Capture it. Keep it close.", 14, Ui.Muted));
         var hide = Ui.Button("Keep in tray", "HideToTray", Hide); hide.VerticalAlignment = VerticalAlignment.Center;
         DockPanel.SetDock(hide, Dock.Right); header.Children.Add(hide); header.Children.Add(brand);
+        var open = Ui.Button("Open image / project…", "OpenImageProject", app.OpenImageOrProject);
+        open.VerticalAlignment = VerticalAlignment.Center; DockPanel.SetDock(open, Dock.Right);
+        header.Children.Insert(1, open);
         DockPanel.SetDock(header, Dock.Top); dock.Children.Add(header);
         status.Margin = new Thickness(0, 16, 0, 0); DockPanel.SetDock(status, Dock.Bottom); dock.Children.Add(status);
         var columns = new Grid(); columns.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(300) });
