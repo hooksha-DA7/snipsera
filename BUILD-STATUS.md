@@ -2,7 +2,7 @@
 
 Build: 0.6.0-preview.4, 2026-11-01.
 The full 125-check suite, capture-lifecycle integration and six off-screen template checks passed; compilation has zero warnings/errors.
-Live Chrome scrolling, overlay wheel/hover interaction and capture exclusion, and an extracted-package launch remain pending.
+Live Chrome scrolling, overlay wheel/hover interaction and capture exclusion remain pending. The published preview passed archive integrity and extracted startup checks; the final staged package will need its own launch check.
 Desktop testing resumed on 2026-11-01, then the desktop-control GPU capture connection failed. See [release acceptance](docs/RELEASE-ACCEPTANCE-0.6.0.md) for passed checks and remaining work.
 The last locally verified capture/annotation baseline remains 0.5.2.
 

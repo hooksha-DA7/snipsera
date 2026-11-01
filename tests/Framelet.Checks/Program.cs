@@ -52,6 +52,8 @@ internal static class Program
     [STAThread]
     public static int Main(string[] args)
     {
+        if (args.Length == 2 && args[0] == "--acceptance-fixture") return AcceptanceFixture.Run(args[1]);
+        if (args.Length == 2 && args[0] == "--acceptance-fixture-smoke") return AcceptanceFixture.Run(args[1], true);
         if (args.Length == 2 && args[0] == "--overlay-style-check") return OverlayShelfVisualChecks.Run(args[1]);
         if (args.Length == 2 && args[0] == "--backend-check") return ScrollingBackendChecks.Run(args[1], true);
         if (args.Length == 2 && args[0] == "--scroll-backend-check") return ScrollingBackendChecks.Run(args[1]);
