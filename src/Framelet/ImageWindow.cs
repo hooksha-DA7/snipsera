@@ -21,9 +21,10 @@ public sealed class ImageWindow : Window
     public bool IsDocked { get; private set; } = true;
     public DrawingRect DockWorkArea { get; private set; }
     public double DockScale { get; private set; } = 1;
-    public double ImageOpacity { get => thumbnail.Opacity; private set => thumbnail.Opacity = Math.Clamp(value, .2, 1); }
+    public double ImageOpacity { get => thumbnail.Opacity; private set { thumbnail.Opacity = Math.Clamp(value, .2, 1); edge.Opacity = thumbnail.Opacity; } }
     private readonly Image thumbnail;
     private readonly Grid chrome;
+    private readonly Border edge = new();
     private readonly TextBlock status = Ui.Text("", 12, Ui.Ink);
     private readonly DispatcherTimer toast = new() { Interval = TimeSpan.FromSeconds(2) };
 
@@ -35,24 +36,27 @@ public sealed class ImageWindow : Window
         WindowStyle = WindowStyle.None; AllowsTransparency = true; Background = Brushes.Transparent;
         ResizeMode = ResizeMode.NoResize; ShowInTaskbar = true; Topmost = true; ShowActivated = false;
         var root = new Grid { Margin = new Thickness(8) };
-        var card = new Border { Background = Brushes.Transparent, CornerRadius = new CornerRadius(8),
-            Effect = new DropShadowEffect { BlurRadius = 16, ShadowDepth = 3, Opacity = .22 } };
+        var card = new Border { Background = Brushes.Transparent, CornerRadius = new CornerRadius(FloatingVisuals.Radius),
+            Effect = new DropShadowEffect { BlurRadius = 18, ShadowDepth = 2, Opacity = .18 } };
         var surface = new Grid { Background = Brushes.Transparent };
-        surface.SizeChanged += (_, _) => surface.Clip = new RectangleGeometry(new Rect(surface.RenderSize), 8, 8);
+        surface.SizeChanged += (_, _) => FloatingVisuals.Round(surface, surface.RenderSize);
         thumbnail = new Image { Source = image, Stretch = Stretch.Uniform, ToolTip = pinned ? "Drag to move · double-click to enlarge · Ctrl+wheel for opacity" : "Drag the image to another app · double-click to annotate" };
+        RenderOptions.SetBitmapScalingMode(thumbnail, BitmapScalingMode.HighQuality);
         surface.Children.Add(thumbnail);
         chrome = new Grid { Opacity = 0, Background = pinned ? Brushes.Transparent : Ui.Glass };
         var message = new Border { Background = Ui.Surface, BorderBrush = Ui.Line, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(4), Padding = new Thickness(8, 4, 8, 4),
             Child = status, IsHitTestVisible = false, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center, Visibility = Visibility.Collapsed };
         var close = Corner("Close", "Close capture", "CloseCapture", Close, HorizontalAlignment.Right, VerticalAlignment.Top);
         var menu = new ContextMenu();
-        void Menu(string label, Action action) { var item = new MenuItem { Header = label }; item.Click += (_, _) => action(); menu.Items.Add(item); }
+        void Menu(string label, Action action) { var item = new MenuItem { Header = label }; item.Click += (_, _) => { menu.IsOpen = false; Dispatcher.BeginInvoke(action); }; menu.Items.Add(item); }
+        Menu("Capture area", () => _ = app.CaptureAsync(CaptureKind.Area)); Menu("Capture window", () => _ = app.CaptureAsync(CaptureKind.Window)); Menu("Capture display", () => _ = app.CaptureAsync(CaptureKind.Screen)); menu.Items.Add(new Separator());
         if (!pinned) Menu("Pin", () => { if (app.Pin(image, entry)) Hide(); });
         Menu("History", app.ShowHome); Menu("Annotate", () => app.EditImage(image));
         var opacity = new Slider { Minimum = .2, Maximum = 1, Value = 1, Width = 150, TickFrequency = .05, Margin = new Thickness(8, 5, 8, 8), ToolTip = "Pinned image opacity" };
         AutomationProperties.SetAutomationId(opacity, "PinOpacity"); opacity.ValueChanged += (_, _) => ImageOpacity = opacity.Value;
         if (pinned) { menu.Items.Add(new Separator()); menu.Items.Add(new MenuItem { Header = Ui.Text("Image opacity · Ctrl+wheel", 12, Ui.Muted), Focusable = false, IsHitTestVisible = false }); menu.Items.Add(new MenuItem { Header = opacity, StaysOpenOnClick = true }); }
         Menu("Close", Close); surface.ContextMenu = menu;
+        menu.PreviewKeyDown += (_, e) => { if (e.Key == Key.Escape) { menu.IsOpen = false; e.Handled = true; } };
         var pin = Corner("Pin", pinned ? "Pin options" : "Pin", "PinCapture", () => { if (pinned) menu.IsOpen = true; else if (app.Pin(image, entry)) Hide(); }, HorizontalAlignment.Left, VerticalAlignment.Top);
         var annotate = Corner("Pen", "Annotate", "EditCapture", () => app.EditImage(image), HorizontalAlignment.Left, VerticalAlignment.Bottom);
         var drag = Corner("Drag", "Drag image to another app", "DragCapture", () => Notice("Drag this handle to another app"), HorizontalAlignment.Right, VerticalAlignment.Bottom);
@@ -60,10 +64,10 @@ public sealed class ImageWindow : Window
         var actions = new StackPanel { VerticalAlignment = pinned ? VerticalAlignment.Bottom : VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center, Orientation = pinned ? Orientation.Horizontal : Orientation.Vertical, Margin = new Thickness(0, 0, 0, pinned ? 5 : 0) };
         async void Copy() { try { await CaptureService.Copy(image); Notice("Copied"); } catch (Exception ex) { app.Report(ex); } }
         var copy = Ui.Button("Copy", "CopyCapture", Copy); var save = Ui.Button("Save…", "SaveCapture", () => app.SaveImage(image, this));
-        foreach (var button in new[] { copy, save }) { button.Width = pinned ? 28 : 76; button.MinHeight = 28; button.Height = 28; button.Padding = pinned ? new Thickness(5) : new Thickness(8, 2, 8, 2); button.Margin = new Thickness(2); button.Background = Ui.Surface; button.Foreground = Ui.Ink; actions.Children.Add(button); }
+        foreach (var button in new[] { copy, save }) { button.Width = pinned ? 28 : 76; button.MinHeight = 28; button.Height = 28; button.Padding = pinned ? new Thickness(5) : new Thickness(8, 2, 8, 2); button.Margin = new Thickness(2); button.Background = Ui.Surface; button.Foreground = Ui.Ink; button.Resources["ControlCornerRadius"] = new CornerRadius(14); actions.Children.Add(button); }
         if (pinned) { copy.Content = new UiIcon("Copy"); save.Content = new UiIcon("Save"); copy.ToolTip = "Copy · Ctrl+C"; save.ToolTip = "Save… · Ctrl+S"; }
         chrome.Children.Add(actions); chrome.Children.Add(pin); chrome.Children.Add(close); chrome.Children.Add(annotate); chrome.Children.Add(drag); surface.Children.Add(chrome);
-        surface.Children.Add(new Border { BorderBrush = Ui.Line, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(8), IsHitTestVisible = false });
+        edge.BorderBrush = Ui.Line; edge.BorderThickness = new Thickness(.7); edge.CornerRadius = new CornerRadius(FloatingVisuals.Radius); edge.IsHitTestVisible = false; surface.Children.Add(edge);
         surface.Children.Add(message); toast.Tick += (_, _) => { toast.Stop(); message.Visibility = Visibility.Collapsed; };
         void ShowChrome() => RevealActions(surface.IsMouseOver || surface.IsKeyboardFocusWithin || menu.IsOpen);
         surface.MouseEnter += (_, _) => ShowChrome(); surface.MouseLeave += (_, _) => ShowChrome();
@@ -143,6 +147,6 @@ public sealed class ImageWindow : Window
     private static Button Corner(string symbol, string label, string id, Action action, HorizontalAlignment horizontal, VerticalAlignment vertical)
     {
         var button = Ui.IconButton(symbol, label, id, action); button.Width = button.Height = 28; button.MinHeight = button.MinWidth = 28; button.Padding = new Thickness(5); button.Margin = new Thickness(5);
-        button.HorizontalAlignment = horizontal; button.VerticalAlignment = vertical; button.Background = Ui.Surface; button.Foreground = Ui.Ink; return button;
+        button.HorizontalAlignment = horizontal; button.VerticalAlignment = vertical; button.Background = Ui.Surface; button.Foreground = Ui.Ink; button.Resources["ControlCornerRadius"] = new CornerRadius(14); return button;
     }
 }

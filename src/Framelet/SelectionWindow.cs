@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -24,6 +25,14 @@ public sealed class SelectionWindow : Window
     private Rect visualSelection;
     public DrawingRect? Selected { get; private set; }
     public WindowTarget? SelectedWindow { get; private set; }
+    private bool accepted;
+
+    public Task<bool> PickAsync()
+    {
+        var result = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        Closed += (_, _) => result.TrySetResult(accepted);
+        Show(); return result.Task;
+    }
 
     public SelectionWindow(BitmapSource frozenDesktop, DrawingRect desktop, IReadOnlyList<WindowTarget>? targets = null)
     {
@@ -34,11 +43,11 @@ public sealed class SelectionWindow : Window
         var grid = new Grid();
         grid.Children.Add(new Image { Source = frozenDesktop, Stretch = Stretch.Fill, IsHitTestVisible = false });
         grid.Children.Add(canvas); canvas.Children.Add(shade); canvas.Children.Add(outline);
-        var help = new Border { Background = Ui.Ink, CornerRadius = new CornerRadius(9), Padding = new Thickness(18, 12, 18, 12),
+        var help = new Border { Background = Ui.Brush("#E6232328"), CornerRadius = new CornerRadius(9), Padding = new Thickness(18, 12, 18, 12),
             HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Top, Margin = new Thickness(16, 24, 16, 0), IsHitTestVisible = false,
             Child = Ui.Text(targets is null ? "Drag to capture an area   ·   Esc to cancel" : "Click a window to capture   ·   Esc to cancel", 15, Brushes.White) };
         grid.Children.Add(help);
-        label.Background = Ui.Ink; label.Padding = new Thickness(8, 5, 8, 5); label.IsHitTestVisible = false;
+        label.Background = Ui.Brush("#E6232328"); label.Padding = new Thickness(8, 5, 8, 5); label.IsHitTestVisible = false;
         canvas.Children.Add(label); Content = grid;
         Loaded += (_, _) =>
         {
@@ -62,8 +71,9 @@ public sealed class SelectionWindow : Window
             }
         };
         MouseLeftButtonUp += (_, _) => { if (targets is null && origin is not null) { ReleaseMouseCapture(); origin = null; Complete(); } };
-        MouseRightButtonDown += (_, _) => { DialogResult = false; };
-        KeyDown += (_, e) => { if (e.Key == Key.Escape) DialogResult = false; else if (e.Key == Key.Enter) { if (targets is not null) UpdateWindow(); Complete(); } };
+        MouseRightButtonDown += (_, _) => Close();
+        KeyDown += (_, e) => { if (e.Key == Key.Escape) Close(); else if (e.Key == Key.Enter) { if (targets is not null) UpdateWindow(); Complete(); } };
+        Closed += (_, _) => { if (IsMouseCaptured) ReleaseMouseCapture(); };
     }
 
     private Rect ToView(DrawingRect rect) => new((rect.Left - desktop.Left) * canvas.ActualWidth / desktop.Width,
@@ -80,7 +90,7 @@ public sealed class SelectionWindow : Window
 
     private void Complete()
     {
-        if (Selected is DrawingRect rect && rect.Width >= 2 && rect.Height >= 2) DialogResult = true;
+        if (Selected is DrawingRect rect && rect.Width >= 2 && rect.Height >= 2) { accepted = true; Close(); }
     }
 
     private void Draw(Rect selection)

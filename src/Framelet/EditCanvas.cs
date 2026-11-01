@@ -25,6 +25,9 @@ public sealed class EditCanvas : FrameworkElement
     private Mark? draft;
     private Rect crop = Rect.Empty;
     private Vector move;
+    private int arrowHandle = -1;
+    private Mark? arrowOriginal, arrowDraft;
+    private BitmapSource? dragImage;
     private readonly Pen selectionPen = new(Ui.Blue, 1.5) { DashStyle = DashStyles.Dash };
 
     public EditCanvas(EditDocument document)
@@ -32,6 +35,7 @@ public sealed class EditCanvas : FrameworkElement
         Document = document; Focusable = true; Cursor = Cursors.Cross;
         AutomationProperties.SetName(this, "Image editing canvas"); AutomationProperties.SetAutomationId(this, "EditCanvas");
         Image = EditRenderer.Render(document); UpdateSize();
+        RenderOptions.SetBitmapScalingMode(this, BitmapScalingMode.HighQuality);
         document.Changed += Refresh;
         MouseLeftButtonDown += Begin; MouseMove += Drag; MouseLeftButtonUp += Finish;
         LostMouseCapture += (_, _) => CancelGesture();
@@ -46,12 +50,12 @@ public sealed class EditCanvas : FrameworkElement
         UpdateSize();
     }
     private void UpdateSize() { Width = Image.PixelWidth * Zoom; Height = Image.PixelHeight * Zoom; InvalidateVisual(); }
-    public void CancelGesture() { start = null; draft = null; crop = Rect.Empty; points.Clear(); move = new Vector(); if (IsMouseCaptured) ReleaseMouseCapture(); InvalidateVisual(); }
+    public void CancelGesture() { start = null; draft = null; arrowHandle = -1; arrowOriginal = arrowDraft = null; dragImage = null; crop = Rect.Empty; points.Clear(); move = new Vector(); if (IsMouseCaptured) ReleaseMouseCapture(); InvalidateVisual(); }
 
     protected override void OnRender(DrawingContext dc)
     {
         base.OnRender(dc); dc.PushTransform(new ScaleTransform(Zoom, Zoom));
-        dc.DrawImage(Image, new Rect(0, 0, Image.PixelWidth, Image.PixelHeight));
+        dc.DrawImage(dragImage ?? Image, new Rect(0, 0, Image.PixelWidth, Image.PixelHeight));
         var state = Document.State;
         dc.PushClip(new RectangleGeometry(new Rect(state.Padding, state.Padding, state.Width, state.Height)));
         dc.PushTransform(new TranslateTransform(state.Padding, state.Padding));
@@ -61,10 +65,16 @@ public sealed class EditCanvas : FrameworkElement
         if (!crop.IsEmpty) dc.DrawRectangle(new SolidColorBrush(Color.FromArgb(45, 32, 95, 219)), selectionPen, crop);
         if (Selected >= 0 && Selected < state.Marks.Length)
         {
-            var bounds = state.Marks[Selected].Bounds; bounds.Offset(move); bounds.Inflate(4, 4);
-            dc.DrawRectangle(null, selectionPen, bounds);
+            var selected = arrowDraft ?? state.Marks[Selected];
+            if (selected.Kind == MarkKind.Arrow && selected.Arrow is not null)
+            {
+                double radius = 4 / Zoom * state.CropWidth / state.Width;
+                foreach (Point point in Handles(selected)) dc.DrawEllipse(Brushes.White, new Pen(Ui.Blue, radius / 3), point, radius, radius);
+            }
+            else { var bounds = selected.Bounds; bounds.Offset(move); bounds.Inflate(4, 4); dc.DrawRectangle(null, selectionPen, bounds); }
         }
     }
+    private static Point[] Handles(Mark mark) => mark.Arrow == ArrowStyle.Curved ? [mark.Points[0].Point, mark.Points[1].Point, ArrowDrawing.BendHandle(mark)] : [mark.Points[0].Point, mark.Points[1].Point];
     private Point OriginalPoint(MouseEventArgs e)
     {
         Point view = e.GetPosition(this); view.X /= Zoom; view.Y /= Zoom;
@@ -78,6 +88,12 @@ public sealed class EditCanvas : FrameworkElement
         var state = Document.State;
         if (!new Rect(state.Padding * Zoom, state.Padding * Zoom, state.Width * Zoom, state.Height * Zoom).Contains(local)) return;
         Point p = OriginalPoint(e);
+        if (Selected >= 0 && Selected < state.Marks.Length && state.Marks[Selected] is { Kind: MarkKind.Arrow, Arrow: not null } selected)
+        {
+            var handles = Handles(selected); double tolerance = 9 / Zoom * state.CropWidth / state.Width;
+            for (int i = 0; i < handles.Length; i++) if ((p - handles[i]).Length <= tolerance)
+            { arrowHandle = i; arrowOriginal = selected; start = p; CaptureMouse(); e.Handled = true; return; }
+        }
         if (Tool == "Select")
         {
             int found = -1;
@@ -99,7 +115,13 @@ public sealed class EditCanvas : FrameworkElement
     {
         if (start is not Point origin || !IsMouseCaptured) return;
         Point p = OriginalPoint(e);
-        if (Tool == "Select")
+        if (arrowHandle >= 0 && arrowOriginal is Mark arrow)
+        {
+            var changed = arrowHandle == 2 ? arrow with { Bend = ArrowDrawing.BendAt(arrow, p) } : arrow with { Points = arrow.Points.SetItem(arrowHandle, new EditPoint(p.X, p.Y)) };
+            if ((changed.Points[1].Point - changed.Points[0].Point).Length >= 2)
+            { arrowDraft = changed; dragImage = EditRenderer.Render(Document, Selected, changed); }
+        }
+        else if (Tool == "Select")
         {
             var mark = Document.State.Marks[Selected];
             double minX = mark.Points.Min(q => q.X), maxX = mark.Points.Max(q => q.X), minY = mark.Points.Min(q => q.Y), maxY = mark.Points.Max(q => q.Y);
@@ -121,7 +143,8 @@ public sealed class EditCanvas : FrameworkElement
         try
         {
             Drag(sender, e);
-            if (Tool == "Select" && Selected >= 0 && move.Length > 0) Document.Replace(Selected, Document.State.Marks[Selected].Offset(move.X, move.Y));
+            if (arrowHandle >= 0 && arrowDraft is not null) Document.Replace(Selected, arrowDraft);
+            else if (Tool == "Select" && Selected >= 0 && move.Length > 0) Document.Replace(Selected, Document.State.Marks[Selected].Offset(move.X, move.Y));
             else if (Tool == "Crop" && !crop.IsEmpty && crop.Width >= 1 && crop.Height >= 1) { Document.Crop(crop); Select(-1); }
             else if (Tool != "Select" && Tool != "Crop" && draft is not null && (draft.Kind == MarkKind.Pen || (draft.Points[^1].Point - draft.Points[0].Point).Length >= 1))
             { Document.Add(draft); Select(Document.State.Marks.Length - 1); }

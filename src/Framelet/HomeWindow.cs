@@ -108,7 +108,7 @@ public sealed class HomeWindow : Window
             { try { await CaptureService.Copy(CaptureService.Load(app.History.ImagePath(entry))); SetStatus("Copied to clipboard"); } catch (Exception ex) { SetStatus(ex.Message, true); } }));
             actions.Children.Add(Ui.IconButton("Delete", "Remove", "Remove" + entry.Id, () =>
             {
-                if (MessageBox.Show(this, "Remove this capture from local history? Saved copies elsewhere are kept.", "Remove capture", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes) return;
+                if (ConfirmWindow.Ask(this, "Remove this capture?", "This removes the image from local history. Copies you saved elsewhere are kept.", "Remove") != Confirmation.Primary) return;
                 try { app.History.Remove(entry); RefreshHistory(); } catch (Exception ex) { SetStatus(ex.Message, true); }
             }));
             text.Children.Add(actions); row.Children.Add(text);

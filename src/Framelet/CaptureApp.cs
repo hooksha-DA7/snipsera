@@ -5,6 +5,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Interop;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using Microsoft.Win32;
 using DrawingRect = System.Drawing.Rectangle;
@@ -24,15 +27,21 @@ public sealed class CaptureApp : Application
     private System.Drawing.Icon? trayIcon;
     private HotkeyService? hotkeys;
     private bool capturing;
+    private CaptureKind? pendingCapture;
+    private readonly Func<DrawingRect, BitmapSource> capturePixels;
+    private HwndSource? hotkeySink;
+    private ContextMenu trayMenu = null!;
     private DrawingRect? previousArea;
 
-    public CaptureApp(string dataRoot)
+    public CaptureApp(string dataRoot, Func<DrawingRect, BitmapSource>? capturePixels = null)
     {
+        this.capturePixels = capturePixels ?? CaptureService.Capture;
         History = new HistoryStore(dataRoot); Settings = History.LoadSettings();
         ShutdownMode = ShutdownMode.OnExplicitShutdown;
         Ui.Install(this);
         Startup += (_, _) => Start();
-        Exit += (_, _) => { hotkeys?.Dispose(); tray?.Dispose(); trayIcon?.Dispose(); };
+        ComponentDispatcher.LeaveThreadModal += ResumePendingCapture;
+        Exit += (_, _) => { ComponentDispatcher.LeaveThreadModal -= ResumePendingCapture; hotkeys?.Dispose(); hotkeySink?.Dispose(); tray?.Dispose(); trayIcon?.Dispose(); };
         DispatcherUnhandledException += (_, e) => { e.Handled = true; Report(e.Exception); };
     }
 
@@ -41,7 +50,8 @@ public sealed class CaptureApp : Application
         home = new HomeWindow(this); MainWindow = home;
         home.SourceInitialized += (_, _) =>
         {
-            hotkeys = new HotkeyService(new WindowInteropHelper(home).Handle, kind => _ = CaptureAsync(kind));
+            hotkeySink = new HwndSource(new HwndSourceParameters("Framelet hotkeys") { ParentWindow = new IntPtr(-3), Width = 0, Height = 0, WindowStyle = 0 });
+            hotkeys = new HotkeyService(hotkeySink.Handle, kind => _ = CaptureAsync(kind));
             try { hotkeys.Apply(Settings); } catch (Exception ex) { home.SetStatus(ex.Message, true); }
             HwndSource.FromHwnd(new WindowInteropHelper(home).Handle)?.AddHook((IntPtr hwnd, int msg, IntPtr wp, IntPtr lp, ref bool handled) =>
             { if (msg == 0x8042) { ShowHome(); handled = true; } return IntPtr.Zero; });
@@ -50,60 +60,74 @@ public sealed class CaptureApp : Application
         if (History.Notice is string notice) home.SetStatus(notice);
         trayIcon = AppIcon.Create();
         home.Icon = Imaging.CreateBitmapSourceFromHIcon(trayIcon.Handle, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-        var menu = new Forms.ContextMenuStrip();
-        menu.Items.Add("Capture area", null, (_, _) => _ = CaptureAsync(CaptureKind.Area));
-        menu.Items.Add("Capture window", null, (_, _) => _ = CaptureAsync(CaptureKind.Window));
-        menu.Items.Add("Capture display", null, (_, _) => _ = CaptureAsync(CaptureKind.Screen));
-        menu.Items.Add("Repeat last area", null, (_, _) => _ = CaptureAsync(CaptureKind.PreviousArea));
-        menu.Items.Add(new Forms.ToolStripSeparator());
-        menu.Items.Add("History and shortcuts", null, (_, _) => ShowHome());
-        menu.Items.Add("Quit Framelet", null, (_, _) => Quit());
-        tray = new Forms.NotifyIcon { Icon = trayIcon, Text = "Framelet — capture, copy, keep", Visible = true, ContextMenuStrip = menu };
+        trayMenu = new ContextMenu { Placement = PlacementMode.MousePoint, MinWidth = 250, HasDropShadow = true };
+        void Item(string label, string symbol, Action action, string? shortcut = null)
+        {
+            var item = new MenuItem { Header = label, Icon = new UiIcon(symbol, 16) { Ink = Ui.Ink }, InputGestureText = shortcut ?? "" };
+            item.Click += (_, _) => { trayMenu.IsOpen = false; Dispatcher.BeginInvoke(action); }; trayMenu.Items.Add(item);
+        }
+        Item("Capture area", "Area", () => _ = CaptureAsync(CaptureKind.Area), Settings.Area);
+        Item("Capture window", "Window", () => _ = CaptureAsync(CaptureKind.Window), Settings.Window);
+        Item("Capture display", "Screen", () => _ = CaptureAsync(CaptureKind.Screen), Settings.Screen);
+        Item("Repeat last area", "History", () => _ = CaptureAsync(CaptureKind.PreviousArea), Settings.Previous);
+        trayMenu.Items.Add(new Separator());
+        Item("History and shortcuts", "History", ShowHome); Item("Quit Framelet", "Close", Quit);
+        tray = new Forms.NotifyIcon { Icon = trayIcon, Text = "Framelet — capture, copy, keep", Visible = true };
+        tray.MouseUp += (_, e) => { if (e.Button == Forms.MouseButtons.Right) Dispatcher.BeginInvoke(ShowTrayMenu); };
         tray.DoubleClick += (_, _) => ShowHome();
     }
 
     public void ShowHome() { home.RefreshHistory(); home.Show(); if (home.WindowState == WindowState.Minimized) home.WindowState = WindowState.Normal; home.Activate(); }
+
+    public void ShowTrayMenu()
+    {
+        trayMenu.IsOpen = true;
+        if (PresentationSource.FromVisual(trayMenu) is HwndSource popup) Native.SetForegroundWindow(popup.Handle);
+        trayMenu.Focus();
+    }
 
     public void UpdateSettings(AppSettings settings)
     {
         if (hotkeys is null) throw new InvalidOperationException("Shortcuts are not ready.");
         var old = Settings;
         hotkeys.Apply(settings);
-        try { History.SaveSettings(settings); Settings = settings; }
+        try { History.SaveSettings(settings); Settings = settings; for (int i = 0; i < 4; i++) ((MenuItem)trayMenu.Items[i]).InputGestureText = settings.Bindings[i]; }
         catch { hotkeys.Apply(old); throw; }
     }
 
     public async Task CaptureAsync(CaptureKind kind)
     {
-        if (capturing) return;
+        if (Quitting) return;
+        if (capturing || ComponentDispatcher.IsThreadModal) { pendingCapture = kind; return; }
         capturing = true;
         var visible = Windows.Cast<Window>().Where(w => w.IsVisible).ToList();
         bool completed = false;
         try
         {
+            trayMenu.IsOpen = false; Mouse.Capture(null);
             DrawingRect display = Native.MonitorAtCursor();
             foreach (Window window in visible) window.Hide();
             await Task.Delay(180); Native.DwmFlush();
             DrawingRect desktop = Native.Desktop;
             BitmapSource image;
-            if (kind == CaptureKind.Screen) image = CaptureService.Capture(display);
+            if (kind == CaptureKind.Screen) image = capturePixels(display);
             else if (kind == CaptureKind.PreviousArea)
             {
                 if (previousArea is not DrawingRect area || !desktop.Contains(area))
                     throw new InvalidOperationException("Select an area first. If your display layout changed, select it again.");
-                image = CaptureService.Capture(area);
+                image = capturePixels(area);
             }
             else
             {
-                var frozen = CaptureService.Capture(desktop);
+                var frozen = capturePixels(desktop);
                 var selection = new SelectionWindow(frozen, desktop, kind == CaptureKind.Window ? Native.CaptureTargets() : null);
-                if (selection.ShowDialog() != true || selection.Selected is not DrawingRect area) return;
+                if (!await selection.PickAsync() || selection.Selected is not DrawingRect area) return;
                 if (kind == CaptureKind.Window && selection.SelectedWindow is WindowTarget target)
                 {
                     if (Native.GetForegroundWindow() != target.Handle && !Native.SetForegroundWindow(target.Handle))
                         throw new InvalidOperationException("That window could not be brought forward. Bring it to the front and try again.");
                     await Task.Delay(180); Native.DwmFlush();
-                    image = CaptureService.Capture(Native.Bounds(target.Handle));
+                    image = capturePixels(Native.Bounds(target.Handle));
                 }
                 else { image = CaptureService.Crop(frozen, area, desktop); previousArea = area; }
             }
@@ -124,7 +148,14 @@ public sealed class CaptureApp : Application
         {
             capturing = false;
             if (!completed) foreach (Window window in visible) if (Windows.Cast<Window>().Contains(window)) window.Show();
+            ResumePendingCapture(this, EventArgs.Empty);
         }
+    }
+
+    private void ResumePendingCapture(object? sender, EventArgs e)
+    {
+        if (Quitting || capturing || ComponentDispatcher.IsThreadModal || pendingCapture is not CaptureKind next) return;
+        pendingCapture = null; _ = Dispatcher.BeginInvoke(() => _ = CaptureAsync(next));
     }
 
     public void OpenEntry(CaptureEntry entry)
@@ -185,7 +216,7 @@ public sealed class CaptureApp : Application
     {
         string message = exception is System.ComponentModel.Win32Exception ? "Windows could not read the display. Unlock your desktop and try again." : exception.Message;
         if (home is not null) home.SetStatus(message, true);
-        if (home?.IsVisible != true) MessageBox.Show(message, "Framelet", MessageBoxButton.OK, MessageBoxImage.Information);
+        if (home?.IsVisible != true) ConfirmWindow.Ask(Windows.Cast<Window>().FirstOrDefault(w => w.IsActive), "Framelet", message, "OK");
     }
 
     public void Quit()

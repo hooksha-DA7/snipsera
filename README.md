@@ -1,10 +1,10 @@
-# Framelet 0.4.1
+# Framelet 0.5.0
 
 A local Windows screenshot app with an editable annotation workspace. The interface combines CleanShot-inspired capture interactions with Windows 11 Fluent controls, system light/dark styling, native caption buttons and Mica on the main windows. Framelet is an independent implementation; the original CleanShot installer, code and artwork are not included.
 
 ## Run
 
-Extract the entire `Framelet-0.4.1-win-x64.zip` folder, then double-click **Framelet.exe**. Keep the DLL, JSON and EXE files together. This portable build requires the **.NET 10 Desktop Runtime x64**, which is already installed on the development/test machine. Close earlier Framelet copies using their tray menu before starting this version, so the shortcuts are available. There is no installer, account or cloud service.
+Extract the entire `Framelet-0.5.0-win-x64.zip` folder, then double-click **Framelet.exe**. Keep the DLL, JSON and EXE files together. This portable build requires the **.NET 10 Desktop Runtime x64**, which is already installed on the development/test machine. Close earlier Framelet copies using their tray menu before starting this version, so the shortcuts are available. There is no installer, account or cloud service.
 
 Closing the home window keeps Framelet running in the notification area. Double-click its tray icon or launch Framelet again to reopen history. Use **Quit Framelet** in the tray menu to exit and release the hotkeys. It does not automatically start with Windows.
 
@@ -18,6 +18,8 @@ Closing the home window keeps Framelet running in the notification area. Double-
 | Repeat area | Ctrl+Alt+Shift+4 | Capture the last selected rectangle again, during the current app session. |
 
 Press **Esc** or right-click to cancel selection. Framelet hides its own home, previews and pins before capture, then restores pins after success. Canceling restores the previously visible windows.
+
+You can capture again while the previous preview, pins or editor are open. The new preview replaces the previous preview after a successful capture; each original stays in history. A request received while capture is finishing is queued; multiple waiting requests coalesce to the latest action. If a save/confirmation dialog is open, capture waits for you to dismiss that dialog. Selection itself is asynchronous and does not disable the other app windows.
 
 Use the home buttons or tray menu for the same actions. Expand **Keyboard shortcuts** to customize them, then select **Save shortcuts**. Supported combinations contain Ctrl and/or Alt, optional Shift, and one letter, digit or F1–F11. If another application owns a requested shortcut, Framelet explains the conflict and keeps the previous bindings. A startup conflict leaves the capture buttons usable; change the shortcuts to enable them.
 
@@ -57,7 +59,8 @@ For an isolated history/settings folder, launch `Framelet.exe --data-dir "C:\pat
 
 Open **Annotate** from a preview or pin, or use **Open image / project…** on the home window. PNG, JPEG and `.framelet` files are supported. JPEG orientation metadata is applied on import.
 
-- Draw arrows, lines, rectangles, ellipses, highlighting or freehand strokes by dragging over the image. New annotations default to **Hand-drawn**: arrows have a curved shaft and open rounded head, and ellipses have a gently irregular outline. **Clean** retains the straight arrow/regular ellipse style. Existing version 1 projects load as Clean.
+- **Arrows:** choose **Classic** (tapered solid), **Filled** (uniform shaft and solid head), **Open** (straight with open head) or **Curved** (editable curve and open head). Select an arrow and drag its round endpoint handles; Curved also has a bend handle. Each completed drag is one undo step. New arrows default to Classic.
+- Draw lines, rectangles, ellipses, highlighting or freehand strokes by dragging over the image. **Hand-drawn** gives ellipses a gently irregular outline and smooths newly drawn freehand paths. **Clean** keeps regular ellipses and the sampled freehand path. Existing version 1/2 arrows and pens retain their original appearance until you explicitly restyle them.
 - For text, choose **Text**, enter your note in the toolbar, then click the image. **Counter** places the next numbered circle with a click.
 - Choose **Select / move** and drag an existing annotation to reposition it. The Layers list selects annotations too. Color, stroke width, font size and style changes apply immediately to a selected annotation and can be undone. Edit a selected text note in the toolbar and click the checkmark to apply its text. The trash icon removes the selected annotation.
 - **Crop**: drag the rectangle to keep. It resets image output dimensions to that crop's source pixels. **Undo** restores the previous crop. Hidden objects remain editable in the project.
@@ -67,7 +70,7 @@ Open **Annotate** from a preview or pin, or use **Open image / project…** on t
 
 **Solid mask** covers a region with opaque black in flattened output. **Blur** and **Pixelate** soften or obscure content and should not be used as secure redaction. Exported images contain the rendered result; the `.framelet` project retains the original image and reversible layers, including masked pixels. Share a flattened PNG/JPEG when masking sensitive content.
 
-**Save project…** writes a self-contained `.framelet` file with the original pixels, layers and image settings. Projects are written as version 2 to retain annotation styles; Framelet 0.4.1 reads both version 1 and 2. Version 2 projects require 0.3.0 or newer. Reopen it using Open; it does not depend on the screenshot remaining in history. Undo history is not stored in the project. Closing a dirty editor or quitting the app prompts you to save; Cancel keeps it open. There is no autosave or automatic recovery of unsaved work after a crash.
+**Save project…** writes a self-contained `.framelet` file with the original pixels, layers and image settings. New projects use version 3 for arrow styles, bend geometry and freehand smoothing and require Framelet 0.5.0 or newer. This version reads versions 1, 2 and 3, preserving legacy rendering. Reopen it using Open; it does not depend on the screenshot remaining in history. Undo history is not stored in the project. Closing a dirty editor or quitting the app prompts you with **Save project…**, **Discard edits** and **Cancel**; Cancel keeps it open. There is no autosave or automatic recovery of unsaved work after a crash.
 
 **PNG…** and **JPEG…** export a flattened image. JPEG uses quality 95 and fills transparency with white. **Copy** and **Pin** use the same edited result. Editing a pinned flattened result starts a new document with that flattened image as its original. Edited output is not added automatically to capture history; save a project or export it to keep it. Projects and exported copies are outside the 100-capture retention policy.
 
@@ -94,6 +97,6 @@ Requires a .NET 10 SDK on Windows x64. Scripts prefer a project-local SDK at `.t
 
 Close running development copies, including the synthetic fixture, before rebuilding to avoid locking the EXE. `Framelet.exe --fixture` opens a blue/yellow test card without hotkeys or history. The verification harness briefly shows this card and exercises the clipboard, attempting to restore its previous contents afterward. Run tests on an unlocked desktop.
 
-See [Windows 11 design and verification](docs/WINDOWS11-DESIGN.md), [UI redesign verification](docs/UI-REDESIGN-VERIFICATION.md), [visual references](docs/UI-REFERENCES.md), [Phase 2 verification](docs/PHASE2-VERIFICATION.md), [Phase 1 verification](docs/VERIFICATION.md), [architecture](docs/ARCHITECTURE.md) and [changes](CHANGELOG.md). Release ZIPs also have per-file SHA256 manifests. After publishing, the optional standard-library Python verifier is `python verification/verify_packages.py`; it checks packaged file contents, CRC, paths, hashes, source parity and documentation links.
+See [annotation and capture refinement](docs/ANNOTATION-REFINEMENT.md), [Windows 11 design and verification](docs/WINDOWS11-DESIGN.md), [UI redesign verification](docs/UI-REDESIGN-VERIFICATION.md), [visual references](docs/UI-REFERENCES.md), [Phase 2 verification](docs/PHASE2-VERIFICATION.md), [Phase 1 verification](docs/VERIFICATION.md), [architecture](docs/ARCHITECTURE.md) and [changes](CHANGELOG.md). Release ZIPs also have per-file SHA256 manifests. After publishing, the optional standard-library Python verifier is `python verification/verify_packages.py`; it checks packaged file contents, CRC, paths, hashes, source parity and documentation links.
 
 Microsoft runtime download: https://dotnet.microsoft.com/en-us/download/dotnet/10.0 (choose Windows Desktop Runtime x64).

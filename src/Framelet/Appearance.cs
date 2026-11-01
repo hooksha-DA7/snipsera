@@ -65,7 +65,7 @@ public sealed class Appearance : INotifyPropertyChanged
         Chrome = hc ? SystemColors.WindowColor : C(Dark ? "#902B2B2B" : "#A6FFFFFF");
         Line = hc ? SystemColors.WindowTextColor : C(Dark ? "#28FFFFFF" : "#16000000");
         Canvas = hc ? SystemColors.WindowColor : C(Dark ? "#181818" : "#E9E9E9");
-        Glass = Policy.Frosting ? C(Dark ? "#B8242424" : "#CCF7F7F7") : Surface;
+        Glass = Policy.Frosting ? C(Dark ? "#70242424" : "#A6F7F7F7") : Surface;
         var accent = Application.Current?.TryFindResource("AccentFillColorDefaultBrush") as SolidColorBrush;
         var onAccent = Application.Current?.TryFindResource("TextOnAccentFillColorPrimaryBrush") as SolidColorBrush;
         Accent = hc ? SystemColors.HighlightColor : accent?.Color ?? C(Dark ? "#60CDFF" : "#0067C0");

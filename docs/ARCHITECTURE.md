@@ -1,6 +1,6 @@
 # Architecture
 
-Framelet is a native WPF application targeting `net10.0-windows`. Windows Forms supplies only the notification-area icon/menu. There are no third-party runtime packages or web views.
+Framelet is a native WPF application targeting `net10.0-windows`. Windows Forms supplies only the notification-area icon; its menu is WPF Fluent. There are no third-party runtime packages or web views.
 
 | Component | Responsibility |
 | --- | --- |
@@ -18,6 +18,8 @@ Framelet is a native WPF application targeting `net10.0-windows`. Windows Forms 
 | EditRenderer | Ordered vector/effect composition and shared flattened rendering for the canvas, copy, pin and image export |
 | EditFiles | Bounded PNG/JPEG import, JPEG orientation, versioned project ZIP, atomic project/image output |
 | EditCanvas / EditorWindow | Zoomed image interaction, annotation tools, object/property controls and document lifecycle |
+| ArrowDrawing | Four arrow geometries, tangent-aware heads and curve handle mapping |
+| FloatingVisuals / ConfirmWindow | Antialiased floating alpha masks and themed semantic confirmations |
 
 Capture uses GDI `BitBlt` with screen coordinates. A per-monitor-v2 manifest and early DPI context request avoid automatic coordinate virtualization. The overlay maps its actual WPF canvas dimensions to the virtual desktop's physical rectangle, including negative monitor origins. A window is enumerated in z-order, excluding this process, cloaked/minimized windows and transparent/nonactivating overlays. The chosen visible window is brought forward before capture; this is not off-screen rendering.
 
@@ -27,13 +29,15 @@ The app is local-only. Packaging copies an explicit set of runtime files plus us
 
 The editor stores annotations in original physical pixel coordinates. Crop is a view into those pixels; resize and padding map the edited image into output coordinates. The renderer composes in document order, so redaction/effect regions include earlier drawn content. Blur uses three separable box passes, pixelation averages 16-pixel blocks and solid masks paint opaque black. Image editing does not overwrite the source history PNG. A single flattened renderer supplies the displayed bitmap and clipboard/pin output; export uses that renderer at the exact requested output size, independent of view zoom or monitor scale.
 
-Version 2 `.framelet` projects are ZIPs containing only `project.json` and `original.png`. Metadata describes geometry, background, annotations and their Clean/Sketch style, with no external file references. Loading never extracts archive paths. Validation bounds input bytes, pixels, points, enum values and colors before rendering. Project export encodes the original PNG to a seekable buffer because WPF's encoder cannot write directly to a ZIP entry stream. Project writes use the same temporary-file/rename pattern as flattened image export. Projects retain original pixels and are not redacted deliverables.
+Version 3 `.framelet` projects are ZIPs containing only `project.json` and `original.png`. Metadata describes geometry, background, annotations, Clean/Sketch style, nullable arrow style, normalized bend and explicit freehand smoothing, with no external file references. Loading never extracts archive paths. Validation bounds input bytes, pixels, points, enum values and colors before rendering. Project export encodes the original PNG to a seekable buffer because WPF's encoder cannot write directly to a ZIP entry stream. Project writes use the same temporary-file/rename pattern as flattened image export. Projects retain original pixels and are not redacted deliverables.
 
 Editor windows unsubscribe from document events on close. Capturing hides them and restores them on success or cancellation. App quit checks every editor for unsaved work before setting the quitting flag; choosing Cancel prevents shutdown. Original capture history and settings formats remain unchanged.
 
 Follow-on phases should keep OCR and recording separate from capture and editing. Hardware acceptance on mixed-DPI and HDR setups should precede broader capture guarantees. Windows.Graphics.Capture can be evaluated for later capture requirements without coupling the editor to a specific backend.
 
-The loader also reads version 1 projects, treating missing style as Clean. Newly saved projects use version 2 so older readers fail clearly rather than silently changing annotation appearance. Sketch arrows use deterministic Bezier shafts and open stroked heads; sketch ellipses use a smooth irregular Bezier loop. Clean rendering remains unchanged.
+The loader also reads versions 1 and 2. Missing style is Clean; missing Arrow remains null and missing Smooth remains false so legacy arrow/pen rendering is unchanged. Version 3 makes older readers fail clearly. New Classic arrows have a tapered solid shaft; Filled, Open and Curved use constant-width shafts. Curved geometry is a quadratic Bezier whose actual midpoint is the bend handle, with an open head oriented to the endpoint tangent. Handle previews render a replacement without committing document state, then commit once on release; Escape/capture loss cancels. New smoothed freehand paths use cubic interpolation; legacy paths keep their original polyline.
+
+Global hotkeys use a dedicated message-only HwndSource and dispatch capture after returning from WM_HOTKEY. SelectionWindow.PickAsync uses a completion task and Show rather than a thread-modal ShowDialog. CaptureApp holds one latest pending request during capture or a modal save/confirmation dialog, resuming after capture cleanup or ComponentDispatcher.LeaveThreadModal. Modal dialogs remain visible until answered; ordinary editors and pins hide only for capture, then restore. The latest preview is replaced only after the new capture succeeds.
 
 Floating windows use transparent borderless WPF cards. A pure layout planner bounds their initial logical footprint then converts to physical work-area rectangles. Docked pins reflow newest first in the monitor’s left band; preview space remains reserved below them. User dragging/resizing removes a pin from automatic placement. Thumbnail scaling never changes CaptureImage. Editor/history use the standard Windows nonclient frame and caption controls; image properties live in a collapsible inspector. Original icons and native system fonts are used.
 

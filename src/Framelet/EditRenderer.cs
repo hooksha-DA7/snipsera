@@ -9,13 +9,14 @@ namespace Framelet;
 
 public static class EditRenderer
 {
-    public static BitmapSource Render(EditDocument document)
+    public static BitmapSource Render(EditDocument document, int replacementIndex = -1, Mark? replacement = null)
     {
         var state = document.State;
         var drawing = new DrawingGroup();
         drawing.Children.Add(new ImageDrawing(document.Original, new Rect(0, 0, document.Original.PixelWidth, document.Original.PixelHeight)));
-        foreach (var mark in state.Marks)
+        for (int index = 0; index < state.Marks.Length; index++)
         {
+            var mark = index == replacementIndex && replacement is not null ? replacement : state.Marks[index];
             if (mark.Kind is MarkKind.Blur or MarkKind.Pixelate)
             {
                 var bounds = PixelBounds(mark.Bounds, document.Original.PixelWidth, document.Original.PixelHeight);
@@ -64,6 +65,7 @@ public static class EditRenderer
         {
             case MarkKind.Line: dc.DrawLine(pen, start, end); break;
             case MarkKind.Arrow:
+                if (mark.Arrow is not null) { ArrowDrawing.Draw(dc, mark); break; }
                 if (mark.Style == MarkStyle.Sketch) { SketchArrow(dc, pen, start, end); break; }
                 dc.DrawLine(pen, start, end);
                 Vector direction = end - start;
@@ -88,7 +90,17 @@ public static class EditRenderer
             case MarkKind.Pen:
                 if (mark.Points.Length == 1) { dc.DrawEllipse(brush, null, start, mark.Width / 2, mark.Width / 2); break; }
                 var geometry = new StreamGeometry();
-                using (var path = geometry.Open()) { path.BeginFigure(start, false, false); path.PolyLineTo(mark.Points.Skip(1).Select(p => p.Point).ToArray(), true, false); }
+                using (var path = geometry.Open())
+                {
+                    path.BeginFigure(start, false, false);
+                    if (!mark.Smooth) path.PolyLineTo(mark.Points.Skip(1).Select(p => p.Point).ToArray(), true, false);
+                    else for (int i = 0; i < mark.Points.Length - 1; i++)
+                    {
+                        Point a = mark.Points[Math.Max(0, i - 1)].Point, b = mark.Points[i].Point,
+                            c = mark.Points[i + 1].Point, d = mark.Points[Math.Min(mark.Points.Length - 1, i + 2)].Point;
+                        path.BezierTo(b + (c - a) / 6, c - (d - b) / 6, c, true, true);
+                    }
+                }
                 dc.DrawGeometry(null, pen, geometry); break;
             default: dc.DrawRectangle(Ui.Line, new Pen(Ui.Blue, 2), bounds); break;
         }

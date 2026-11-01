@@ -11,17 +11,20 @@ namespace Framelet;
 
 public enum MarkKind { Arrow, Line, Rectangle, Ellipse, Text, Counter, Highlight, Pen, Blur, Pixelate, Redact }
 public enum MarkStyle { Clean, Sketch }
+public enum ArrowStyle { Classic, Filled, Open, Curved }
 public readonly record struct EditPoint(double X, double Y)
 {
     [JsonIgnore] public Point Point => new(X, Y);
 }
 public sealed record Mark(MarkKind Kind, ImmutableArray<EditPoint> Points, string Color = "#EB4D3D",
-    double Width = 4, string Text = "", double FontSize = 24, int Number = 1, MarkStyle Style = MarkStyle.Clean)
+    double Width = 4, string Text = "", double FontSize = 24, int Number = 1, MarkStyle Style = MarkStyle.Clean,
+    ArrowStyle? Arrow = null, double Bend = .2, bool Smooth = false)
 {
     [JsonIgnore] public Rect Bounds
     {
         get
         {
+            if (Kind == MarkKind.Arrow && Arrow is not null) return ArrowDrawing.Bounds(this);
             var rect = new Rect(new Point(Points.Min(p => p.X), Points.Min(p => p.Y)), new Point(Points.Max(p => p.X), Points.Max(p => p.Y)));
             if (Kind == MarkKind.Text) return new Rect(rect.Location, new Size(Math.Max(FontSize, Text.Split('\n').Max(l => l.Length) * FontSize * 0.65), Text.Split('\n').Length * FontSize * 1.4));
             if (Kind == MarkKind.Counter) return new Rect(rect.X - FontSize, rect.Y - FontSize, FontSize * 2, FontSize * 2);
@@ -83,7 +86,9 @@ public sealed class EditDocument
         long points = 0;
         foreach (var mark in state.Marks)
         {
-            if (mark is null || !Enum.IsDefined(mark.Kind) || !Enum.IsDefined(mark.Style) || mark.Points.IsDefaultOrEmpty || mark.Points.Length > 10000 ||
+            if (mark is null) throw new ArgumentException("This project contains an empty annotation.");
+            if (!Enum.IsDefined(mark.Kind) || !Enum.IsDefined(mark.Style) || mark.Arrow is ArrowStyle arrow && !Enum.IsDefined(arrow) ||
+                !double.IsFinite(mark.Bend) || mark.Bend is < -2 or > 2 || mark.Points.IsDefaultOrEmpty || mark.Points.Length > 10000 ||
                 !IsColor(mark.Color) || !double.IsFinite(mark.Width) || mark.Width is < 1 or > 100 || !double.IsFinite(mark.FontSize) || mark.FontSize is < 8 or > 200 ||
                 mark.Text is null || mark.Text.Length > 2000 || mark.Number is < 1 or > 999)
                 throw new ArgumentException("This project contains an unsupported annotation.");

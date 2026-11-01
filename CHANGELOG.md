@@ -1,5 +1,14 @@
 # Changes
 
+## 0.5.0 — 2026-10-31
+
+- Added four arrow choices: tapered Classic, Filled, Open and Curved, with graphical samples and editable endpoint/bend handles. A handle drag is a single undo operation.
+- Smoothed newly drawn Hand-drawn freehand paths. Version 3 projects preserve arrow geometry and smoothing; versions 1 and 2 retain their legacy rendered pixels.
+- Replaced the legacy tray menu and unsaved-edit/history confirmations with themed WPF Fluent controls and explicit action labels.
+- Applied antialiased alpha masks and high-quality thumbnail scaling to floating cards, softened shadows/tint, and made pin edges follow image opacity. Escape dismisses the pin menu without closing its image.
+- Made capture selection asynchronous, moved global hotkeys to an independent message-only window and queued the latest request during capture or a modal dialog. Added capture commands directly to preview/pin context menus.
+- Added arrow/project/alpha-edge/nonmodal-selector/confirmation regressions and a separate capture lifecycle integration test. Preserved previous release archives and existing user history/settings.
+
 ## 0.4.1 — 2026-10-31
 
 - Made capture actions consistent full-width rows with larger hit targets and quiet resting surfaces.

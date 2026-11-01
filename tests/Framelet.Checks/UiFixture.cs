@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Interop;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
@@ -28,11 +29,34 @@ internal static class UiFixture
             var image = Scene(); CaptureService.Save(image, Path.Combine(output, "sample.png"));
             var entry = app.History.Add(image, CaptureKind.Window);
             var doc = new EditDocument(image);
-            doc.Add(new Mark(MarkKind.Arrow, [new(620, 105), new(505, 275)], "#F34461", 5, Style: MarkStyle.Sketch));
+            doc.Add(new Mark(MarkKind.Arrow, [new(620, 105), new(505, 275)], "#F34461", 5, Style: MarkStyle.Sketch, Arrow: ArrowStyle.Curved));
             doc.Add(new Mark(MarkKind.Ellipse, [new(72, 76), new(410, 145)], "#F34461", 4, Style: MarkStyle.Sketch));
             doc.Add(new Mark(MarkKind.Text, [new(572, 70)], "#F34461", Text: "A little more focus", FontSize: 23, Style: MarkStyle.Sketch));
             EditFiles.SaveProject(doc, Path.Combine(output, "sample.framelet"));
             var editor = new EditorWindow(doc, bitmap => app.Pin(bitmap, entry), app.OpenImageOrProject, "Design review"); editor.Show();
+            // Harness-only keys exercise the production tray path and save native evidence.
+            InputManager.Current.PreProcessInput += (_, e) =>
+            {
+                if (e.StagingItem.Input is not KeyEventArgs key || key.RoutedEvent != Keyboard.KeyDownEvent) return;
+                var pressed = key.Key == Key.System ? key.SystemKey : key.Key;
+                if (pressed == Key.F11)
+                {
+                    app.Dispatcher.BeginInvoke(app.ShowTrayMenu); key.Handled = true;
+                    var proof = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(300) };
+                    proof.Tick += (_, _) => { proof.Stop(); SaveProof(); }; proof.Start();
+                }
+                else if (pressed == Key.F9) SaveProof();
+            };
+            void SaveProof()
+            {
+                foreach (var window in app.Windows.Cast<Window>().Where(w => w.IsVisible && w is not DropPad))
+                {
+                    var handle = new WindowInteropHelper(window).Handle;
+                    CaptureService.Save(CaptureService.Capture(Native.Bounds(handle)), Path.Combine(output, "proof-" + handle + ".png"));
+                }
+                foreach (var source in PresentationSource.CurrentSources.OfType<HwndSource>().Where(s => s.RootVisual?.GetType().Name == "PopupRoot"))
+                    CaptureService.Save(CaptureService.Capture(Native.Bounds(source.Handle)), Path.Combine(output, "popup-" + source.Handle + ".png"));
+            }
             app.MainWindow.Hide(); app.OpenEntry(entry);
             app.Pin(image, entry); app.Pin(EditRenderer.Render(doc), entry); app.Pin(new CroppedBitmap(image, new Int32Rect(60, 65, 540, 310)), entry);
             var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2) };

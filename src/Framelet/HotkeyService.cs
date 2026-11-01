@@ -55,7 +55,8 @@ public sealed class HotkeyService : IDisposable
         if (message == 0x0312)
         {
             int index = wParam.ToInt32() - 3100;
-            if (index >= 0 && index < kinds.Length && active.Contains(wParam.ToInt32())) { handled = true; capture(kinds[index]); }
+            if (index >= 0 && index < kinds.Length && active.Contains(wParam.ToInt32()))
+            { handled = true; var kind = kinds[index]; source.Dispatcher.BeginInvoke(() => capture(kind)); }
         }
         return IntPtr.Zero;
     }
