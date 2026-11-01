@@ -1,5 +1,9 @@
 # Changes
 
+## 0.4.1 — 2026-10-31
+
+- Made capture actions consistent full-width rows with larger hit targets and quiet resting surfaces.
+
 ## 0.4.0 — 2026-10-31
 
 - Applied the built-in WPF Fluent theme with system light/dark mode, accent colors and native controls.

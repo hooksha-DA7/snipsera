@@ -1,4 +1,4 @@
-# Framelet 0.4.0: CleanShot interactions, Windows 11 presentation
+# Framelet 0.4.1: CleanShot interactions, Windows 11 presentation
 
 2026-10-31. This pass responds to the supplied CleanShot widget/overlay images and the request that Framelet feel at home on Windows 11.
 
@@ -26,7 +26,7 @@ The palette uses Windows-style neutral base/content layers, a restrained system 
 
 ## Verification
 
-The final suite in `verification/runs/windows-fluent-final/` passes 63 checks with zero compiler warnings/errors. It includes the prior capture/editor/project/DPI checks plus effect policy, native drag payload/retention and light/dark native-control checks. Theme changes do not change rendered document pixels.
+The final suite in `verification/runs/windows-fluent-0.4.1-final/` passes 63 checks with zero compiler warnings/errors. It includes the prior capture/editor/project/DPI checks plus effect policy, native drag payload/retention and light/dark native-control checks. Theme changes do not change rendered document pixels.
 
 Native desktop inspection at 125% scaling covered light/dark editors, frosted preview controls, sharp stacked pins, native maximize/restore, pin opacity and keyboard positioning. DWM reports backdrop type 2 (main-window Mica) for the editor; layered thumbnail windows report type 0 and use their own view treatment.
 

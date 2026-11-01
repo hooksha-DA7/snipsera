@@ -47,7 +47,7 @@ public sealed class HomeWindow : Window
             badges[i] = Ui.Text(app.Settings.Bindings[i], 11, Ui.Blue); badges[i].Margin = new Thickness(0, 8, 0, 0);
             stack.Children.Add(badges[i]);
             var button = Ui.Button(labels[i], "Capture" + kinds[i], async () => await app.CaptureAsync(kinds[index]));
-            var item = new DockPanel(); var icon = new UiIcon(new[] { "Area", "Window", "Screen", "History" }[i], 22) { Margin = new Thickness(0, 0, 14, 0), VerticalAlignment = VerticalAlignment.Center }; DockPanel.SetDock(icon, Dock.Left); item.Children.Add(icon); item.Children.Add(stack); button.Content = item; button.HorizontalContentAlignment = HorizontalAlignment.Left; button.Margin = new Thickness(0, 12, 0, 0);
+            var item = new DockPanel(); var icon = new UiIcon(new[] { "Area", "Window", "Screen", "History" }[i], 22) { Margin = new Thickness(0, 0, 14, 0), VerticalAlignment = VerticalAlignment.Center }; DockPanel.SetDock(icon, Dock.Left); item.Children.Add(icon); item.Children.Add(stack); button.Content = item; button.HorizontalContentAlignment = HorizontalAlignment.Left; button.HorizontalAlignment = HorizontalAlignment.Stretch; button.Background = Brushes.Transparent; button.BorderBrush = Brushes.Transparent; button.MinHeight = 64; button.Margin = new Thickness(0, 4, 0, 0);
             capturePanel.Children.Add(button);
         }
         left.Children.Add(Ui.Card(capturePanel));

@@ -1,10 +1,10 @@
-# Framelet 0.4.0
+# Framelet 0.4.1
 
 A local Windows screenshot app with an editable annotation workspace. The interface combines CleanShot-inspired capture interactions with Windows 11 Fluent controls, system light/dark styling, native caption buttons and Mica on the main windows. Framelet is an independent implementation; the original CleanShot installer, code and artwork are not included.
 
 ## Run
 
-Extract the entire `Framelet-0.4.0-win-x64.zip` folder, then double-click **Framelet.exe**. Keep the DLL, JSON and EXE files together. This portable build requires the **.NET 10 Desktop Runtime x64**, which is already installed on the development/test machine. Close earlier Framelet copies using their tray menu before starting this version, so the shortcuts are available. There is no installer, account or cloud service.
+Extract the entire `Framelet-0.4.1-win-x64.zip` folder, then double-click **Framelet.exe**. Keep the DLL, JSON and EXE files together. This portable build requires the **.NET 10 Desktop Runtime x64**, which is already installed on the development/test machine. Close earlier Framelet copies using their tray menu before starting this version, so the shortcuts are available. There is no installer, account or cloud service.
 
 Closing the home window keeps Framelet running in the notification area. Double-click its tray icon or launch Framelet again to reopen history. Use **Quit Framelet** in the tray menu to exit and release the hotkeys. It does not automatically start with Windows.
 
@@ -67,7 +67,7 @@ Open **Annotate** from a preview or pin, or use **Open image / project…** on t
 
 **Solid mask** covers a region with opaque black in flattened output. **Blur** and **Pixelate** soften or obscure content and should not be used as secure redaction. Exported images contain the rendered result; the `.framelet` project retains the original image and reversible layers, including masked pixels. Share a flattened PNG/JPEG when masking sensitive content.
 
-**Save project…** writes a self-contained `.framelet` file with the original pixels, layers and image settings. Projects are written as version 2 to retain annotation styles; Framelet 0.4.0 reads both version 1 and 2. Version 2 projects require 0.3.0 or newer. Reopen it using Open; it does not depend on the screenshot remaining in history. Undo history is not stored in the project. Closing a dirty editor or quitting the app prompts you to save; Cancel keeps it open. There is no autosave or automatic recovery of unsaved work after a crash.
+**Save project…** writes a self-contained `.framelet` file with the original pixels, layers and image settings. Projects are written as version 2 to retain annotation styles; Framelet 0.4.1 reads both version 1 and 2. Version 2 projects require 0.3.0 or newer. Reopen it using Open; it does not depend on the screenshot remaining in history. Undo history is not stored in the project. Closing a dirty editor or quitting the app prompts you to save; Cancel keeps it open. There is no autosave or automatic recovery of unsaved work after a crash.
 
 **PNG…** and **JPEG…** export a flattened image. JPEG uses quality 95 and fills transparency with white. **Copy** and **Pin** use the same edited result. Editing a pinned flattened result starts a new document with that flattened image as its original. Edited output is not added automatically to capture history; save a project or export it to keep it. Projects and exported copies are outside the 100-capture retention policy.
 
