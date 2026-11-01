@@ -33,11 +33,27 @@ public sealed class CaptureApp : Application
     private ContextMenu trayMenu = null!;
     internal bool TrayMenuOpen => trayMenu?.IsOpen == true;
     private DrawingRect? previousArea;
+    private readonly OverlayVisibility<ImageWindow> overlays;
+    private OverlayShelfWindow? overlayShelf;
+    private MenuItem? overlayMenu;
+    public bool OverlaysHidden => overlays.Hidden;
+    public int HiddenOverlayCount => overlays.HiddenCount;
+    public bool CanShowOverlayShelf => OverlaysHidden && HiddenOverlayCount > 0 && !overlays.Suspended && !capturing && !Quitting;
+    public bool CanHideOverlays => !OverlaysHidden && overlays.Desired.Length > 0 && !overlays.Suspended && !capturing && !Quitting;
+    public DrawingRect OverlayShelfWorkArea { get; private set; }
+    public double OverlayShelfScale { get; private set; } = 1;
+    public BitmapSource? OverlayShelfImage { get; private set; }
+    public event Action? OverlayVisibilityChanged;
 
     public CaptureApp(string dataRoot, Func<DrawingRect, BitmapSource>? capturePixels = null)
     {
         this.capturePixels = capturePixels ?? CaptureService.Capture;
         History = new HistoryStore(dataRoot); Settings = History.LoadSettings();
+        overlays = new OverlayVisibility<ImageWindow>((window, show) =>
+        {
+            window.PresentOverlay(show, !capturing && (show || OverlaysHidden));
+        });
+        overlays.Changed += RefreshOverlayVisibility;
         ShutdownMode = ShutdownMode.OnExplicitShutdown;
         Ui.Install(this);
         Startup += (_, _) => Start();
@@ -72,10 +88,44 @@ public sealed class CaptureApp : Application
         Item("Capture display", "Screen", () => _ = CaptureAsync(CaptureKind.Screen), Settings.Screen);
         Item("Repeat last area", "History", () => _ = CaptureAsync(CaptureKind.PreviousArea), Settings.Previous);
         trayMenu.Items.Add(new Separator());
-        Item("History and shortcuts", "History", ShowHome); Item("Scrolling capture", "Scrolling", () => _ = CaptureAsync(CaptureKind.Scrolling)); Item("Quit Framelet", "Close", Quit);
+        Item("History and shortcuts", "History", ShowHome); Item("Scrolling capture", "Scrolling", () => _ = CaptureAsync(CaptureKind.Scrolling));
+        Item("Temporarily hide overlays", "HideOverlays", ToggleOverlays); overlayMenu = (MenuItem)trayMenu.Items[trayMenu.Items.Count - 1];
+        Item("Quit Framelet", "Close", Quit);
         tray = new Forms.NotifyIcon { Icon = trayIcon, Text = "Framelet — capture, copy, keep", Visible = true };
         tray.MouseUp += (_, e) => { if (e.Button == Forms.MouseButtons.Right) Dispatcher.BeginInvoke(ShowTrayMenu); };
         tray.DoubleClick += (_, _) => ShowHome();
+        overlayShelf = new OverlayShelfWindow(this); RefreshOverlayVisibility();
+    }
+
+    public void HideOverlays(ImageWindow? initiator = null)
+    {
+        if (Quitting || capturing || ComponentDispatcher.IsThreadModal || OverlaysHidden || overlays.Desired.Length == 0) return;
+        var desired = overlays.Desired;
+        var anchor = initiator is not null && desired.Contains(initiator) ? initiator : desired.Last();
+        if (anchor.IsLoaded)
+        {
+            var handle = new WindowInteropHelper(anchor).Handle;
+            uint dpi = Native.GetDpiForWindow(handle);
+            OverlayShelfWorkArea = Native.WorkArea(handle); OverlayShelfScale = dpi > 0 ? dpi / 96d : 1;
+        }
+        else { OverlayShelfWorkArea = Native.MonitorAtCursor(true); OverlayShelfScale = 1; }
+        OverlayShelfImage = anchor.CaptureImage;
+        overlays.Hide();
+    }
+    public void RestoreOverlays()
+    {
+        if (Quitting || capturing || ComponentDispatcher.IsThreadModal) return;
+        overlays.Restore();
+    }
+    public void ToggleOverlays() { if (OverlaysHidden) RestoreOverlays(); else HideOverlays(); }
+    private void RefreshOverlayVisibility()
+    {
+        if (overlayMenu is not null)
+        {
+            overlayMenu.Header = OverlaysHidden ? "Show overlays" : "Temporarily hide overlays";
+            overlayMenu.IsEnabled = overlays.Desired.Length > 0 && !capturing && !Quitting;
+        }
+        overlayShelf?.Refresh(); OverlayVisibilityChanged?.Invoke();
     }
 
     public void ShowHome() { home.RefreshHistory(); home.Show(); if (home.WindowState == WindowState.Minimized) home.WindowState = WindowState.Normal; home.Activate(); }
@@ -107,12 +157,18 @@ public sealed class CaptureApp : Application
         if (capturing || ComponentDispatcher.IsThreadModal) { pendingCapture = kind; return; }
         capturing = true;
         var visible = Windows.Cast<Window>().Where(w => w.IsVisible).ToList();
+        IDisposable? suspension = null;
         bool completed = false;
         try
         {
+            suspension = overlays.Suspend();
             trayMenu.IsOpen = false; Mouse.Capture(null);
             DrawingRect display = Native.MonitorAtCursor();
-            foreach (Window window in visible) window.Hide();
+            foreach (Window window in visible)
+            {
+                if (window is ImageWindow imageWindow) imageWindow.PresentOverlay(false, false);
+                else window.Hide();
+            }
             await Task.Delay(180); Native.DwmFlush();
             DrawingRect desktop = Native.Desktop;
             BitmapSource image;
@@ -157,18 +213,23 @@ public sealed class CaptureApp : Application
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
             { entry = new CaptureEntry(Guid.NewGuid().ToString("N"), DateTimeOffset.UtcNow, kind.ToString(), image.PixelWidth, image.PixelHeight); warning = "History could not be saved. Use Copy or Save to keep this capture."; }
             preview?.Close();
-            foreach (var pin in pins.ToArray()) pin.Show();
             foreach (var editor in visible.OfType<EditorWindow>()) editor.Show();
-            preview = FloatingWindow(image, entry, false, warning); preview.Show();
+            preview = FloatingWindow(image, entry, false, warning); if (OverlaysHidden) OverlayShelfImage = image; overlays.Track(preview);
             home.RefreshHistory(); home.SetStatus(warning ?? "Capture ready");
             completed = true;
         }
         catch (Exception ex) { Report(ex); }
         finally
         {
-            capturing = false;
-            if (!completed) foreach (Window window in visible) if (Windows.Cast<Window>().Contains(window)) window.Show();
-            ResumePendingCapture(this, EventArgs.Empty);
+            try
+            {
+                if (!completed) foreach (Window window in visible) if (window is not ImageWindow && window != overlayShelf && Windows.Cast<Window>().Contains(window)) window.Show();
+                suspension?.Dispose();
+            }
+            finally
+            {
+                capturing = false; RefreshOverlayVisibility(); ResumePendingCapture(this, EventArgs.Empty);
+            }
         }
     }
 
@@ -180,7 +241,12 @@ public sealed class CaptureApp : Application
 
     public void OpenEntry(CaptureEntry entry)
     {
-        try { var image = CaptureService.Load(History.ImagePath(entry)); preview?.Close(); preview = FloatingWindow(image, entry, false); preview.Show(); }
+        try
+        {
+            var image = CaptureService.Load(History.ImagePath(entry));
+            using var replacing = overlays.BeginUpdate();
+            preview?.Close(); preview = FloatingWindow(image, entry, false); if (OverlaysHidden) OverlayShelfImage = image; overlays.Track(preview);
+        }
         catch (Exception ex) { Report(ex); }
     }
 
@@ -188,13 +254,13 @@ public sealed class CaptureApp : Application
     {
         if (pins.Count >= 8) { Report(new InvalidOperationException("Close a pinned capture before adding another. Up to eight captures can be pinned.")); return false; }
         var window = FloatingWindow(image, entry, true);
-        pins.Add(window); window.Show(); return true;
+        pins.Add(window); overlays.Track(window); return true;
     }
 
     private ImageWindow FloatingWindow(BitmapSource image, CaptureEntry entry, bool pinned, string? warning = null)
     {
         var window = new ImageWindow(this, image, entry, pinned, warning);
-        window.Closed += (_, _) => { if (preview == window) preview = null; if (pins.Remove(window)) ReflowPins(); };
+        window.Closed += (_, _) => { overlays.Forget(window); if (preview == window) preview = null; if (pins.Remove(window)) ReflowPins(); };
         return window;
     }
 
@@ -223,7 +289,7 @@ public sealed class CaptureApp : Application
         }
     }
 
-    public void EditImage(BitmapSource image) { ShowEditor(new EditDocument(image)); preview?.Hide(); }
+    public void EditImage(BitmapSource image) { ShowEditor(new EditDocument(image)); if (preview is not null) overlays.SetDesired(preview, false); }
 
     public void OpenImageOrProject()
     {

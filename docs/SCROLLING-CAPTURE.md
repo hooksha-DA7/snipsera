@@ -34,7 +34,7 @@ Other apps first use an accessibility scroll container in the external window re
 
 ### Preview 3 repair
 
-The user reported repeated overlap warnings and Auto-scroll failing in Chrome. Off-screen fixtures reproduced failures with off-screen article fixtures: a changing widget and a valid short overlap. A further smooth-scroll fixture reproduced fractional text matching failure. These now pass, along with exact integer-offset stitching and safety regressions. The current source identifies itself as `0.6.0-preview.3`.
+The user reported repeated overlap warnings and Auto-scroll failing in Chrome. Off-screen fixtures reproduced failures with off-screen article fixtures: a changing widget and a valid short overlap. A further smooth-scroll fixture reproduced fractional text matching failure. These now pass, along with exact integer-offset stitching and safety regressions. That repair first shipped as `0.6.0-preview.3`. Preview 4 adds [temporary overlay hiding](TEMPORARY-HIDE.md) and retains the same scrolling source files; native Chrome acceptance is still pending.
 
 The no-window suite runs via `Framelet.Checks --scroll-backend-check "<fresh-output-directory>"`. It renders synthetic text off-screen, uses synthetic pixel sources and fake scroll drivers, and does not show windows, register native input, read the desktop or scroll Chrome. It covers continuous movement, changing stationary views, repeated/ambiguous content, short overlap, fractional rendering/cumulative height, Auto pacing, a no-op provider falling back, no-movement stopping, Done cancellation, existing image limits and layout geometry. Receipts are under `verification/runs/scroll-repair-01` in the checkout. Full desktop/UI tests were not rerun during the pause.
 

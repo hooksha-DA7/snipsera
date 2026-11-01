@@ -41,6 +41,14 @@ public sealed class ImageWindow : Window
     private readonly DispatcherTimer copied = new() { Interval = TimeSpan.FromMilliseconds(1400) };
     private bool keyboardActions, revealed, labels = true;
     private double unit = Unit;
+    private readonly OverlayHideGesture hideGesture = new();
+    // Temporary-hide motion animates only the content root: a short vertical drift plus opacity. The native window never moves or resizes.
+    private const double Drift = 18;
+    private static readonly TimeSpan Leave = TimeSpan.FromMilliseconds(150), Return = TimeSpan.FromMilliseconds(180);
+    private readonly Grid presented;
+    private readonly TranslateTransform drift = new();
+    private int presentation;
+    private bool closed, placedOnce;
 
     public ImageWindow(CaptureApp app, BitmapSource image, CaptureEntry entry, bool pinned, string? warning = null)
     {
@@ -48,7 +56,7 @@ public sealed class ImageWindow : Window
         Ui.Setup(this); Width = 240; Height = 166; MinWidth = 18; MinHeight = 18;
         WindowStyle = WindowStyle.None; AllowsTransparency = true; Background = Brushes.Transparent;
         ResizeMode = ResizeMode.NoResize; ShowInTaskbar = true; Topmost = true; ShowActivated = false;
-        var root = new Grid { Margin = new Thickness(8) };
+        var root = new Grid { Margin = new Thickness(8), RenderTransform = drift }; presented = root;
         var card = new Border { Background = Brushes.Transparent, CornerRadius = new CornerRadius(FloatingVisuals.Radius),
             Effect = new DropShadowEffect { BlurRadius = 18, ShadowDepth = 2, Opacity = .18 } };
         var surface = new Grid { Background = Brushes.Transparent };
@@ -115,6 +123,8 @@ public sealed class ImageWindow : Window
         Menu("Capture area", () => _ = app.CaptureAsync(CaptureKind.Area)); Menu("Capture window", () => _ = app.CaptureAsync(CaptureKind.Window)); Menu("Capture display", () => _ = app.CaptureAsync(CaptureKind.Screen));
         Menu("Scrolling capture", () => _ = app.CaptureAsync(CaptureKind.Scrolling)); menu.Items.Add(new Separator());
         pinMenu = Menu("Pin", Toggle); Menu("Copy", Copy).InputGestureText = "Ctrl+C"; Menu("Save…", Save).InputGestureText = "Ctrl+S"; Menu("History", app.ShowHome); Menu("Annotate", () => app.EditImage(image));
+        // Keyboard-discoverable alternative to the wheel-down gesture.
+        Menu("Temporarily hide overlays", () => app.HideOverlays(this)).InputGestureText = "Scroll down";
         opacity = new Slider { Minimum = .2, Maximum = 1, Value = 1, Width = 150, TickFrequency = .05, Margin = new Thickness(8, 5, 8, 8), ToolTip = "Pinned image opacity" };
         AutomationProperties.SetAutomationId(opacity, "PinOpacity"); opacity.ValueChanged += (_, _) => ImageOpacity = opacity.Value;
         opacityLabel = new MenuItem { Header = Ui.Text("Image opacity · Ctrl+wheel", 12, Ui.Muted), Focusable = false, IsHitTestVisible = false };
@@ -132,7 +142,8 @@ public sealed class ImageWindow : Window
         dismiss.Tick += (_, _) => { dismiss.Stop(); if (Mouse.LeftButton == MouseButtonState.Pressed) { dismiss.Start(); return; } if (!root.IsMouseOver && !overflow.IsOpen && !(keyboardActions && controls.IsKeyboardFocusWithin)) RevealActions(false); };
         controls.PreviewMouseDown += (_, _) => keyboardActions = false;
         controls.GotKeyboardFocus += (_, _) => Hover(); controls.LostKeyboardFocus += (_, _) => ScheduleDismiss();
-        IsVisibleChanged += (_, _) => { if (!IsVisible) { menu.IsOpen = false; RevealActions(false); } };
+        // Any hide (ours, capture's or the editor's) cancels a pending presentation and leaves a fully opaque, unshifted card for the next show.
+        IsVisibleChanged += (_, _) => { if (!IsVisible) { menu.IsOpen = false; RevealActions(false); presentation++; StopPresentation(true); } };
         LocationChanged += (_, _) => RevealActions(false); Deactivated += (_, _) => { keyboardActions = false; ScheduleDismiss(); };
         DragExport.Attach(surface, app.History.Root, () => image, app.Report, true, () => !IsPinned);
         surface.MouseLeftButtonDown += (_, e) =>
@@ -154,9 +165,22 @@ public sealed class ImageWindow : Window
             else if (Keyboard.Modifiers == ModifierKeys.Control && e.Key == Key.S) { Save(); e.Handled = true; }
             else if (IsPinned && e.Key is Key.Left or Key.Right or Key.Up or Key.Down && Keyboard.FocusedElement is not Slider) { Nudge(e.Key, Keyboard.Modifiers.HasFlag(ModifierKeys.Shift) ? 10 : 1); e.Handled = true; }
         };
-        MouseWheel += (_, e) => { if (IsPinned && Keyboard.Modifiers.HasFlag(ModifierKeys.Control)) { opacity.Value = ImageOpacity + Math.Sign(e.Delta) * .05; e.Handled = true; } };
+        MouseWheel += (_, e) =>
+        {
+            if (IsPinned && Keyboard.Modifiers.HasFlag(ModifierKeys.Control)) { hideGesture.Reset(); opacity.Value = ImageOpacity + Math.Sign(e.Delta) * .05; e.Handled = true; return; }
+            // Plain wheel-down over the image slides every floating capture away. A full notch (120) is required, accumulated briefly,
+            // so a precision-touchpad graze or a stray upward scroll never hides anything.
+            if (e.Delta >= 0 || Keyboard.Modifiers != ModifierKeys.None || Mouse.LeftButton == MouseButtonState.Pressed || Mouse.RightButton == MouseButtonState.Pressed
+                || Mouse.MiddleButton == MouseButtonState.Pressed || Mouse.Captured is not null || menu.IsOpen || overflow.IsOpen
+                || e.OriginalSource is not Visual source || DragExport.IsControl(source) || controls.IsAncestorOf(source) || grip.IsAncestorOf(source))
+            { hideGesture.Reset(); return; }
+            bool hide = hideGesture.Push(e.Delta, Environment.TickCount64, true); e.Handled = true;
+            if (hide) { RevealActions(false); app.HideOverlays(this); }
+        };
         Loaded += (_, _) =>
         {
+            // Place once. A later Loaded (re-show, theme or visual-tree changes) must not move a pin the user moved or resized.
+            if (placedOnce) return; placedOnce = true;
             DockWorkArea = Native.MonitorAtCursor(true); var handle = new WindowInteropHelper(this).Handle;
             Native.SetWindowPos(handle, new IntPtr(-1), DockWorkArea.Left + 12, DockWorkArea.Top + 12, 0, 0, 0x0011); DockScale = Native.GetDpiForWindow(handle) / 96d;
             if (IsPinned) app.ReflowPins(); else Place(FloatingLayout.Preview(DockWorkArea, new Size(image.PixelWidth, image.PixelHeight), DockScale), DockScale);
@@ -166,7 +190,7 @@ public sealed class ImageWindow : Window
         // High contrast switches the floating template; theme colours already follow the bound tokens.
         void Restyle() { foreach (var button in Actions.Append(moreButton)) FloatingButtons.Apply(button, button == pinButton && IsPinned); }
         Appearance.Current.Changed += Restyle;
-        Closed += (_, _) => { toast.Stop(); dismiss.Stop(); copied.Stop(); overflow.IsOpen = false; menu.IsOpen = false; Appearance.Current.Changed -= Restyle; };
+        Closed += (_, _) => { closed = true; presentation++; StopPresentation(true); toast.Stop(); dismiss.Stop(); copied.Stop(); overflow.IsOpen = false; menu.IsOpen = false; Appearance.Current.Changed -= Restyle; };
     }
 
     private void Notice(string value) { status.Text = value; message.Visibility = Visibility.Visible; toast.Stop(); toast.Start(); }
@@ -184,7 +208,7 @@ public sealed class ImageWindow : Window
         pinButton.ToolTip = pinned ? "Unpin · return to preview" : "Pin · keep on screen"; AutomationProperties.SetItemStatus(pinButton, pinned ? "Pinned" : "Not pinned");
         FloatingButtons.Apply(pinButton, pinned);
         opacityLabel.Visibility = opacityItem.Visibility = grip.Visibility = pinned ? Visibility.Visible : Visibility.Collapsed;
-        AutomationProperties.SetHelpText(thumbnail, pinned ? "Drag to move · double-click to enlarge · Ctrl+wheel for opacity" : "Drag the image to another app · double-click to annotate");
+        AutomationProperties.SetHelpText(thumbnail, pinned ? "Drag to move · double-click to enlarge · Ctrl+wheel for opacity · scroll down to hide temporarily" : "Drag the image to another app · double-click to annotate · scroll down to hide temporarily");
         if (!pinned)
         {
             opacity.Value = 1;
@@ -197,6 +221,45 @@ public sealed class ImageWindow : Window
     }
     private void ScheduleDismiss() { dismiss.Stop(); dismiss.Start(); }
     internal void DismissActions() { menu.IsOpen = false; RevealActions(false); }
+
+    // Temporary hide/restore presentation, called by CaptureApp's visibility controller. Hide drifts the card down and fades it,
+    // then hides the window; show reverses it. animate=false (captures) cancels everything and hides/shows synchronously.
+    // A later call always supersedes an earlier one: completions check the generation and never re-show a hidden window.
+    internal void PresentOverlay(bool show, bool animate)
+    {
+        int generation = ++presentation;
+        if (closed) return;
+        bool motion = animate && Appearance.Current.Policy.Animate;
+        if (!show)
+        {
+            menu.IsOpen = false; RevealActions(false);
+            if (!motion || !IsVisible) { StopPresentation(true); Hide(); return; }
+            StopPresentation(false); presented.IsHitTestVisible = false;
+            var fade = new DoubleAnimation(0, Leave) { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseIn } };
+            // Hide() raises IsVisibleChanged, which resets the content for the next show.
+            fade.Completed += (_, _) => { if (generation == presentation && !closed) Hide(); };
+            presented.BeginAnimation(OpacityProperty, fade);
+            drift.BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(Drift, Leave) { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseIn } });
+            return;
+        }
+        if (!motion) { StopPresentation(true); if (!IsVisible) Show(); return; }
+        // Continue from wherever an interrupted hide left the content; a hidden window starts from the drifted, transparent state.
+        StopPresentation(false);
+        if (!IsVisible) { presented.Opacity = 0; drift.Y = Drift; Show(); }
+        presented.IsHitTestVisible = true;
+        var appear = new DoubleAnimation(1, Return) { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut } };
+        appear.Completed += (_, _) => { if (generation == presentation) StopPresentation(true); };
+        presented.BeginAnimation(OpacityProperty, appear);
+        drift.BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(0, Return) { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut } });
+    }
+    // Stops presentation animations, either resetting to the resting state or holding the current animated values.
+    private void StopPresentation(bool reset)
+    {
+        double opacity = presented.Opacity, offset = drift.Y;
+        presented.BeginAnimation(OpacityProperty, null); drift.BeginAnimation(TranslateTransform.YProperty, null);
+        presented.Opacity = reset ? 1 : opacity; drift.Y = reset ? 0 : offset;
+        if (reset) presented.IsHitTestVisible = true;
+    }
     public void RevealActions(bool reveal)
     {
         if (!reveal) { keyboardActions = false; overflow.IsOpen = false; }

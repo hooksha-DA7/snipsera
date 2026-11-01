@@ -46,6 +46,6 @@ An independent source review checked the original failure paths, with regression
 
 Fixed headers/footers, large overlays, blank/repeating content and layout shifts still require careful selection; this revision does not implement sticky-header removal or reconstruct unseen content. A no-movement pause does not prove the bottom of the document. Integer-offset synthetic joins remain byte-exact; fractional rendering is checked for match and cumulative height, not native pixel equality.
 
-Development receipts are under `verification/runs/scroll-repair-01`; source reviews are under `design/scrolling-repair-2026-11-01`. These directories and the reference video are excluded from user packages. Build identification is `0.6.0-preview.3`. No installation, production-history change or stable release was performed.
+Development receipts are under `verification/runs/scroll-repair-01`; source reviews are under `design/scrolling-repair-2026-11-01`. These directories and the reference video are excluded from user packages. This repair first shipped as `0.6.0-preview.3`; preview 4 includes the same scrolling code plus temporary overlay hiding. No installation, production-history change or stable release was performed.
 
 Resume native testing only after the user makes the desktop available: verify Chrome manual/Auto, a nested scroller, pointer/focus interruption, Done/Cancel, clean output seams, existing capture restoration and an extracted-package launch. The earlier 0.5.2 archives remain unchanged.

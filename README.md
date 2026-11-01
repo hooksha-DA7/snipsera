@@ -1,6 +1,6 @@
 # Framelet 0.6.0
 
-**Development preview 3:** the scrolling backend has been revised after reports of overlap warnings and Auto-scroll failing in Chrome. Automated regressions pass; live Chrome acceptance remains pending while desktop testing is paused at the user's request. Version 0.5.2 remains the last verified release. See [verification status](docs/SCROLLING-CAPTURE.md#verification).
+**Development preview 4:** temporary overlay hiding is implemented with the restore-tab design. Backend and off-screen template checks pass; live interaction and Chrome scrolling acceptance remain pending while desktop testing is paused at the user's request. Version 0.5.2 remains the last verified release. See [temporary hiding](docs/TEMPORARY-HIDE.md) and [scrolling verification](docs/SCROLLING-CAPTURE.md#verification).
 
 A local Windows screenshot app with an editable annotation workspace. The interface combines CleanShot-inspired capture interactions with Windows 11 Fluent controls, system light/dark styling, native caption buttons and Mica on the main windows. Framelet is an independent implementation; the original CleanShot installer, code and artwork are not included.
 
@@ -46,6 +46,14 @@ The preview is a small rounded thumbnail at the **bottom left** of the monitor u
 - **Drag & drop:** drag the preview image, or use its Drag button, to send an original-resolution PNG to another compatible Windows app. Pins themselves drag to move; their Drag action exports. Drag stays visible when other actions fold into More. On an exceptionally tiny manually resized pin, the other actions remain in the right-click menu. The editor has its own drag handle for the flattened edited PNG.
 - **Pin opacity:** right-click for the opacity slider, or use Ctrl+wheel for 5% steps. Opacity affects the on-screen image only; copy/save/drag retain full opacity and resolution. Arrow keys move a focused pin by one logical pixel; Shift+arrow moves ten.
 - **Esc** dismisses open controls/menu; otherwise it closes the preview or pin. Closing it does not remove its history entry.
+
+## Temporarily hide overlays
+
+Scroll **down one notch over the image** in a preview or pin to hide the floating group. You can also use **Temporarily hide overlays** in an image's right-click menu, the tray menu, or the hide/show row in Home. The existing on-image controls stay in place. Ctrl+wheel on a pin still adjusts opacity.
+
+A small rounded tab appears at the bottom left of the initiating monitor, above its taskbar. Move away and hover over it briefly, or click it, to restore the same windows. The tray and Home toggles are keyboard-accessible alternatives. Hiding keeps image data, pin state, positions, sizes and opacity. Editors and history remain available. New captures made while hidden join the hidden group until you restore it. This mode lasts for the current app session.
+
+Cards use a short slide/fade within their existing frames; Windows reduced-motion preferences make this instant. Capture hides cards and the restore tab synchronously before collecting pixels. See [behavior and verification limits](docs/TEMPORARY-HIDE.md).
 
 ## Windows appearance
 

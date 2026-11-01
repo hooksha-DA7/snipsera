@@ -49,7 +49,9 @@ public sealed class UiIcon : FrameworkElement
             "Settings" => "M4 6 L20 6 M4 12 L20 12 M4 18 L20 18 M8 3 L8 9 M16 9 L16 15 M10 15 L10 21",
             "Screen" => "M3 4 L21 4 L21 17 L3 17 Z M12 17 L12 21 M7 21 L17 21",
             "Window" => "M3 4 L21 4 L21 20 L3 20 Z M3 9 L21 9 M6 6.5 L6.1 6.5 M9 6.5 L9.1 6.5",
-            "Scrolling" => "M5 9 L5 3 L19 3 L19 9 M12 7 L12 20 M8 16 L12 20 L16 16",
+            "ChevronUp" => "M6 15 L12 9 L18 15",
+            "HideOverlays" => "M6 7 L12 13 L18 7 M4 19 L20 19",
+            "Scrolling" =>"M5 9 L5 3 L19 3 L19 9 M12 7 L12 20 M8 16 L12 20 L16 16",
             "Area" =>"M3 8 L3 3 L8 3 M16 3 L21 3 L21 8 M21 16 L21 21 L16 21 M8 21 L3 21 L3 16 M8 8 L16 8 L16 16 L8 16 Z",
             "More" => "M4 12 L4.1 12 M12 12 L12.1 12 M20 12 L20.1 12",
             _ => "M4 4 L20 4 L20 20 L4 20 Z"

@@ -1,5 +1,13 @@
 # Changes
 
+### 0.6.0 preview 4 — temporary overlay hiding, 2026-11-01
+
+- Added wheel-down hiding for the floating preview/pins, with right-click, tray and Home alternatives. Existing on-image actions, pin dragging and Ctrl+wheel opacity remain in place.
+- Added a small bottom-left restore tab with image hint, count, hover dwell, click/keyboard restoration, themed surfaces, focus styling and reduced-motion fallbacks. Cards use a short slide/fade without moving their native frames.
+- Added visibility intent separate from temporary hiding and capture suspension. New captures remain hidden until explicit restoration; previews hidden for editing stay hidden. Capture cleanup preserves the mode across success, cancellation, replacement and errors.
+- Added hover arming to avoid immediately undoing a hide under the pointer, safe work-area fallback, one-time card placement and synchronous animation cancellation before capture. Closing the restore tab restores the group instead of stranding it.
+- Added pure state, gesture, hover and layout checks, plus off-screen production-template rendering. Desktop interaction, animation/native-pixel acceptance and full lifecycle testing remain paused; this is a development preview. The scrolling backend from preview 3 is unchanged.
+
 ### 0.6.0 preview 3 — scrolling backend repair, 2026-11-01
 
 - Collect intermediate views during continuous scrolling, rather than discarding every moving frame until overlap is lost.

@@ -59,6 +59,26 @@ public sealed class HomeWindow : Window
         scrolling.Content = scrollItem; scrolling.HorizontalContentAlignment = HorizontalAlignment.Left; scrolling.HorizontalAlignment = HorizontalAlignment.Stretch; scrolling.Background = Brushes.Transparent; scrolling.BorderBrush = Brushes.Transparent; scrolling.MinHeight = 64; scrolling.Margin = new Thickness(0, 4, 0, 0);
         capturePanel.Children.Add(scrolling);
         left.Children.Add(Ui.Card(capturePanel));
+        // Temporary hide/show for floating previews and pins; the same toggle as the tray item and the restore tab.
+        var overlayLabel = Ui.Text("", 13, Ui.Ink, true); var overlayHint = Ui.Text("", 11, Ui.Muted); overlayHint.Margin = new Thickness(0, 4, 0, 0);
+        var overlayText = new StackPanel(); overlayText.Children.Add(overlayLabel); overlayText.Children.Add(overlayHint);
+        var overlayItem = new DockPanel(); var overlayIcon = new UiIcon("ChevronUp", 22) { Margin = new Thickness(0, 0, 14, 0), VerticalAlignment = VerticalAlignment.Center };
+        DockPanel.SetDock(overlayIcon, Dock.Left); overlayItem.Children.Add(overlayIcon); overlayItem.Children.Add(overlayText);
+        var overlays = Ui.Button("Temporarily hide captures", "ToggleOverlays", app.ToggleOverlays);
+        overlays.Content = overlayItem; overlays.HorizontalContentAlignment = HorizontalAlignment.Left; overlays.HorizontalAlignment = HorizontalAlignment.Stretch; overlays.Background = Brushes.Transparent; overlays.BorderBrush = Brushes.Transparent; overlays.MinHeight = 56; overlays.Margin = new Thickness(0, 10, 0, 0);
+        void OverlayState()
+        {
+            bool hidden = app.OverlaysHidden; int count = app.HiddenOverlayCount;
+            // Enabled only when the click will do something; never a silent no-op.
+            overlays.IsEnabled = app.CanHideOverlays || app.CanShowOverlayShelf; overlayItem.Opacity = overlays.IsEnabled || SystemParameters.HighContrast ? 1 : .5;
+            overlayLabel.Text = hidden ? "Show hidden captures" : "Temporarily hide captures";
+            overlayHint.Text = hidden ? (count == 1 ? "1 capture is hidden" : $"{count:N0} captures are hidden")
+                : overlays.IsEnabled ? "Or scroll down on a floating capture" : "No floating captures to hide";
+            overlayIcon.RenderTransform = hidden ? null : new RotateTransform(180, 11, 11);
+            System.Windows.Automation.AutomationProperties.SetName(overlays, overlayLabel.Text);
+        }
+        OverlayState(); app.OverlayVisibilityChanged += OverlayState; Closed += (_, _) => app.OverlayVisibilityChanged -= OverlayState;
+        left.Children.Add(overlays);
         var settings = new StackPanel(); settings.Children.Add(Ui.Text("Use Ctrl and/or Alt, optionally Shift, plus a letter, number or F1–F11.", 11, Ui.Muted));
         for (int i = 0; i < shortcuts.Length; i++)
         {
