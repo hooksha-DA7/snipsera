@@ -56,6 +56,7 @@ internal static class Program
         if (args.Length == 2 && args[0] == "--ui-fixture") return UiFixture.Run(args[1]);
         if (args.Length == 2 && args[0] == "--ui-fixture-dark") return UiFixture.Run(args[1], "dark");
         if (args.Length == 2 && args[0] == "--ui-fixture-light") return UiFixture.Run(args[1], "light");
+        if (args.Length == 2 && args[0] == "--floating-fixture") return UiFixture.Run(args[1], "dark", true);
         output = Path.GetFullPath(args.Length > 0 ? args[0] : "check-results"); Directory.CreateDirectory(output);
         var application = new Application { ShutdownMode = ShutdownMode.OnExplicitShutdown }; Ui.Install(application);
         Test("Default shortcuts map to four distinct native keys", () =>

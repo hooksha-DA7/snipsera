@@ -14,7 +14,7 @@ using Framelet;
 internal static class UiFixture
 {
     // A separate process with synthetic data for repeatable native UI inspection.
-    public static int Run(string output, string mode = "system")
+    public static int Run(string output, string mode = "system", bool floating = false)
     {
         output = Path.GetFullPath(output); Directory.CreateDirectory(output);
         Native.SetProcessDpiAwarenessContext(new IntPtr(-4));
@@ -26,7 +26,7 @@ internal static class UiFixture
         app.Startup += (_, _) =>
         {
             var backdrop = new DropPad(output); backdrop.Show();
-            var image = Scene(); CaptureService.Save(image, Path.Combine(output, "sample.png"));
+            var image = floating ? FloatingScene(1551, 574) : Scene(); CaptureService.Save(image, Path.Combine(output, "sample.png"));
             var entry = app.History.Add(image, CaptureKind.Window);
             var doc = new EditDocument(image);
             doc.Add(new Mark(MarkKind.Arrow, [new(620, 105), new(505, 275)], "#F34461", 5, Style: MarkStyle.Sketch, Arrow: ArrowStyle.Curved));
@@ -58,7 +58,7 @@ internal static class UiFixture
                     CaptureService.Save(CaptureService.Capture(Native.Bounds(source.Handle)), Path.Combine(output, "popup-" + source.Handle + ".png"));
             }
             app.MainWindow.Hide(); app.OpenEntry(entry);
-            app.Pin(image, entry); app.Pin(EditRenderer.Render(doc), entry); app.Pin(new CroppedBitmap(image, new Int32Rect(60, 65, 540, 310)), entry);
+            app.Pin(image, entry); app.Pin(floating ? FloatingScene(1187, 547) : EditRenderer.Render(doc), entry); app.Pin(floating ? FloatingScene(400, 2400) : new CroppedBitmap(image, new Int32Rect(60, 65, 540, 310)), entry);
             var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2) };
             timer.Tick += (_, _) =>
             {
@@ -82,11 +82,35 @@ internal static class UiFixture
                 var preview = app.Windows.Cast<Window>().OfType<ImageWindow>().Single(w => !w.IsPinned);
                 preview.RevealActions(true);
                 var hover = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(200) };
-                hover.Tick += (_, _) => { hover.Stop(); SaveVisual(preview, Path.Combine(output, "preview-hover.png")); };
+                hover.Tick += (_, _) =>
+                {
+                    hover.Stop(); SaveVisual(preview, Path.Combine(output, "preview-hover.png"));
+                    if (LogicalTreeHelper.FindLogicalNode(preview, "CaptureActionBar") is FrameworkElement bar && PresentationSource.FromVisual(bar) is HwndSource source)
+                    {
+                        CaptureService.Save(CaptureService.Capture(Native.Bounds(source.Handle)), Path.Combine(output, "preview-actions.png"));
+                        if (Native.GetForegroundWindow() == editorHandle)
+                            CaptureService.Save(CaptureService.Capture(System.Drawing.Rectangle.Union(Native.Bounds(new WindowInteropHelper(preview).Handle), Native.Bounds(source.Handle))), Path.Combine(output, "floating-preview-native.png"));
+                    }
+                };
                 hover.Start();
             }; timer.Start(); editor.Activate();
         };
         return app.Run();
+    }
+    private static BitmapSource FloatingScene(int width, int height)
+    {
+        var visual = new DrawingVisual(); using (var dc = visual.RenderOpen())
+        {
+            dc.DrawRectangle(Ui.Brush("#183E42"), null, new Rect(0, 0, width, height));
+            dc.DrawRoundedRectangle(Ui.Brush("#EDEDE1"), null, new Rect(26, 26, width - 52, height - 52), 20, 20);
+            var face = new Typeface(Ui.Font, FontStyles.Normal, FontWeights.SemiBold, FontStretches.Normal);
+            dc.DrawText(new FormattedText("Floating image test", CultureInfo.InvariantCulture, FlowDirection.LeftToRight, face, 34, Ui.Brush("#183E42"), 1), new Point(55, 52));
+            dc.DrawText(new FormattedText($"{width} × {height} px", CultureInfo.InvariantCulture, FlowDirection.LeftToRight, face, 24, Ui.Brush("#617775"), 1), new Point(55, 110));
+            double top = 178, gap = 20, column = (width - 110 - gap) / 2d;
+            dc.DrawRoundedRectangle(Ui.Brush("#B7CDB1"), null, new Rect(55, top, column, height - top - 55), 12, 12);
+            dc.DrawRoundedRectangle(Ui.Brush("#E5C595"), null, new Rect(55 + column + gap, top, column, height - top - 55), 12, 12);
+        }
+        var bitmap = new RenderTargetBitmap(width, height, 96, 96, PixelFormats.Pbgra32); bitmap.Render(visual); bitmap.Freeze(); return bitmap;
     }
     private static void SaveVisual(Window window, string path)
     {

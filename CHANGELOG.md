@@ -1,5 +1,12 @@
 # Changes
 
+## 0.5.1 — 2026-10-31
+
+- Unified preview/pin size limits and removed independent minimum image dimensions that added empty space to wide/tall captures.
+- Moved floating actions into one compact hover toolbar outside the image, keeping all six controls usable regardless of image proportions. Images remain sharp and retain their dimensions while controls are visible.
+- Made Pin/Unpin toggle the same window directly, with a distinct active icon. Unpin returns to the preview area without overlapping the reflowed stack. Right-click retains options and opacity controls.
+- Kept native file drag, resizing, keyboard access, repeated captures, original history pixels and project format version 3. Added aspect-ratio, in-place toggle, toolbar sizing/visibility and stack-clearance verification.
+
 ## 0.5.0 — 2026-10-31
 
 - Added four arrow choices: tapered Classic, Filled, Open and Curved, with graphical samples and editable endpoint/bend handles. A handle drag is a single undo operation.

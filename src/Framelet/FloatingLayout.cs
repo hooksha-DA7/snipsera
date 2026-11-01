@@ -8,9 +8,10 @@ namespace Framelet;
 
 public static class FloatingLayout
 {
+    public const double MaxWidth = 240, MaxHeight = 166;
     public static PixelRect Preview(PixelRect work, Size image, double dpi)
     {
-        var size = Fit(image, Math.Min(240 * dpi, work.Width - 24 * dpi), Math.Min(166 * dpi, work.Height - 24 * dpi), dpi);
+        var size = Fit(image, Math.Min(MaxWidth * dpi, work.Width - 24 * dpi), Math.Min(MaxHeight * dpi, work.Height - 24 * dpi), dpi);
         int margin = (int)Math.Round(12 * dpi);
         return new PixelRect(work.Left + margin, work.Bottom - margin - (int)size.Height, (int)size.Width, (int)size.Height);
     }
@@ -25,8 +26,8 @@ public static class FloatingLayout
         for (int cols = 1; cols <= Math.Min(4, images.Count); cols++)
         {
             int candidateRows = (int)Math.Ceiling((double)images.Count / cols);
-            double w = Math.Min(256 * dpi, (availableWidth - gap * (cols - 1)) / cols);
-            double h = Math.Min(192 * dpi, (availableHeight - gap * (candidateRows - 1)) / candidateRows);
+            double w = Math.Min(MaxWidth * dpi, (availableWidth - gap * (cols - 1)) / cols);
+            double h = Math.Min(MaxHeight * dpi, (availableHeight - gap * (candidateRows - 1)) / candidateRows);
             if (w < 72 * dpi || h < 48 * dpi) continue;
             double score = images.Sum(image => { var size = Fit(image, w, h, dpi); return size.Width * size.Height; }) / (1 + cols * 0.01);
             if (score <= best) continue;
@@ -49,7 +50,6 @@ public static class FloatingLayout
         double border = 16 * dpi;
         double width = Math.Max(1, maxWidth - border), height = Math.Max(1, maxHeight - border);
         double scale = Math.Min(width / image.Width, height / image.Height);
-        return new Size(Math.Floor(Math.Min(maxWidth, Math.Max(Math.Min(136 * dpi, width), image.Width * scale) + border)),
-            Math.Floor(Math.Min(maxHeight, Math.Max(Math.Min(70 * dpi, height), image.Height * scale) + border)));
+        return new Size(Math.Floor(image.Width * scale + border), Math.Floor(image.Height * scale + border));
     }
 }

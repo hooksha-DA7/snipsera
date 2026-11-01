@@ -35,6 +35,20 @@ internal static class UiChecks
                 { Require(work.Contains(rects[i]), "Pin offscreen"); Require(rects[i].Width <= 256 * dpi && rects[i].Height <= 192 * dpi, "Pin too large"); Require(!rects[i].IntersectsWith(preview), "Pin overlaps reserved preview"); for (int j = 0; j < i; j++) Require(!rects[i].IntersectsWith(rects[j]), "Pins overlap"); }
             }
         });
+        test("Floating frames preserve wide and tall aspect ratios and one pin matches its preview", () =>
+        {
+            var work = new PixelRect(0, 0, 2560, 1400);
+            foreach (double dpi in new[] { 1d, 1.25, 1.5, 2 })
+            foreach (var image in new[] { new Size(1551, 574), new Size(1187, 547), new Size(3000, 200), new Size(400, 2400), new Size(100, 100) })
+            {
+                var preview = FloatingLayout.Preview(work, image, dpi); var pin = FloatingLayout.Pins(work, [image], dpi)[0];
+                Require(preview.Size == pin.Size, "Pinning changed the compact size");
+                double width = preview.Width - 16 * dpi, height = preview.Height - 16 * dpi;
+                double expectedHeight = width * image.Height / image.Width;
+                // Integer physical-pixel bounds may round either image edge by less than one pixel.
+                Require(Math.Abs(height - expectedHeight) <= 1 + image.Height / image.Width, "Frame adds empty space instead of fitting the image");
+            }
+        });
         test("Sketch arrows curve and have open heads; sketch ovals keep their interior clear", () =>
         {
             var image = White(); var doc = new EditDocument(image);

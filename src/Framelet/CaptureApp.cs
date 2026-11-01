@@ -31,6 +31,7 @@ public sealed class CaptureApp : Application
     private readonly Func<DrawingRect, BitmapSource> capturePixels;
     private HwndSource? hotkeySink;
     private ContextMenu trayMenu = null!;
+    internal bool TrayMenuOpen => trayMenu?.IsOpen == true;
     private DrawingRect? previousArea;
 
     public CaptureApp(string dataRoot, Func<DrawingRect, BitmapSource>? capturePixels = null)
@@ -81,8 +82,13 @@ public sealed class CaptureApp : Application
 
     public void ShowTrayMenu()
     {
+        foreach (var image in Windows.Cast<Window>().OfType<ImageWindow>()) image.DismissActions();
+        // Acquire the native popup focus before WPF enters keyboard menu mode.
+        // Otherwise WM_SETFOCUS clears its just-assigned logical focus and closes it.
+        trayMenu.Focusable = false;
         trayMenu.IsOpen = true;
         if (PresentationSource.FromVisual(trayMenu) is HwndSource popup) Native.SetForegroundWindow(popup.Handle);
+        trayMenu.Focusable = true;
         trayMenu.Focus();
     }
 
@@ -139,7 +145,7 @@ public sealed class CaptureApp : Application
             preview?.Close();
             foreach (var pin in pins.ToArray()) pin.Show();
             foreach (var editor in visible.OfType<EditorWindow>()) editor.Show();
-            preview = new ImageWindow(this, image, entry, false, warning); preview.Show();
+            preview = FloatingWindow(image, entry, false, warning); preview.Show();
             home.RefreshHistory(); home.SetStatus(warning ?? "Capture ready");
             completed = true;
         }
@@ -160,15 +166,37 @@ public sealed class CaptureApp : Application
 
     public void OpenEntry(CaptureEntry entry)
     {
-        try { var image = CaptureService.Load(History.ImagePath(entry)); preview?.Close(); preview = new ImageWindow(this, image, entry, false); preview.Show(); }
+        try { var image = CaptureService.Load(History.ImagePath(entry)); preview?.Close(); preview = FloatingWindow(image, entry, false); preview.Show(); }
         catch (Exception ex) { Report(ex); }
     }
 
     public bool Pin(BitmapSource image, CaptureEntry entry)
     {
         if (pins.Count >= 8) { Report(new InvalidOperationException("Close a pinned capture before adding another. Up to eight captures can be pinned.")); return false; }
-        var window = new ImageWindow(this, image, entry, true);
-        pins.Add(window); window.Closed += (_, _) => { pins.Remove(window); ReflowPins(); }; window.Show(); return true;
+        var window = FloatingWindow(image, entry, true);
+        pins.Add(window); window.Show(); return true;
+    }
+
+    private ImageWindow FloatingWindow(BitmapSource image, CaptureEntry entry, bool pinned, string? warning = null)
+    {
+        var window = new ImageWindow(this, image, entry, pinned, warning);
+        window.Closed += (_, _) => { if (preview == window) preview = null; if (pins.Remove(window)) ReflowPins(); };
+        return window;
+    }
+
+    public void TogglePin(ImageWindow window)
+    {
+        if (window.IsPinned)
+        {
+            pins.Remove(window); preview?.Close(); preview = window;
+            window.SetPinned(false); ReflowPins();
+        }
+        else
+        {
+            if (pins.Count >= 8) { Report(new InvalidOperationException("Close a pinned capture before adding another. Up to eight captures can be pinned.")); return; }
+            if (preview == window) preview = null;
+            pins.Add(window); window.SetPinned(true); ReflowPins();
+        }
     }
 
     public void ReflowPins()

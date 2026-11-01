@@ -33,6 +33,7 @@ public sealed class UiIcon : FrameworkElement
             "Blur" => "M12 2 C10 6 5 11 5 15 A7 7 0 0 0 19 15 C19 11 14 6 12 2 M9 15 C9 18 11 19 13 19",
             "Redact" => "M3 7 L21 7 L21 17 L3 17 Z M6 10 L18 10 M6 14 L18 14",
             "Pin" => "M8 3 L18 3 M9 3 L10 10 L7 13 L17 13 L14 10 L15 3 M12 13 L12 22",
+            "Unpin" => "M8 3 L18 3 M9 3 L10 10 L7 13 L17 13 L14 10 L15 3 M12 13 L12 22 M3 3 L21 21",
             "Copy" => "M8 8 L20 8 L20 21 L8 21 Z M5 16 L3 16 L3 3 L15 3 L15 5",
             "Save" => "M12 3 L12 15 M7 10 L12 15 L17 10 M4 16 L4 21 L20 21 L20 16",
             "Project" => "M4 3 L17 3 L21 7 L21 21 L4 21 Z M8 3 L8 9 L16 9 L16 3 M8 21 L8 14 L17 14 L17 21",

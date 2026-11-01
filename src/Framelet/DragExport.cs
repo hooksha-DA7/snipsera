@@ -21,12 +21,12 @@ public static class DragExport
         string path = Path.Combine(folder, Guid.NewGuid().ToString("N") + ".png"); CaptureService.Save(image, path);
         var data = new DataObject(); data.SetFileDropList(new StringCollection { path }); data.SetImage(image); return data;
     }
-    public static void Attach(FrameworkElement source, string root, Func<BitmapSource> image, Action<Exception> report, bool ignoreControls = false)
+    public static void Attach(FrameworkElement source, string root, Func<BitmapSource> image, Action<Exception> report, bool ignoreControls = false, Func<bool>? enabled = null)
     {
         Point? origin = null;
         source.PreviewMouseLeftButtonDown += (_, e) =>
         {
-            if (e.ClickCount != 1 || ignoreControls && IsControl(e.OriginalSource as DependencyObject)) return;
+            if (enabled?.Invoke() == false || e.ClickCount != 1 || ignoreControls && IsControl(e.OriginalSource as DependencyObject)) return;
             origin = e.GetPosition(source); source.CaptureMouse(); e.Handled = true;
         };
         source.PreviewMouseLeftButtonUp += (_, _) => { origin = null; if (source.IsMouseCaptured) source.ReleaseMouseCapture(); };
