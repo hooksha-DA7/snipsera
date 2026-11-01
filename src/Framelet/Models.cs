@@ -6,7 +6,7 @@ using System.Text.Json.Serialization;
 
 namespace Framelet;
 
-public enum CaptureKind { Area, Window, Screen, PreviousArea }
+public enum CaptureKind { Area, Window, Screen, PreviousArea, Scrolling }
 public sealed record CaptureEntry(string Id, DateTimeOffset Created, string Mode, int Width, int Height)
 {
     [JsonIgnore] public string Label => $"{(Mode == "Screen" ? "Display" : Mode == "PreviousArea" ? "Repeat area" : Mode)} · {Width:N0} × {Height:N0}";

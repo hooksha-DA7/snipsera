@@ -50,6 +50,14 @@ public sealed class HomeWindow : Window
             var item = new DockPanel(); var icon = new UiIcon(new[] { "Area", "Window", "Screen", "History" }[i], 22) { Margin = new Thickness(0, 0, 14, 0), VerticalAlignment = VerticalAlignment.Center }; DockPanel.SetDock(icon, Dock.Left); item.Children.Add(icon); item.Children.Add(stack); button.Content = item; button.HorizontalContentAlignment = HorizontalAlignment.Left; button.HorizontalAlignment = HorizontalAlignment.Stretch; button.Background = Brushes.Transparent; button.BorderBrush = Brushes.Transparent; button.MinHeight = 64; button.Margin = new Thickness(0, 4, 0, 0);
             capturePanel.Children.Add(button);
         }
+        // Scrolling capture has no shortcut in this release; it starts here, from the tray or from a capture's right-click menu.
+        var scrollText = new StackPanel(); scrollText.Children.Add(Ui.Text("Scrolling capture", 13, Ui.Ink, true));
+        var scrollHint = Ui.Text("Select content, then scroll", 11, Ui.Muted); scrollHint.Margin = new Thickness(0, 8, 0, 0); scrollText.Children.Add(scrollHint);
+        var scrollItem = new DockPanel(); var scrollIcon = new UiIcon("Scrolling", 22) { Margin = new Thickness(0, 0, 14, 0), VerticalAlignment = VerticalAlignment.Center };
+        DockPanel.SetDock(scrollIcon, Dock.Left); scrollItem.Children.Add(scrollIcon); scrollItem.Children.Add(scrollText);
+        var scrolling = Ui.Button("Scrolling capture", "CaptureScrolling", async () => await app.CaptureAsync(CaptureKind.Scrolling));
+        scrolling.Content = scrollItem; scrolling.HorizontalContentAlignment = HorizontalAlignment.Left; scrolling.HorizontalAlignment = HorizontalAlignment.Stretch; scrolling.Background = Brushes.Transparent; scrolling.BorderBrush = Brushes.Transparent; scrolling.MinHeight = 64; scrolling.Margin = new Thickness(0, 4, 0, 0);
+        capturePanel.Children.Add(scrolling);
         left.Children.Add(Ui.Card(capturePanel));
         var settings = new StackPanel(); settings.Children.Add(Ui.Text("Use Ctrl and/or Alt, optionally Shift, plus a letter, number or F1–F11.", 11, Ui.Muted));
         for (int i = 0; i < shortcuts.Length; i++)

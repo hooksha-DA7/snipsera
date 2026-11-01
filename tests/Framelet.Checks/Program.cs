@@ -52,6 +52,8 @@ internal static class Program
     [STAThread]
     public static int Main(string[] args)
     {
+        if (args.Length == 2 && args[0] == "--scroll-fixture") return ScrollingFixture.Run(args[1]);
+        if (args.Length == 2 && args[0] == "--scroll-ui-check") return ScrollingUiChecks.RunOnly(args[1]);
         if (args.Length == 2 && args[0] == "--capture-stress") return CaptureLifecycle.Run(args[1]);
         if (args.Length == 2 && args[0] == "--ui-fixture") return UiFixture.Run(args[1]);
         if (args.Length == 2 && args[0] == "--ui-fixture-dark") return UiFixture.Run(args[1], "dark");
@@ -103,6 +105,8 @@ internal static class Program
         EditorChecks.Run(output, Test, Pump);
         UiChecks.Run(output, Test);
         AnnotationChecks.Run(output, Test, Pump);
+        ScrollingChecks.Run(Test, Pump);
+        ScrollingUiChecks.Run(output, Test, Pump);
 
         var fixture = new FixtureWindow { Topmost = true }; fixture.Show(); fixture.Activate(); Pump(350); Native.DwmFlush();
         Test("Live native capture returns the synthetic window pixels", () =>

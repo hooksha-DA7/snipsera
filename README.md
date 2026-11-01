@@ -1,10 +1,12 @@
-# Framelet 0.5.2
+# Framelet 0.6.0
+
+**Development preview:** scrolling capture is implemented, but final live Auto-scroll acceptance is pending while desktop testing is paused at the user's request. Version 0.5.2 remains the last verified release. See [verification status](docs/SCROLLING-CAPTURE.md#verification).
 
 A local Windows screenshot app with an editable annotation workspace. The interface combines CleanShot-inspired capture interactions with Windows 11 Fluent controls, system light/dark styling, native caption buttons and Mica on the main windows. Framelet is an independent implementation; the original CleanShot installer, code and artwork are not included.
 
 ## Run
 
-Extract the entire `Framelet-0.5.2-win-x64.zip` folder, then double-click **Framelet.exe**. Keep the DLL, JSON and EXE files together. This portable build requires the **.NET 10 Desktop Runtime x64**, which is already installed on the development/test machine. Close earlier Framelet copies using their tray menu before starting this version, so the shortcuts are available. There is no installer, account or cloud service.
+Extract the entire ZIP folder, then double-click **Framelet.exe**. Keep the DLL, JSON and EXE files together. This portable build requires the **.NET 10 Desktop Runtime x64**, which is already installed on the development/test machine. Close earlier Framelet copies using their tray menu before starting this version, so the shortcuts are available. There is no installer, account or cloud service.
 
 Closing the home window keeps Framelet running in the notification area. Double-click its tray icon or launch Framelet again to reopen history. Use **Quit Framelet** in the tray menu to exit and release the hotkeys. It does not automatically start with Windows.
 
@@ -16,12 +18,19 @@ Closing the home window keeps Framelet running in the notification area. Double-
 | Window | Ctrl+Alt+Shift+2 | Click a visible window. Framelet brings it forward and captures its on-screen bounds. |
 | Full display | Ctrl+Alt+Shift+3 | Capture the entire monitor under the pointer, including its taskbar. |
 | Repeat area | Ctrl+Alt+Shift+4 | Capture the last selected rectangle again, during the current app session. |
+| Scrolling capture | Home, tray or image right-click menu | Select scrolling content, Start, scroll down, then Done to create one tall image. |
 
 Press **Esc** or right-click to cancel selection. Framelet hides its own home, previews and pins before capture, then restores pins after success. Canceling restores the previously visible windows.
 
 You can capture again while the previous preview, pins or editor are open. The new preview replaces the previous preview after a successful capture; each original stays in history. A request received while capture is finishing is queued; multiple waiting requests coalesce to the latest action. If a save/confirmation dialog is open, capture waits for you to dismiss that dialog. Selection itself is asynchronous and does not disable the other app windows.
 
 Use the home buttons or tray menu for the same actions. Expand **Keyboard shortcuts** to customize them, then select **Save shortcuts**. Supported combinations contain Ctrl and/or Alt, optional Shift, and one letter, digit or F1–F11. If another application owns a requested shortcut, Framelet explains the conflict and keeps the previous bindings. A startup conflict leaves the capture buttons usable; change the shortcuts to enable them.
+
+## Scrolling capture
+
+Choose **Scrolling capture**, then drag around the content that scrolls. Leave fixed headers, footers and scrollbars outside the selection and enough space around it for the capture controls. Choose **Start capture**, then scroll down slowly, keeping some of the previous view visible. A growing preview shows the image collected so far. **Auto-scroll** is optional; you can turn it off and continue manually. Choose **Done** to send the tall image to the usual preview/history workflow, where you can copy, save, pin or annotate it. **Cancel** or Esc discards the session and restores the previous windows.
+
+This version stitches vertical downward scrolling from visible pixels. Duplicate views and backward motion do not add another copy. If a view cannot be aligned, scroll back slightly and continue more slowly. Framelet keeps the last good portion and reports an alignment/limit warning when applicable. Auto-scroll stops after no movement or an alignment problem; it does not assume that every app has reached the end of its document. The result is limited to 20,000 pixels per side and 40 million total pixels. Read the [scrolling capture notes](docs/SCROLLING-CAPTURE.md) for supported conditions and verification.
 
 ## Preview, save and pin
 
@@ -83,7 +92,8 @@ Editor shortcuts: **Ctrl+Z** undo, **Ctrl+Y** redo, **Ctrl+S** save project, **C
 - Output is a static SDR PNG. HDR color fidelity, game/exclusive-fullscreen capture and secure desktops are not certified. The pointer itself is not deliberately composited into the screenshot.
 - Full display means one monitor, not a stitched all-monitor export. Area selection spans the virtual desktop. Coordinate tests cover negative origins and scaled layouts; mixed-DPI multi-monitor hardware still needs a separate acceptance pass.
 - The editor supports images/output up to 20,000 pixels per side and 40 million total pixels, up to 500 annotations and 50,000 total freehand points. Padding is 0–500 pixels; project metadata is capped at 4 MB and embedded image data at 160 MB. An image can remain capturable/viewable under Phase 1 limits even if it exceeds editor limits.
-- No scrolling capture, OCR, recording, upload links, persistent pins, autostart or updater in this phase. The app/package is unsigned. Project files are Framelet's own format; `.cleanshot` files are not supported.
+- Scrolling capture requires overlapping, stable views of one vertical scroll region. Sticky elements, animations, horizontal movement, large jumps, changing window geometry and repeating/blank content can prevent reliable alignment. Exclude fixed elements when selecting the region. Auto-scroll uses a native accessibility scroll action when available, with targeted Windows wheel messages as a fallback. Applications that support neither can be scrolled manually.
+- No OCR, recording, upload links, persistent pins, autostart or updater in this phase. The app/package is unsigned. Project files are Framelet's own format; `.cleanshot` files are not supported.
 
 ## Build and verify
 

@@ -1,5 +1,11 @@
 # Changes
 
+## 0.6.0 — Development preview, 2026-11-01
+
+- Added vertical scrolling capture: select a scrolling region, Start, scroll manually or enable optional Auto-scroll, then Done/Cancel. - Added stable-view pixel alignment, exact new-row stitching, duplicate/backward-motion handling, ambiguity/gap rejection and bounded output. A warning identifies any unmatched final view or capture limit.
+- Connected scrolling output to existing history, preview, copy/save/pin/drag and editing. Existing capture shortcuts, on-image controls, project formats and capture restoration/queue behavior are preserved.
+- Added pixel-level stitching, session cancellation/failure/finish tests and a separate synthetic numbered scrolling document for native verification.
+
 ## 0.5.2 — 2026-11-01
 
 - Restored capture controls on the image after the user rejected the external toolbar. - Scoped floating-button styling preserves readable material and pinned accent states during interaction, with rounded focus treatment and theme/policy fallbacks. Main app controls and editor tool layouts retain their existing design.

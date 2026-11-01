@@ -1,4 +1,4 @@
-param([string]$Version = '0.5.2')
+param([string]$Version = '0.6.0')
 $ErrorActionPreference = 'Stop'
 if ($Version -notmatch '^\d+\.\d+\.\d+$') { throw 'Use a numeric major.minor.patch version.' }
 $frameletRoot = $PSScriptRoot

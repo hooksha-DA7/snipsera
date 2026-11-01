@@ -72,7 +72,7 @@ public sealed class CaptureApp : Application
         Item("Capture display", "Screen", () => _ = CaptureAsync(CaptureKind.Screen), Settings.Screen);
         Item("Repeat last area", "History", () => _ = CaptureAsync(CaptureKind.PreviousArea), Settings.Previous);
         trayMenu.Items.Add(new Separator());
-        Item("History and shortcuts", "History", ShowHome); Item("Quit Framelet", "Close", Quit);
+        Item("History and shortcuts", "History", ShowHome); Item("Scrolling capture", "Scrolling", () => _ = CaptureAsync(CaptureKind.Scrolling)); Item("Quit Framelet", "Close", Quit);
         tray = new Forms.NotifyIcon { Icon = trayIcon, Text = "Framelet — capture, copy, keep", Visible = true };
         tray.MouseUp += (_, e) => { if (e.Button == Forms.MouseButtons.Right) Dispatcher.BeginInvoke(ShowTrayMenu); };
         tray.DoubleClick += (_, _) => ShowHome();
@@ -116,6 +116,7 @@ public sealed class CaptureApp : Application
             await Task.Delay(180); Native.DwmFlush();
             DrawingRect desktop = Native.Desktop;
             BitmapSource image;
+            string? scrollingWarning = null;
             if (kind == CaptureKind.Screen) image = capturePixels(display);
             else if (kind == CaptureKind.PreviousArea)
             {
@@ -135,10 +136,23 @@ public sealed class CaptureApp : Application
                     await Task.Delay(180); Native.DwmFlush();
                     image = capturePixels(Native.Bounds(target.Handle));
                 }
+                else if (kind == CaptureKind.Scrolling)
+                {
+                    if (ScrollCaptureLayout.Check(area) is string placementError) throw new InvalidOperationException(placementError);
+                    using var session = new ScrollCaptureSession(area, capturePixels);
+                    var scrolling = new ScrollCaptureWindow(session);
+                    try
+                    {
+                        scrolling.Show(); var combined = await session.Completion;
+                        if (combined is null) { if (scrolling.PlacementError is string error) throw new InvalidOperationException(error); return; }
+                        image = combined; scrollingWarning = session.Warning;
+                    }
+                    finally { scrolling.Close(); }
+                }
                 else { image = CaptureService.Crop(frozen, area, desktop); previousArea = area; }
             }
             CaptureEntry entry;
-            string? warning = null;
+            string? warning = scrollingWarning;
             try { entry = History.Add(image, kind); }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
             { entry = new CaptureEntry(Guid.NewGuid().ToString("N"), DateTimeOffset.UtcNow, kind.ToString(), image.PixelWidth, image.PixelHeight); warning = "History could not be saved. Use Copy or Save to keep this capture."; }
