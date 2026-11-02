@@ -1,6 +1,6 @@
 # Code signing
 
-SignPath Foundation is the selected route for signing Snipsera's Windows installer and its own application binaries. The project is preparing its application; acceptance and certificate availability are pending. Current unsigned packages are not signed or endorsed by SignPath Foundation.
+SignPath Foundation is the selected route for signing Snipsera's Windows installer and its own application binaries. The application was submitted on November 2, 2026; acceptance and certificate availability are pending. Current unsigned packages are not signed or endorsed by SignPath Foundation.
 
 Microsoft Store uses a separate package identity and signs accepted MSIX packages through its certification process. A Store signature does not sign the EXE installer downloaded from GitHub.
 

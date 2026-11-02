@@ -20,6 +20,13 @@ class PackagingChecks(unittest.TestCase):
         for identity in ({}, {"name": "REPLACE_FROM_PARTNER_CENTER", "publisher": "CN=example", "publisher_display_name": "Example"}, {"name": "../escape", "publisher": "CN=example", "publisher_display_name": "Example"}):
             with self.subTest(identity=identity), self.assertRaises(ValueError): PACKAGE.package_manifest(identity, "1.0.0.0")
 
+    def test_store_package_declares_native_recorder_runtime(self):
+        identity = {"name": "Example.Snipsera", "publisher": "CN=example", "publisher_display_name": "Example"}
+        manifest = PACKAGE.package_manifest(identity, "1.0.0.0")
+        dependency = manifest.find(f"{{{PACKAGE.FOUNDATION}}}Dependencies/{{{PACKAGE.FOUNDATION}}}PackageDependency")
+        self.assertIsNotNone(dependency, "A clean Store installation must receive the native C++ runtime")
+        self.assertEqual(dependency.attrib, {"Name": "Microsoft.VCLibs.140.00.UWPDesktop", "MinVersion": "14.0.33321.0", "Publisher": "CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"})
+
     def test_store_version_rules_are_enforced(self):
         identity = {"name": "Example.Snipsera", "publisher": "CN=example", "publisher_display_name": "Example"}
         for version in ("0.7.0.0", "1.0.0.1", "1.0.0-preview.1", "1.65536.0.0"):
