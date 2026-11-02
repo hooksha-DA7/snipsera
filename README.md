@@ -18,7 +18,7 @@ The installer includes .NET. Screen recording needs the [Microsoft Visual C++ x6
 
 For the portable version, extract the complete ZIP and open **Snipsera.exe**. Keep its files and `encoder` folder together.
 
-**This is an unsigned preview.** Windows may show a warning when you download or start it. Code signing is pending; see the [release notes](releases/notes/v1.0.1-preview.1.md) for current limits. The Microsoft Store version is in review. [Code signing policy](docs/CODE-SIGNING.md).
+**This is an unsigned preview.** Windows may show a warning when you download or start it. Code signing is pending; see the [release notes](releases/notes/v1.0.1-preview.1.md) for current limits. The Store package has been submitted for certification. [Code signing policy](docs/CODE-SIGNING.md).
 
 Snipsera runs locally, without an account or cloud service. Older Framelet downloads remain available in the [release history](RELEASES.md).
 
@@ -55,7 +55,7 @@ Closing the home window leaves the app in the tray. Use its **Quit** command to 
 
 ## More help
 
-[User guide](docs/USER-GUIDE.md) Â· [Release notes and downloads](RELEASES.md) Â· [Build from source](docs/DEVELOPMENT.md) Â· [Report a problem](https://github.com/hooksha-DA7/snipsera/issues) Â· [Privacy](PRIVACY.md) Â· [Signing status](docs/CODE-SIGNING.md)
+[User guide](docs/USER-GUIDE.md) Ã‚Â· [Release notes and downloads](RELEASES.md) Ã‚Â· [Build from source](docs/DEVELOPMENT.md) Ã‚Â· [Report a problem](https://github.com/hooksha-DA7/snipsera/issues) Ã‚Â· [Privacy](PRIVACY.md) Ã‚Â· [Signing status](docs/CODE-SIGNING.md)
 
 Snipsera is an independent Windows app inspired by CleanShot's workflow. It is not affiliated with CleanShot.
 
