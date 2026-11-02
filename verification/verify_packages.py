@@ -22,7 +22,7 @@ def digest(data):
 
 
 def expected_source():
-    files = {"README.md", "CHANGELOG.md", "RELEASES.md", "BUILD-STATUS.md", "THIRD-PARTY.md", "recording-dependencies.json", "Directory.Build.props", "NuGet.Config",
+    files = {"README.md", "CHANGELOG.md", "RELEASES.md", "BUILD-STATUS.md", "LICENSE", "THIRD-PARTY.md", "recording-dependencies.json", "Directory.Build.props", "NuGet.Config",
              "build.ps1", "test.ps1", "publish.ps1", ".gitignore", "verification/verify_packages.py", "scripts/prepare_recording_dependencies.py"}
     files |= {p.relative_to(ROOT).as_posix() for p in (ROOT / "docs").rglob("*") if p.is_file()}
     for tree in ("src", "tests"):
@@ -39,7 +39,7 @@ def verify(flavor):
     encoder_files = json.loads((ROOT / "recording-dependencies.json").read_text())["encoder"]["runtime_files"]
     encoder = {"encoder/" + name for name in encoder_files}
     docs = {p.relative_to(ROOT).as_posix() for p in (ROOT / "docs").rglob("*") if p.is_file()}
-    expected = expected_source() if flavor == "source" else runtime | encoder | docs | {"README.md", "CHANGELOG.md", "RELEASES.md", "BUILD-STATUS.md", "THIRD-PARTY.md", "recording-dependencies.json"}
+    expected = expected_source() if flavor == "source" else runtime | encoder | docs | {"README.md", "CHANGELOG.md", "RELEASES.md", "BUILD-STATUS.md", "LICENSE", "THIRD-PARTY.md", "recording-dependencies.json"}
     with zipfile.ZipFile(archive) as bundle:
         assert bundle.testzip() is None, "ZIP CRC failure"
         names = [entry.filename.replace("\\", "/") for entry in bundle.infolist()]

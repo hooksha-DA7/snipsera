@@ -13,7 +13,7 @@ These channels have separate approval processes. Neither is enrolled or approved
 
 ## Before the first submission
 
-1. Choose an app-level open-source licence. The public repository currently has no such licence; third-party notices do not license Framelet's own code. SignPath requires qualifying open-source licensing. Keep the licences of ScreenRecorderLib, FFmpeg and other components intact.
+1. **Licence selected:** MIT for Framelet's own code, approved on 2026-11-02 and included in the root `LICENSE`. Include it and `THIRD-PARTY.md` in source and runtime packages. Keep the licences of ScreenRecorderLib, FFmpeg and other components intact. This addresses the app-level licence requirement; SignPath acceptance still requires its remaining project and build checks.
 2. Complete a personal Microsoft Store developer account and reserve the app. Use the actual package identity, publisher and publisher display name supplied by Partner Center. Never invent a Store identity or use a company account as a substitute. Identity verification must be completed by the publisher.
 3. Prepare the Store listing, support/privacy links, app screenshots and certification notes. Explain the full-trust desktop requirement and screen/microphone capture behavior accurately. Test the packaged tray, shortcuts, screenshot history and recording paths, including access to bundled native dependencies and writable local data.
 4. Apply to SignPath Foundation after the licence and public project requirements are met. Follow its requirements for repository access, multi-factor authentication, trusted hosted builds, artifact provenance and release approval. Approval and certificate issuance are external dependencies; do not report a package as signed while they are pending.
@@ -30,6 +30,6 @@ These channels have separate approval processes. Neither is enrolled or approved
 
 ## Current setup status
 
-The release workflow documents the new required formats. The published 0.7.0-preview.1 remains the previously verified portable ZIP release. No EXE installer or MSIX has been built by this policy change. Store onboarding/certification, SignPath acceptance, the app licence decision, packaging implementation and native installer/MSIX acceptance still need completion before the first delivery through these routes.
+The release workflow documents the new required formats, and Framelet's own code now has an MIT licence. The published 0.7.0-preview.1 remains the previously verified portable ZIP release. No EXE installer or MSIX has been built by these policy/licence changes. Store onboarding/certification, SignPath acceptance, packaging implementation and native installer/MSIX acceptance still need completion before the first delivery through these routes.
 
 References: [Microsoft signing options](https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/code-signing-options), [Store registration](https://learn.microsoft.com/en-us/windows/apps/publish/partner-center/open-a-developer-account), [MSIX desktop packaging](https://learn.microsoft.com/en-us/windows/msix/desktop/desktop-to-uwp-manual-conversion), [SignPath conditions](https://signpath.org/terms.html), [SignPath trusted GitHub builds](https://docs.signpath.io/trusted-build-systems/github).

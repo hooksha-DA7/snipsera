@@ -52,3 +52,7 @@ Closing the home window leaves Framelet in the tray. Use **Quit Framelet** from 
 [User guide](docs/USER-GUIDE.md) Â· [Release notes and downloads](RELEASES.md) Â· [Build from source](docs/DEVELOPMENT.md) Â· [Report a problem](https://github.com/hooksha-DA7/framelet/issues)
 
 Framelet is an independent Windows app inspired by CleanShot's workflow. It is not affiliated with CleanShot.
+
+## Licence
+
+Framelet's own code is available under the [MIT licence](LICENSE). Bundled third-party components retain their [respective licences](THIRD-PARTY.md).

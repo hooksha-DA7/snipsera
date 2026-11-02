@@ -20,11 +20,11 @@ foreach ($file in @('Framelet.exe','Framelet.dll','Framelet.deps.json','Framelet
     Copy-Item -LiteralPath (Join-Path $frameletBinary $file) -Destination $frameletPackage
 }
 Copy-Item -LiteralPath (Join-Path $frameletBinary 'encoder') -Destination $frameletPackage -Recurse
-foreach ($file in @('README.md','CHANGELOG.md','RELEASES.md','BUILD-STATUS.md','THIRD-PARTY.md','recording-dependencies.json')) {
+foreach ($file in @('README.md','CHANGELOG.md','RELEASES.md','BUILD-STATUS.md','LICENSE','THIRD-PARTY.md','recording-dependencies.json')) {
     Copy-Item -LiteralPath (Join-Path $frameletRoot $file) -Destination $frameletPackage
 }
 Copy-Item -LiteralPath (Join-Path $frameletRoot 'docs') -Destination $frameletPackage -Recurse
-foreach ($file in @('README.md','CHANGELOG.md','RELEASES.md','BUILD-STATUS.md','THIRD-PARTY.md','recording-dependencies.json','Directory.Build.props','NuGet.Config','build.ps1','test.ps1','publish.ps1','.gitignore')) {
+foreach ($file in @('README.md','CHANGELOG.md','RELEASES.md','BUILD-STATUS.md','LICENSE','THIRD-PARTY.md','recording-dependencies.json','Directory.Build.props','NuGet.Config','build.ps1','test.ps1','publish.ps1','.gitignore')) {
     Copy-Item -LiteralPath (Join-Path $frameletRoot $file) -Destination $frameletSource
 }
 Copy-Item -LiteralPath (Join-Path $frameletRoot 'docs') -Destination $frameletSource -Recurse

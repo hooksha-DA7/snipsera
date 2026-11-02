@@ -12,6 +12,8 @@ Historical releases attach Windows/source ZIPs with `SHA256SUMS.txt`. The distri
 
 The existing `publish.ps1`, ZIP verifier and release publisher still implement the ZIP release contract. Extend and verify their installer/MSIX support before delivering the next version; the format decision alone does not build or sign these formats. Preserve the existing historical-release verification path.
 
+Framelet's own code is MIT-licensed. Include the root `LICENSE`, `THIRD-PARTY.md` and component licence files in source and runtime packages, including the EXE/MSIX payloads. Preserve third-party terms and previously published artifacts.
+
 ## Add the next version
 
 1. Implement and verify the change. Update the project version/informational version, README, CHANGELOG and relevant notes. Follow the current desktop-testing instruction; safe checks are:
