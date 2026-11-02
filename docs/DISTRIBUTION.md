@@ -48,7 +48,9 @@ The Store MSIX declares `Microsoft.VCLibs.140.00.UWPDesktop` version `14.0.33321
 
 ## Current setup status
 
-The personal Store app **Snipsera**, product **9NFL9VHL8GKV**, publisher display name **Mo7**, has a prepared submission draft with an English listing, three synthetic-content app screenshots, free pricing, privacy/support links and age ratings. Its publishing option requires a manual Publish now action. The full-trust capability explanation is saved for Microsoft's review; it has not been approved merely by saving the draft. No certification submission or public Store release has been completed.
+The personal Store app **Snipsera**, product **9NFL9VHL8GKV**, publisher display name **Mo7**, was submitted for certification on 2 November 2026 with package version **1.0.1.0**. The submission includes an English listing, three synthetic-content app screenshots, free pricing, privacy/support links, age ratings and the full-trust capability explanation. Microsoft review is pending. Publishing is held until a manual **Publish now** action; no public Store release has been completed.
+
+The certification notes disclose the passed automated/hosted installer checks and the remaining clean Windows 11 and installed-MSIX recording acceptance. At the maintainer's direction, certification review proceeds while those final checks remain pending. Keep the publishing hold until final acceptance is complete; submission is not approval or proof of packaged runtime acceptance.
 
 The SignPath application was submitted on 2 November 2026. The protected GitHub signing environment and hosted build workflow are prepared. Acceptance, provider configuration, credentials and a verified live signing request remain pending. The workflow builds and checks unsigned EXE/MSIX/source/portable candidates and tests installer installation, reinstall, an increasing-version fixture upgrade and uninstall on Windows Server 2025. Clean Windows 11 and final packaged capture/recording checks remain separate requirements.
 
