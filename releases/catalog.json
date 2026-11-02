@@ -664,7 +664,8 @@
           "Separate recording history with Open and Show in folder actions."
         ]
       },
-      "notice": "Preview: enable Do not disturb manually in Windows. MP4 audio uses the default Windows devices; GIF has no sound. Requires .NET 10 Desktop Runtime x64 and the Visual C++ x64 runtime. Keep the complete encoder folder with the app."
+      "notice": "Preview: enable Do not disturb manually in Windows. MP4 audio uses the default Windows devices; GIF has no sound. Requires .NET 10 Desktop Runtime x64 and the Visual C++ x64 runtime. Keep the complete encoder folder with the app.",
+      "source_commit": "d078fa8a74b30a6e7629b8e7fcd446bd80adf8b3"
     }
   ]
 }
