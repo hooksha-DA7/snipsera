@@ -4,7 +4,10 @@ import copy
 import json
 import io
 import subprocess
+import tempfile
+from types import SimpleNamespace
 import unittest
+import zipfile
 from pathlib import Path
 from unittest.mock import patch
 
@@ -82,6 +85,7 @@ class ReleaseLogChecks(unittest.TestCase):
 
     def test_snipsera_downloads_prefer_the_installer_and_keep_store_submission_private(self):
         updated = copy.deepcopy(self.catalog)
+        updated["latest_preview"] = None
         baseline = next(e for e in updated["releases"] if e["tag"] == updated["verified_baseline"])
         baseline["product"] = "Snipsera"
         baseline["assets"].append({"role": "installer-x64", "url": "https://example.test/Snipsera-setup.exe"})
@@ -90,6 +94,20 @@ class ReleaseLogChecks(unittest.TestCase):
         self.assertIn("EXE installer", LOG.download_links(updated, baseline))
         self.assertNotIn("Snipsera-store-submission.msix", LOG.download_links(updated, baseline))
         self.assertIn("# Snipsera", LOG.render_notes(updated, baseline))
+
+    def test_snipsera_preview_installer_is_visible_without_stable_promotion(self):
+        updated = copy.deepcopy(self.catalog)
+        baseline = next(e for e in updated["releases"] if e["tag"] == updated["verified_baseline"])
+        preview = copy.deepcopy(baseline)
+        preview.update(tag="v99.0.0-preview.1", version="99.0.0-preview.1", product="Snipsera", release_url="https://example.test/preview", prerelease=True, latest=False)
+        preview["assets"].append({"role": "installer-x64", "url": "https://example.test/preview.exe"})
+        updated["releases"].append(preview)
+        updated["latest_preview"] = preview["tag"]
+        block = LOG.download_block(updated)
+        self.assertIn("Download Snipsera preview (99.0.0-preview.1)", block)
+        self.assertIn("https://example.test/preview.exe", block)
+        self.assertIn("Stable " + baseline["version"], block)
+        self.assertIn("newest Snipsera preview", LOG.render(updated))
 
     def test_every_release_has_direct_links_to_its_original_archives(self):
         text = LOG.render(self.catalog)
@@ -122,6 +140,54 @@ class ReleaseLogChecks(unittest.TestCase):
                 self.assertEqual((root / entry["notes"]).read_text(encoding="utf-8"), LOG.render_notes(self.catalog, entry))
         self.assertEqual((root / "RELEASES.md").read_text(encoding="utf-8"), LOG.render(self.catalog))
         self.assertEqual((root / "CHANGELOG.md").read_text(encoding="utf-8"), LOG.render_changelog(self.catalog))
+
+
+class UnsignedPreviewChecks(unittest.TestCase):
+    def setUp(self):
+        temp_root = PUBLISHER.ROOT / ".tools/unit-tests"
+        temp_root.mkdir(parents=True, exist_ok=True)
+        self.temp = tempfile.TemporaryDirectory(dir=temp_root)
+        self.addCleanup(self.temp.cleanup)
+        root = Path(self.temp.name)
+        self.assertTrue(root.resolve().is_relative_to(temp_root.resolve()))
+        installer = root / "Snipsera-1.0.1-preview.1-setup-win-x64.exe"
+        installer.write_bytes(b"synthetic installer; signature verification is mocked")
+        source = root / "source.zip"
+        with zipfile.ZipFile(source, "w") as bundle:
+            bundle.writestr("source/manifest-sha256.json", "[]")
+        submission = root / "submission.msix"
+        with zipfile.ZipFile(submission, "w") as bundle:
+            bundle.writestr("AppxManifest.xml", "<Package />")
+        def artifact(path, role):
+            return {"name": path.name, "role": role, "bytes": path.stat().st_size, "sha256": PUBLISHER.digest(path.read_bytes())}
+        self.entry = {"product": "Snipsera", "version": "1.0.1-preview.1", "prerelease": True, "latest": False,
+                      "signing_status": "unsigned-preview", "notice": "Unsigned preview; final acceptance pending.",
+                      "assets": [artifact(installer, "installer-x64"), artifact(source, "source")],
+                      "store_submission": artifact(submission, "store-submission")}
+        self.args = SimpleNamespace(installer=str(installer), source=str(source), store_submission=str(submission))
+
+    def test_explicit_unsigned_preview_checks_identity_without_claiming_a_signature(self):
+        with patch.object(PUBLISHER.subprocess, "run") as verify:
+            self.assertEqual(len(PUBLISHER.candidate_paths(self.args, self.entry)), 2)
+            self.assertIn("verify_unsigned_preview.ps1", " ".join(verify.call_args.args[0]))
+
+    def test_unsigned_preview_cannot_claim_stability_or_a_certificate(self):
+        for mutation in ({"prerelease": False}, {"latest": True}, {"certificate_subject": "CN=Claimed"}):
+            with self.subTest(mutation=mutation), self.assertRaisesRegex(ValueError, "Unsigned previews"):
+                PUBLISHER.candidate_paths(self.args, self.entry | mutation)
+
+    def test_unsigned_preview_needs_a_public_notice_and_cannot_offer_unsigned_msix(self):
+        with self.assertRaisesRegex(ValueError, "visible"):
+            PUBLISHER.candidate_paths(self.args, self.entry | {"notice": "New release"})
+        entry = copy.deepcopy(self.entry)
+        entry["assets"].append(entry["store_submission"] | {"role": "msix-x64"})
+        self.args.msix = self.args.store_submission
+        with self.assertRaisesRegex(ValueError, "not public downloads"):
+            PUBLISHER.candidate_paths(self.args, entry)
+
+    def test_other_snipsera_releases_still_require_signing(self):
+        with self.assertRaisesRegex(ValueError, "certificate subject"):
+            PUBLISHER.candidate_paths(self.args, self.entry | {"signing_status": "signed"})
 
 
 if __name__ == "__main__":

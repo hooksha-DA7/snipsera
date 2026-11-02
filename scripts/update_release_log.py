@@ -11,6 +11,12 @@ def download_block(catalog):
     entries = {item["tag"]: item for item in catalog["releases"]}
     baseline = entries[catalog["verified_baseline"]]
     preview = entries.get(catalog.get("latest_preview"))
+    if preview and preview.get("product") == "Snipsera":
+        assets = {asset["role"]: asset for asset in preview["assets"]}
+        return (START + "\n"
+                + f"[Download Snipsera preview ({preview['version']})]({assets['installer-x64']['url']}) · "
+                + (f"[Portable ZIP]({assets['windows-x64']['url']}) · " if 'windows-x64' in assets else "")
+                + f"[Stable {baseline['version']}]({baseline['release_url']}) · [All releases](RELEASES.md)\n" + END)
     windows = next((asset for asset in baseline["assets"] if asset["role"] == "installer-x64"), None) or next(asset for asset in baseline["assets"] if asset["role"] == "windows-x64")
     return (START + "\n"
             + f"[Download for Windows ({baseline['version']})]({windows['url']}) · "
@@ -61,8 +67,11 @@ def render_notes(catalog, entry):
 def render(catalog):
     entries = {item["tag"]: item for item in catalog["releases"]}
     baseline = entries[catalog["verified_baseline"]]
-    lines = ["# Releases", "",
-             f"Download [{baseline['version']}]({baseline['release_url']}) for the latest release. Earlier versions and their changes are listed below.", ""]
+    preview = entries.get(catalog.get("latest_preview"))
+    intro = (f"The newest Snipsera preview is [{preview['version']}]({preview['release_url']}). For the stable screenshot build, use [Framelet {baseline['version']}]({baseline['release_url']})."
+             if preview and preview.get("product") == "Snipsera" else
+             f"Download [{baseline['version']}]({baseline['release_url']}) for the latest release. Earlier versions and their changes are listed below.")
+    lines = ["# Releases", "", intro, ""]
     for entry in reversed(catalog["releases"]):
         lines += [f"## {entry['version']}: {entry['title']}", "",
                   f"{entry['build_date']} · {entry['kind']} · [Release page]({entry['release_url']})", "",

@@ -3,7 +3,7 @@
   "repository": "hooksha-DA7/snipsera",
   "imported_on": "2026-11-01",
   "verified_baseline": "v0.6.0",
-  "latest_preview": "v0.7.0-preview.1",
+  "latest_preview": "v1.0.1-preview.1",
   "releases": [
     {
       "version": "0.1.0",
@@ -666,24 +666,67 @@
       },
       "notice": "Preview: enable Do not disturb manually in Windows. MP4 audio uses the default Windows devices; GIF has no sound. Requires .NET 10 Desktop Runtime x64 and the Visual C++ x64 runtime. Keep the complete encoder folder with the app.",
       "source_commit": "d078fa8a74b30a6e7629b8e7fcd446bd80adf8b3"
+    },
+    {
+      "version": "1.0.1-preview.1",
+      "tag": "v1.0.1-preview.1",
+      "product": "Snipsera",
+      "build_date": "2026-11-02",
+      "title": "Snipsera with a Windows installer",
+      "status": "preview",
+      "prerelease": true,
+      "latest": false,
+      "notes": "releases/notes/v1.0.1-preview.1.md",
+      "release_url": "https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.1-preview.1",
+      "kind": "Preview release",
+      "intro": "Framelet is now Snipsera, with a Windows installer and the screenshot, annotation and recording tools in one download.",
+      "changes": {
+        "Added": [
+          "EXE installer with .NET included, plus a portable ZIP."
+        ],
+        "Improved": [
+          "The app, tray, editor and export filenames use the Snipsera name.",
+          "Existing Framelet history, shortcuts and editable projects remain compatible."
+        ],
+        "Fixed": [
+          "The installer reports the matching application version in its file properties.",
+          "The Store package declares the Microsoft C++ runtime dependency needed by the recorder."
+        ]
+      },
+      "notice": "**Unsigned preview.** Windows may warn when you download or start it. Code signing and final Windows 11 acceptance are pending. The Microsoft Store version is in review. Enable Do not disturb manually in Windows.",
+      "verification": "102 automated checks and hosted Windows Server installer installation, reinstall, increasing-version fixture upgrade and uninstall passed. Source and package hashes/parity verified. Clean Windows 11 and final installed-MSIX recording acceptance remain pending.",
+      "signing_status": "unsigned-preview",
+      "source_commit": "c7ec4743bf6533cafe1189c5e77997ffb55d405b",
+      "build_workflow": "https://github.com/hooksha-DA7/snipsera/actions/runs/41406701043",
+      "assets": [
+        {
+          "name": "Snipsera-1.0.1-preview.1-setup-win-x64.exe",
+          "bytes": 129077972,
+          "sha256": "dc65c2e6b1477869af2ffe6cd1fe41a570bed4667575cba120d04f8380f92d4f",
+          "role": "installer-x64",
+          "url": "https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.1-preview.1/Snipsera-1.0.1-preview.1-setup-win-x64.exe"
+        },
+        {
+          "name": "Snipsera-1.0.1-preview.1-source.zip",
+          "bytes": 361891,
+          "sha256": "91f5cb21540c7a9e3c8df1731237c03c511e0eed7616ffcff3110d4e5e4b6339",
+          "role": "source",
+          "url": "https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.1-preview.1/Snipsera-1.0.1-preview.1-source.zip"
+        },
+        {
+          "name": "Snipsera-1.0.1-preview.1-win-x64.zip",
+          "bytes": 152250717,
+          "sha256": "2a6f7bd8f39af08b41b2899cc1bbcab34fab4731c8434d749b6895fe547d4527",
+          "role": "windows-x64",
+          "url": "https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.1-preview.1/Snipsera-1.0.1-preview.1-win-x64.zip"
+        }
+      ],
+      "store_submission": {
+        "name": "Snipsera-1.0.1-preview.1-store-submission-x64.msix",
+        "bytes": 151332994,
+        "sha256": "f7b845d0fb8043c63b31667a48ee18a46be99de62cef4e64f9430ab331f617ba"
+      }
     }
   ],
-  "product": "Snipsera",
-  "unreleased": {
-    "version": "1.0.1-preview.1",
-    "intro": "Framelet is now Snipsera. This build is in preparation and is not a published download.",
-    "changes": {
-      "Improved": [
-        "The app, tray, editor and export filenames use the Snipsera name.",
-        "Existing Framelet history and shortcuts remain available. Both .snipsera and .framelet editable projects are supported."
-      ],
-      "Added": [
-        "EXE installer and MSIX packaging with a bundled .NET runtime. Signing and Store certification are still pending."
-      ],
-      "Fixed": [
-        "Store packages declare the Microsoft C++ runtime dependency needed by the recorder.",
-        "The Windows installer reports the matching application version in its file properties."
-      ]
-    }
-  }
+  "product": "Snipsera"
 }

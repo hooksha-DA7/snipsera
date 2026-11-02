@@ -2,23 +2,25 @@
 
 Screenshots and screen recording for Windows 11. Capture part of your screen, mark it up, and copy or save it. Pin references beside your work, or record a window, display or area as MP4 or GIF.
 
-Snipsera is the new name for Framelet. The downloads below are the existing Framelet releases; the first Snipsera build is being prepared.
+Snipsera is the new name for Framelet. Try the preview below, or choose Framelet 0.6.0 for the stable screenshot build.
 
 ## Download and run
 
 <!-- FRAMELET_DOWNLOADS_START -->
-[Download for Windows (0.6.0)](https://github.com/hooksha-DA7/snipsera/releases/download/v0.6.0/Framelet-0.6.0-win-x64.zip) · [Try the preview (0.7.0-preview.1)](https://github.com/hooksha-DA7/snipsera/releases/tag/v0.7.0-preview.1) · [All releases](RELEASES.md)
+[Download Snipsera preview (1.0.1-preview.1)](https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.1-preview.1/Snipsera-1.0.1-preview.1-setup-win-x64.exe) · [Portable ZIP](https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.1-preview.1/Snipsera-1.0.1-preview.1-win-x64.zip) · [Stable 0.6.0](https://github.com/hooksha-DA7/snipsera/releases/tag/v0.6.0) · [All releases](RELEASES.md)
 <!-- FRAMELET_DOWNLOADS_END -->
 
-1. Install the [.NET 10 Desktop Runtime for Windows x64](https://dotnet.microsoft.com/en-us/download/dotnet/10.0).
-2. Download and extract the Windows ZIP.
-3. Open **Framelet.exe**. Keep the extracted files together.
+1. Download the **EXE installer** above.
+2. Run it and follow the setup steps.
+3. Open **Snipsera** from the Start menu.
 
-Version **0.6.0** is the stable screenshot release. The **0.7 preview** adds screen recording and also needs the [Visual C++ x64 runtime](https://aka.ms/vs/17/release/vc_redist.x64.exe). Extract its complete `encoder` folder with the app.
+The installer includes .NET. Screen recording needs the [Microsoft Visual C++ x64 runtime](https://aka.ms/vs/17/release/vc_redist.x64.exe); setup checks for it and offers the official download when it is missing.
 
-The existing downloads are portable and currently unsigned. Snipsera runs locally, without an account or cloud service.
+For the portable version, extract the complete ZIP and open **Snipsera.exe**. Keep its files and `encoder` folder together.
 
-We have applied to SignPath Foundation to sign future Windows installers. Approval is pending; current downloads are unsigned. [Code signing policy](docs/CODE-SIGNING.md).
+**This is an unsigned preview.** Windows may show a warning when you download or start it. Code signing is pending; see the [release notes](releases/notes/v1.0.1-preview.1.md) for current limits. The Microsoft Store version is in review. [Code signing policy](docs/CODE-SIGNING.md).
+
+Snipsera runs locally, without an account or cloud service. Older Framelet downloads remain available in the [release history](RELEASES.md).
 
 ## Take a screenshot
 
@@ -35,7 +37,7 @@ A small preview appears at the bottom left. Hover over it to **Copy**, **Save**,
 
 ## Record your screen
 
-In the 0.7 preview, choose **Record screen**, select a window, display or area, and choose MP4 or GIF. Set quality, FPS and resolution, then enable cursor/click highlighting or MP4 audio if needed. Start, pause/resume, then Stop to save. The bar and tray show elapsed time; the result offers Open and Show in folder.
+Choose **Record screen**, select a window, display or area, and choose MP4 or GIF. Set quality, FPS and resolution, then enable cursor/click highlighting or MP4 audio if needed. Start, pause/resume, then Stop to save. The bar and tray show elapsed time; the result offers Open and Show in folder.
 
 Do not disturb must be enabled manually in Windows for this preview. [Recording help](docs/RECORDING.md).
 
@@ -53,7 +55,7 @@ Closing the home window leaves the app in the tray. Use its **Quit** command to 
 
 ## More help
 
-[User guide](docs/USER-GUIDE.md) · [Release notes and downloads](RELEASES.md) · [Build from source](docs/DEVELOPMENT.md) · [Report a problem](https://github.com/hooksha-DA7/snipsera/issues) · [Privacy](PRIVACY.md) · [Signing status](docs/CODE-SIGNING.md)
+[User guide](docs/USER-GUIDE.md) Â· [Release notes and downloads](RELEASES.md) Â· [Build from source](docs/DEVELOPMENT.md) Â· [Report a problem](https://github.com/hooksha-DA7/snipsera/issues) Â· [Privacy](PRIVACY.md) Â· [Signing status](docs/CODE-SIGNING.md)
 
 Snipsera is an independent Windows app inspired by CleanShot's workflow. It is not affiliated with CleanShot.
 

@@ -98,10 +98,22 @@ def candidate_paths(args, entry):
     if entry.get("product") == "Snipsera":
         if not {"installer-x64", "source"}.issubset({a["role"] for a in entry["assets"]}):
             raise ValueError("Snipsera releases require an EXE installer and reviewed source")
+        unsigned_preview = entry.get("signing_status") == "unsigned-preview"
         subject = entry.get("certificate_subject")
-        if not subject: raise ValueError("Record the approved signing certificate subject")
+        if unsigned_preview:
+            if entry.get("prerelease") is not True or entry.get("latest") is not False or subject:
+                raise ValueError("Unsigned previews must be prereleases without stable promotion or a certificate claim")
+            if "unsigned" not in entry.get("notice", "").lower() or "preview" not in entry.get("notice", "").lower():
+                raise ValueError("Unsigned previews require a visible preview and unsigned notice")
+            if any(path.suffix.lower() == ".msix" for path in paths):
+                raise ValueError("Unsigned MSIX files are Store submissions, not public downloads")
+        elif not subject:
+            raise ValueError("Record the approved signing certificate subject")
         for path in paths:
-            if path.suffix.lower() in {".exe", ".msix"}:
+            if path.suffix.lower() not in {".exe", ".msix"}: continue
+            if unsigned_preview:
+                subprocess.run(["pwsh", "-NoProfile", "-File", str(ROOT / "scripts/verify_unsigned_preview.ps1"), "-File", str(path), "-Version", entry["version"]], check=True)
+            else:
                 subprocess.run(["pwsh", "-NoProfile", "-File", str(ROOT / "scripts/verify_signatures.ps1"), "-Files", str(path), "-ExpectedPublisher", subject], check=True)
         submission = entry.get("store_submission")
         if not submission or not getattr(args, "store_submission", None):

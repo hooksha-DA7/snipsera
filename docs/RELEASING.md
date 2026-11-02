@@ -10,7 +10,7 @@ The first import contains eight historical numbered builds and three complete sc
 
 Historical releases attach Windows/source ZIPs with `SHA256SUMS.txt`. The distribution decision from 2026-11-02 requires both an EXE installer and an MSIX for future delivered versions, plus reviewed source and checksums. The portable ZIP may remain available. SignPath Foundation is the selected route for installer signing; Microsoft Store is the selected MSIX distribution/signing route. See [distribution setup](DISTRIBUTION.md) for onboarding and verification requirements. GitHub's automatic source downloads are the tagged repository tree and are distinct from the attached source ZIPs.
 
-The existing `publish.ps1`, ZIP verifier and release publisher still implement the ZIP release contract. Extend and verify their installer/MSIX support before delivering the next version; the format decision alone does not build or sign these formats. Preserve the existing historical-release verification path.
+`publish.ps1` and the release publisher support EXE, portable/source ZIPs and a separately tracked Store MSIX. The unsigned Store submission is validated but is not a public GitHub asset. Preserve the historical ZIP verification path. Signed releases require the actual certificate subject. An explicitly authorized unsigned preview uses the guarded `unsigned-preview` path described in [release workflow](RELEASE-WORKFLOW.md), with a visible notice and no stable promotion.
 
 Snipsera's own code is MIT-licensed. Include the root `LICENSE`, `THIRD-PARTY.md` and component licence files in source and runtime packages, including the EXE/MSIX payloads. Preserve third-party terms and previously published artifacts.
 
