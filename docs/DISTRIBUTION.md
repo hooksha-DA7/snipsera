@@ -30,7 +30,7 @@ These channels have separate approval processes. Neither is enrolled or approved
 
 ## Build candidates
 
-`publish.ps1` prepares an EXE installer, a Store-submission MSIX, portable/source ZIPs and SHA256 checksums in a fresh private folder. It does not upload, sign, submit or install them. The app version comes from the project; the corresponding four-part MSIX version uses a zero final field. The first Snipsera preview is 1.0.0-preview.1 / MSIX 1.0.0.0.
+`publish.ps1` prepares an EXE installer, a Store-submission MSIX, portable/source ZIPs and SHA256 checksums in a fresh private folder. It does not upload, sign, submit or install them. The app version comes from the project; the corresponding four-part MSIX version uses a zero final field. The current candidate is 1.0.1-preview.1 / MSIX 1.0.1.0. Use a fresh package version when Store validation has already associated an earlier version with different contents.
 
 The assigned personal Store identity is in `packaging/store-identity.json`. Do not replace it with a guessed publisher. `-DevelopmentMsix` instead creates an explicitly labelled local-test identity and must never be used for a Store submission.
 
@@ -48,8 +48,10 @@ The Store MSIX declares `Microsoft.VCLibs.140.00.UWPDesktop` version `14.0.33321
 
 ## Current setup status
 
-The personal Store name **Snipsera** is reserved as an MSIX/PWA app, product **9NFL9VHL8GKV**, publisher display name **Mo7**. It is in draft; no Store submission or certification has been completed. The EXE/MSIX build path is implemented. Candidate files remain unsigned until the selected signing routes are configured and accepted. SignPath acceptance and final installer/MSIX installation and runtime checks remain separate requirements.
+The personal Store app **Snipsera**, product **9NFL9VHL8GKV**, publisher display name **Mo7**, has a prepared submission draft with an English listing, three synthetic-content app screenshots, free pricing, privacy/support links and age ratings. Its publishing option requires a manual Publish now action. The full-trust capability explanation is saved for Microsoft's review; it has not been approved merely by saving the draft. No certification submission or public Store release has been completed.
 
-The public downloads remain the original Framelet 0.6.0 stable and 0.7.0-preview.1 recording ZIPs. Do not replace their files with the new build. The existing GitHub publisher implements the historical ZIP release path; extend and verify its final EXE/Store delivery handling before publishing the first signed Snipsera release.
+The SignPath application was submitted on 2 November 2026. The protected GitHub signing environment and hosted build workflow are prepared. Acceptance, provider configuration, credentials and a verified live signing request remain pending. The workflow builds and checks unsigned EXE/MSIX/source/portable candidates and tests installer installation, reinstall, an increasing-version fixture upgrade and uninstall on Windows Server 2025. Clean Windows 11 and final packaged capture/recording checks remain separate requirements.
+
+The public downloads remain the original Framelet 0.6.0 stable and 0.7.0-preview.1 recording ZIPs. Do not replace their files with the new build. The publisher now validates signed Snipsera EXE releases and separately tracks the Store submission package, while preserving the historical ZIP path. A live signed publication still requires approved provider configuration and native acceptance. See [release workflow](RELEASE-WORKFLOW.md) and [Windows acceptance](WINDOWS-ACCEPTANCE.md).
 
 References: [Microsoft signing options](https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/code-signing-options), [Store registration](https://learn.microsoft.com/en-us/windows/apps/publish/partner-center/open-a-developer-account), [MSIX desktop packaging](https://learn.microsoft.com/en-us/windows/msix/desktop/desktop-to-uwp-manual-conversion), [SignPath conditions](https://signpath.org/terms.html), [SignPath trusted GitHub builds](https://docs.signpath.io/trusted-build-systems/github).

@@ -2,7 +2,7 @@
 
 [Downloads and release notes](RELEASES.md)
 
-## 1.0.0-preview.1 — Unreleased
+## 1.0.1-preview.1 — Unreleased
 
 Framelet is now Snipsera. This build is in preparation and is not a published download.
 
@@ -14,6 +14,11 @@ Framelet is now Snipsera. This build is in preparation and is not a published do
 
 - The app, tray, editor and export filenames use the Snipsera name.
 - Existing Framelet history and shortcuts remain available. Both .snipsera and .framelet editable projects are supported.
+
+### Fixed
+
+- Store packages declare the Microsoft C++ runtime dependency needed by the recorder.
+- The Windows installer reports the matching application version in its file properties.
 
 ## 0.7.0-preview.1 — 2026-11-02
 

@@ -1,6 +1,6 @@
 # Snipsera name change
 
-Snipsera is the new name for Framelet. The first Snipsera candidate is **1.0.0-preview.1**; it remains a preview. The new major version also gives the first Store package a valid nonzero major version, **1.0.0.0**. Existing Framelet releases keep their names, tags and downloads.
+Snipsera is the new name for Framelet. The current candidate is **1.0.1-preview.1**, with Store package version **1.0.1.0**. The earlier private 1.0.0 candidate was replaced while validating Store packaging. Both remain unpublished; existing Framelet releases keep their names, tags and downloads.
 
 ## Compatibility
 

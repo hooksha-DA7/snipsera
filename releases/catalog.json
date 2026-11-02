@@ -670,7 +670,7 @@
   ],
   "product": "Snipsera",
   "unreleased": {
-    "version": "1.0.0-preview.1",
+    "version": "1.0.1-preview.1",
     "intro": "Framelet is now Snipsera. This build is in preparation and is not a published download.",
     "changes": {
       "Improved": [
@@ -679,6 +679,10 @@
       ],
       "Added": [
         "EXE installer and MSIX packaging with a bundled .NET runtime. Signing and Store certification are still pending."
+      ],
+      "Fixed": [
+        "Store packages declare the Microsoft C++ runtime dependency needed by the recorder.",
+        "The Windows installer reports the matching application version in its file properties."
       ]
     }
   }
