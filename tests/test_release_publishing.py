@@ -80,6 +80,17 @@ class ReleaseLogChecks(unittest.TestCase):
     def setUp(self):
         self.catalog = json.loads((Path(__file__).resolve().parents[1] / "releases/catalog.json").read_text(encoding="utf-8"))
 
+    def test_snipsera_downloads_prefer_the_installer_and_keep_store_submission_private(self):
+        updated = copy.deepcopy(self.catalog)
+        baseline = next(e for e in updated["releases"] if e["tag"] == updated["verified_baseline"])
+        baseline["product"] = "Snipsera"
+        baseline["assets"].append({"role": "installer-x64", "url": "https://example.test/Snipsera-setup.exe"})
+        baseline["store_submission"] = {"name": "Snipsera-store-submission.msix"}
+        self.assertIn("https://example.test/Snipsera-setup.exe", LOG.download_block(updated))
+        self.assertIn("EXE installer", LOG.download_links(updated, baseline))
+        self.assertNotIn("Snipsera-store-submission.msix", LOG.download_links(updated, baseline))
+        self.assertIn("# Snipsera", LOG.render_notes(updated, baseline))
+
     def test_every_release_has_direct_links_to_its_original_archives(self):
         text = LOG.render(self.catalog)
         for entry in self.catalog["releases"]:

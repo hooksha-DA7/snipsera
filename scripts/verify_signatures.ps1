@@ -4,6 +4,8 @@ if ([string]::IsNullOrWhiteSpace($ExpectedPublisher)) { throw 'Set the exact cer
 if ($Directory) { $Files = @((Join-Path $Directory 'Snipsera.exe'),(Join-Path $Directory 'Snipsera.dll')) }
 if (-not $Files) { throw 'Provide files or the signed application directory.' }
 foreach ($file in $Files) {
+    $metadata = (Get-Item -LiteralPath $file).VersionInfo
+    if ($metadata.ProductName.Trim() -ne 'Snipsera' -or $metadata.CompanyName.Trim() -ne 'hooksha-DA7') { throw 'Unexpected application identity in returned signed file.' }
     $signature = Get-AuthenticodeSignature -LiteralPath $file
     if ($signature.Status -ne 'Valid' -or $signature.SignerCertificate.Subject -ne $ExpectedPublisher -or $null -eq $signature.TimeStamperCertificate) {
         throw "Signature, timestamp or publisher check failed: $([IO.Path]::GetFileName($file))"

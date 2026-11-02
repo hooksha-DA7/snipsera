@@ -5,6 +5,7 @@
 AppId={{AE5C6F25-7A71-4A81-AFC2-7442D18AE306}
 AppName=Snipsera
 AppVersion={#ReleaseVersion}
+VersionInfoVersion={# GetVersionNumbersString(AddBackslash(AppDir) + "Snipsera.exe")}
 AppPublisher=hooksha-DA7
 AppPublisherURL=https://github.com/hooksha-DA7/snipsera
 AppSupportURL=https://github.com/hooksha-DA7/snipsera/issues

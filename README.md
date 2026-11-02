@@ -18,6 +18,8 @@ Version **0.6.0** is the stable screenshot release. The **0.7 preview** adds scr
 
 The existing downloads are portable and currently unsigned. Snipsera runs locally, without an account or cloud service.
 
+We are applying to SignPath Foundation to sign future Windows installers. Approval is pending; current downloads are unsigned. [Code signing policy](docs/CODE-SIGNING.md).
+
 ## Take a screenshot
 
 | Action | Default shortcut |

@@ -132,7 +132,7 @@ internal static class UiFixture
         { var baseLayer = new DrawingVisual(); using (var dc = baseLayer.RenderOpen()) dc.DrawRectangle(Ui.Paper, null, new Rect(0, 0, content.ActualWidth, content.ActualHeight)); bitmap.Render(baseLayer); }
         bitmap.Render(content); CaptureService.Save(bitmap, path);
     }
-    private static BitmapSource Scene()
+    internal static BitmapSource Scene()
     {
         var visual = new DrawingVisual(); using (var dc = visual.RenderOpen())
         {

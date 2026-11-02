@@ -8,6 +8,8 @@ The workflow checks the source version, prepares hash-pinned tools, builds EXE/M
 
 After Foundation acceptance, configure the approved project using the artifact configurations in `packaging/signpath`. The application configuration signs only `Snipsera.exe` and `Snipsera.dll`. The installer configuration signs the outer installer. Upstream binaries and the generated Inno uninstaller are not re-signed by these configurations.
 
+Validate the configurations against real build artifacts in the approved provider project before requesting production signing. Inno stores padded version-resource strings; confirm the provider's matching behavior rather than removing its product restrictions. The local signature verifier trims padding and still requires the exact product, owner, certificate subject and timestamp. The XML examples have not yet passed a live SignPath signing request.
+
 Configure these in the protected **release-signing** GitHub environment:
 
 | Setting | Kind |
