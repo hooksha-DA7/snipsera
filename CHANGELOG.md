@@ -2,6 +2,20 @@
 
 [Downloads and release notes](RELEASES.md)
 
+## 0.7.0-preview.1 — 2026-11-02
+
+Feature preview. Record your screen as a video or GIF, with optional audio and cursor highlighting.
+
+### Added
+
+- MP4 H.264 and animated GIF recording of a window, display, selected area or custom-size frame.
+- Quality, frame-rate and resolution controls, with separate microphone and computer-audio toggles for MP4.
+- Show/hide cursor and a thin blue click ring that stays aligned within cropped and resized recordings.
+- A compact recording bar with pause/resume, elapsed time, Stop and guarded Discard, plus timer/controls in the tray.
+- Separate recording history with Open and Show in folder actions.
+
+Preview: enable Do not disturb manually in Windows. MP4 audio uses the default Windows devices; GIF has no sound. Requires .NET 10 Desktop Runtime x64 and the Visual C++ x64 runtime. Keep the complete encoder folder with the app.
+
 ## 0.6.0 — 2026-11-02
 
 Feature release and bug fixes. Capture scrolling pages and hide your floating screenshots when you need the space.

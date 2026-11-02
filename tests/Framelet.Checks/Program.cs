@@ -52,6 +52,15 @@ internal static class Program
     [STAThread]
     public static int Main(string[] args)
     {
+        if (args.Length == 2 && args[0] == "--recording-check") return RecordingChecks.Run(args[1]);
+        if (args.Length == 2 && args[0] == "--recording-source") return RecordingNativeChecks.Source(args[1]);
+        if (args.Length == 2 && args[0] == "--recording-native") return RecordingNativeChecks.Run(args[1]);
+        if (args.Length == 2 && args[0] == "--recording-integration") return RecordingIntegrationChecks.Run(args[1]);
+        if (args.Length == 2 && args[0] == "--recording-audio") return RecordingNativeChecks.Run(args[1], true);
+        if (args.Length == 2 && args[0] == "--recording-source-fullscreen") return RecordingNativeChecks.Source(args[1], true);
+        if (args.Length == 2 && args[0] == "--recording-display") return RecordingDisplayChecks.Run(args[1]);
+        if (args.Length == 2 && args[0] == "--recording-clicks") return RecordingNativeChecks.RunClicks(args[1]);
+        if (args.Length == 2 && args[0] == "--recording-ring-probe") return RecordingNativeChecks.RunClicks(args[1], true);
         if (args.Length == 2 && args[0] == "--acceptance-fixture") return AcceptanceFixture.Run(args[1]);
         if (args.Length == 2 && args[0] == "--acceptance-fixture-smoke") return AcceptanceFixture.Run(args[1], true);
         if (args.Length == 2 && args[0] == "--overlay-style-check") return OverlayShelfVisualChecks.Run(args[1]);

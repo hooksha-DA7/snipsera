@@ -5,5 +5,5 @@
     <UseWPF>true</UseWPF>
     <ApplicationManifest>../../src/Framelet/app.manifest</ApplicationManifest>
   </PropertyGroup>
-  <ItemGroup><ProjectReference Include="../../src/Framelet/Framelet.csproj" /></ItemGroup>
+  <ItemGroup><ProjectReference Include="../../src/Framelet/Framelet.csproj" /><PackageReference Include="ScreenRecorderLib" Version="7.0.1" /></ItemGroup>
 </Project>

@@ -58,6 +58,14 @@ public sealed class HomeWindow : Window
         var scrolling = Ui.Button("Scrolling capture", "CaptureScrolling", async () => await app.CaptureAsync(CaptureKind.Scrolling));
         scrolling.Content = scrollItem; scrolling.HorizontalContentAlignment = HorizontalAlignment.Left; scrolling.HorizontalAlignment = HorizontalAlignment.Stretch; scrolling.Background = Brushes.Transparent; scrolling.BorderBrush = Brushes.Transparent; scrolling.MinHeight = 64; scrolling.Margin = new Thickness(0, 4, 0, 0);
         capturePanel.Children.Add(scrolling);
+        // Screen recording opens its own setup window; no shortcut in this release.
+        var recordText = new StackPanel(); recordText.Children.Add(Ui.Text("Record screen", 13, Ui.Ink, true));
+        var recordHint = Ui.Text("MP4 or GIF, with optional audio", 11, Ui.Muted); recordHint.Margin = new Thickness(0, 8, 0, 0); recordText.Children.Add(recordHint);
+        var recordItem = new DockPanel(); var recordIcon = new UiIcon("Record", 22) { Margin = new Thickness(0, 0, 14, 0), VerticalAlignment = VerticalAlignment.Center };
+        DockPanel.SetDock(recordIcon, Dock.Left); recordItem.Children.Add(recordIcon); recordItem.Children.Add(recordText);
+        var recording = Ui.Button("Record screen", "CaptureRecording", app.OpenRecording);
+        recording.Content = recordItem; recording.HorizontalContentAlignment = HorizontalAlignment.Left; recording.HorizontalAlignment = HorizontalAlignment.Stretch; recording.Background = Brushes.Transparent; recording.BorderBrush = Brushes.Transparent; recording.MinHeight = 64; recording.Margin = new Thickness(0, 4, 0, 0);
+        capturePanel.Children.Add(recording);
         left.Children.Add(Ui.Card(capturePanel));
         // Temporary hide/show for floating previews and pins; the same toggle as the tray item and the restore tab.
         var overlayLabel = Ui.Text("", 13, Ui.Ink, true); var overlayHint = Ui.Text("", 11, Ui.Muted); overlayHint.Margin = new Thickness(0, 4, 0, 0);

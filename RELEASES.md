@@ -2,6 +2,28 @@
 
 Download [0.6.0](https://github.com/hooksha-DA7/framelet/releases/tag/v0.6.0) for the latest release. Earlier versions and their changes are listed below.
 
+## 0.7.0-preview.1: Screen recording
+
+2026-11-02 · Feature preview · [Release page](https://github.com/hooksha-DA7/framelet/releases/tag/v0.7.0-preview.1)
+
+Record your screen as a video or GIF, with optional audio and cursor highlighting.
+
+### Added
+
+- MP4 H.264 and animated GIF recording of a window, display, selected area or custom-size frame.
+- Quality, frame-rate and resolution controls, with separate microphone and computer-audio toggles for MP4.
+- Show/hide cursor and a thin blue click ring that stays aligned within cropped and resized recordings.
+- A compact recording bar with pause/resume, elapsed time, Stop and guarded Discard, plus timer/controls in the tray.
+- Separate recording history with Open and Show in folder actions.
+
+Preview: enable Do not disturb manually in Windows. MP4 audio uses the default Windows devices; GIF has no sound. Requires .NET 10 Desktop Runtime x64 and the Visual C++ x64 runtime. Keep the complete encoder folder with the app.
+
+### Download
+
+[Windows ZIP](https://github.com/hooksha-DA7/framelet/releases/download/v0.7.0-preview.1/Framelet-0.7.0-preview.1-win-x64.zip) · [Source ZIP](https://github.com/hooksha-DA7/framelet/releases/download/v0.7.0-preview.1/Framelet-0.7.0-preview.1-source.zip) · [Checksums](https://github.com/hooksha-DA7/framelet/releases/download/v0.7.0-preview.1/SHA256SUMS.txt)
+
+Extract the Windows ZIP and open **Framelet.exe**. Requires Windows 11 x64 and the [.NET 10 Desktop Runtime x64](https://dotnet.microsoft.com/en-us/download/dotnet/10.0). Quit any older Framelet copy from its tray menu first.
+
 ## 0.6.0: Scrolling capture and temporary hiding
 
 2026-11-02 · Feature release and bug fixes · [Release page](https://github.com/hooksha-DA7/framelet/releases/tag/v0.6.0)

@@ -2,6 +2,7 @@
 import importlib.util
 import copy
 import json
+import io
 import subprocess
 import unittest
 from pathlib import Path
@@ -16,6 +17,25 @@ LOG_SPEC.loader.exec_module(LOG)
 
 
 class ReleaseLookupChecks(unittest.TestCase):
+    def test_large_public_download_hashes_every_range_in_order(self):
+        content = bytes(range(251)) * 37000
+
+        def response(request, timeout):
+            interval = request.get_header("Range").removeprefix("bytes=")
+            start, end = map(int, interval.split("-"))
+            stream = io.BytesIO(content[start:end + 1])
+            stream.status = 206
+            stream.headers = {"Content-Range": f"bytes {start}-{end}/{len(content)}"}
+            return stream
+
+        with patch.object(PUBLISHER, "urlopen", side_effect=response):
+            self.assertEqual(PUBLISHER.public_download_digest("https://example.test/asset.zip", len(content)), (PUBLISHER.digest(content), len(content)))
+
+    def test_truncated_public_download_is_never_accepted(self):
+        with patch.object(PUBLISHER, "urlopen", return_value=io.BytesIO(b"short")):
+            with self.assertRaisesRegex(ValueError, "length differs"):
+                PUBLISHER.public_download_digest("https://example.test/asset.zip", 100)
+
     def test_draft_is_found_when_tag_endpoint_returns_404(self):
         draft = {"tag_name": "v0.1.0", "id": 123, "draft": True}
         with patch.object(PUBLISHER, "github", side_effect=[None, json.dumps([[draft]])]) as request:

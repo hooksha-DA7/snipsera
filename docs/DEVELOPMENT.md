@@ -4,7 +4,7 @@ Commands below run from the repository root.
 
 ## Build and verify
 
-Requires a .NET 10 SDK on Windows x64. Scripts prefer a project-local SDK at `.tools/dotnet/dotnet.exe`, otherwise use `dotnet` from PATH. No third-party NuGet packages are needed. `NuGet.Config` clears external sources.
+Requires a .NET 10 SDK and Python 3.10+ on Windows x64. Scripts prefer a project-local SDK at `.tools/dotnet/dotnet.exe`, otherwise use `dotnet` from PATH. The recorder pins ScreenRecorderLib 7.0.1 from the official NuGet feed, with package-source mapping. `build.ps1` restores it and verifies/prepares the pinned LGPL GIF converter from `recording-dependencies.json`. The first build needs network access; the app itself does not. Install the Visual C++ x64 runtime for native recording.
 
 ```powershell
 ./build.ps1 -Release
@@ -19,3 +19,5 @@ See [on-image controls](ON-IMAGE-CONTROLS.md), [floating image sizing and pin fi
 Microsoft runtime download: https://dotnet.microsoft.com/en-us/download/dotnet/10.0 (choose Windows Desktop Runtime x64).
 
 For an automated lifecycle run launched from a background worker, use `Framelet.Checks --capture-stress-ready <fresh-output-folder>`, bring its test window forward and press F9. This supplies foreground input before tray keyboard-focus assertions; Windows can deny foreground activation to a background process. The ordinary full suite and native lifecycle use isolated test data. See [release acceptance](RELEASE-ACCEPTANCE-0.6.0.md) for recorded coverage and limits.
+
+Recording checks: `Framelet.Checks --recording-check <fresh-folder>` (rules/native-library loading), `--recording-native` (synthetic window MP4/GIF), `--recording-integration` (real controller lifecycle) and `--recording-display` (synthetic cover screen). Native flags open test windows. `--recording-audio` captures actual microphone/computer audio for five seconds and requires specific tester consent. It is not part of the default suite. Never publish its outputs. `--recording-ring-probe` checks overlay placement from a synthetic signal; `--recording-clicks` waits for an actual click on the test button.

@@ -1,6 +1,6 @@
 # Using Framelet
 
-[Back to Framelet](../README.md) · [Downloads](../RELEASES.md)
+[Back to Framelet](../README.md) Â· [Downloads](../RELEASES.md)
 
 ## Run
 
@@ -22,7 +22,7 @@ Press **Esc** or right-click to cancel selection. Framelet hides its own home, p
 
 You can capture again while the previous preview, pins or editor are open. The new preview replaces the previous preview after a successful capture; each original stays in history. A request received while capture is finishing is queued; multiple waiting requests coalesce to the latest action. If a save/confirmation dialog is open, capture waits for you to dismiss that dialog. Selection itself is asynchronous and does not disable the other app windows.
 
-Use the home buttons or tray menu for the same actions. Expand **Keyboard shortcuts** to customize them, then select **Save shortcuts**. Supported combinations contain Ctrl and/or Alt, optional Shift, and one letter, digit or F1–F11. If another application owns a requested shortcut, Framelet explains the conflict and keeps the previous bindings. A startup conflict leaves the capture buttons usable; change the shortcuts to enable them.
+Use the home buttons or tray menu for the same actions. Expand **Keyboard shortcuts** to customize them, then select **Save shortcuts**. Supported combinations contain Ctrl and/or Alt, optional Shift, and one letter, digit or F1â€“F11. If another application owns a requested shortcut, Framelet explains the conflict and keeps the previous bindings. A startup conflict leaves the capture buttons usable; change the shortcuts to enable them.
 
 ## Scrolling capture
 
@@ -32,12 +32,16 @@ This version stitches vertical downward scrolling from visible pixels. Duplicate
 
 In Chrome, Auto-scroll uses small native wheel events and moves the pointer from its Framelet control into the selected content once. Leave the pointer inside the selection and keep Chrome active. Moving outside, switching apps or holding modifiers pauses Auto-scroll. No clicks or typing are generated. Progress is checked from captured pixels before another step is sent.
 
+## Screen recording
+
+The 0.7 preview adds **Record screen** in Home and the tray. Select a source, choose MP4/GIF and the recording options, then Start. Use the recording bar or tray to pause and stop. [Full recording instructions](RECORDING.md), including audio requirements and the manual Do not disturb limitation.
+
 ## Preview, save and pin
 
-The preview is a small rounded thumbnail at the **bottom left** of the monitor under the pointer. Preview and pins share the same 240 × 166 logical-pixel limit including shadow space and preserve the image's proportions. Hover for controls **on the image**: Pin/Unpin and Close in the top corners, Annotate and Drag in the bottom corners, and labeled Copy/Save pills in the center. **Tab** reveals the controls for keyboard use. Very shallow or slender captures use compact on-image controls and a More menu when needed. The frame keeps its size and proportions while controls appear. A soft shade behind the controls helps readability; the image stays sharp and exports exclude every display effect.
+The preview is a small rounded thumbnail at the **bottom left** of the monitor under the pointer. Preview and pins share the same 240 Ã— 166 logical-pixel limit including shadow space and preserve the image's proportions. Hover for controls **on the image**: Pin/Unpin and Close in the top corners, Annotate and Drag in the bottom corners, and labeled Copy/Save pills in the center. **Tab** reveals the controls for keyboard use. Very shallow or slender captures use compact on-image controls and a More menu when needed. The frame keeps its size and proportions while controls appear. A soft shade behind the controls helps readability; the image stays sharp and exports exclude every display effect.
 
 - **Copy** puts the image on the Windows clipboard. **Ctrl+C** also works in a preview or pin.
-- **Save…** exports a PNG to a location you choose. **Ctrl+S** opens the same dialog. The native dialog asks before overwriting an existing file.
+- **Saveâ€¦** exports a PNG to a location you choose. **Ctrl+S** opens the same dialog. The native dialog asks before overwriting an existing file.
 - **Pin** turns the same preview window into an always-on-top reference. The button changes to **Unpin**, which returns it to the preview area at the bottom left, keeping its size. Options are available by right-clicking the image. Up to eight pins stack at the left above space reserved for the next preview; crowded stacks can fit smaller cards or use more columns. Drag the image to move it independently; use its bottom-right grip to resize it. Double-click to toggle a larger view. Manually moved/resized pins leave the automatic stack; remaining docked pins reflow as captures are added or closed. Pins last for the current session; the underlying capture remains in history until removed or expired. Unpin replaces an existing preview, whose original remains in history.
 - **History** in the right-click menu opens the home window. Select **Open** on an older capture to copy, save or pin it again.
 - **Annotate** (pencil icon) opens an independent document in the image editor. The original capture stays in history. The floating preview hides to give you room to edit; a new capture still produces a preview.
@@ -74,7 +78,7 @@ For an isolated history/settings folder, launch `Framelet.exe --data-dir "C:\pat
 
 ## Annotate and edit
 
-Open **Annotate** from a preview or pin, or use **Open image / project…** on the home window. PNG, JPEG and `.framelet` files are supported. JPEG orientation metadata is applied on import.
+Open **Annotate** from a preview or pin, or use **Open image / projectâ€¦** on the home window. PNG, JPEG and `.framelet` files are supported. JPEG orientation metadata is applied on import.
 
 - **Arrows:** choose **Classic** (tapered solid), **Filled** (uniform shaft and solid head), **Open** (straight with open head) or **Curved** (editable curve and open head). Select an arrow and drag its round endpoint handles; Curved also has a bend handle. Each completed drag is one undo step. New arrows default to Classic.
 - Draw lines, rectangles, ellipses, highlighting or freehand strokes by dragging over the image. **Hand-drawn** gives ellipses a gently irregular outline and smooths newly drawn freehand paths. **Clean** keeps regular ellipses and the sampled freehand path. Existing version 1/2 arrows and pens retain their original appearance until you explicitly restyle them.
@@ -87,9 +91,9 @@ Open **Annotate** from a preview or pin, or use **Open image / project…** on t
 
 **Solid mask** covers a region with opaque black in flattened output. **Blur** and **Pixelate** soften or obscure content and should not be used as secure redaction. Exported images contain the rendered result; the `.framelet` project retains the original image and reversible layers, including masked pixels. Share a flattened PNG/JPEG when masking sensitive content.
 
-**Save project…** writes a self-contained `.framelet` file with the original pixels, layers and image settings. New projects use version 3 for arrow styles, bend geometry and freehand smoothing and require Framelet 0.5.0 or newer. This version reads versions 1, 2 and 3, preserving legacy rendering. Reopen it using Open; it does not depend on the screenshot remaining in history. Undo history is not stored in the project. Closing a dirty editor or quitting the app prompts you with **Save project…**, **Discard edits** and **Cancel**; Cancel keeps it open. There is no autosave or automatic recovery of unsaved work after a crash.
+**Save projectâ€¦** writes a self-contained `.framelet` file with the original pixels, layers and image settings. New projects use version 3 for arrow styles, bend geometry and freehand smoothing and require Framelet 0.5.0 or newer. This version reads versions 1, 2 and 3, preserving legacy rendering. Reopen it using Open; it does not depend on the screenshot remaining in history. Undo history is not stored in the project. Closing a dirty editor or quitting the app prompts you with **Save projectâ€¦**, **Discard edits** and **Cancel**; Cancel keeps it open. There is no autosave or automatic recovery of unsaved work after a crash.
 
-**PNG…** and **JPEG…** export a flattened image. JPEG uses quality 95 and fills transparency with white. **Copy** and **Pin** use the same edited result. Editing a pinned flattened result starts a new document with that flattened image as its original. Edited output is not added automatically to capture history; save a project or export it to keep it. Projects and exported copies are outside the 100-capture retention policy.
+**PNGâ€¦** and **JPEGâ€¦** export a flattened image. JPEG uses quality 95 and fills transparency with white. **Copy** and **Pin** use the same edited result. Editing a pinned flattened result starts a new document with that flattened image as its original. Edited output is not added automatically to capture history; save a project or export it to keep it. Projects and exported copies are outside the 100-capture retention policy.
 
 Editor shortcuts: **Ctrl+Z** undo, **Ctrl+Y** redo, **Ctrl+S** save project, **Ctrl+C** copy the edited image, **Delete** remove the selected object. Text fields retain their own copy/undo behavior. Save project opens a filename dialog, including for an already saved project.
 
@@ -99,6 +103,6 @@ Editor shortcuts: **Ctrl+Z** undo, **Ctrl+Y** redo, **Ctrl+S** save project, **C
 - Screenshots use GDI to copy visible screen pixels. Minimized, hidden, off-screen and protected content are not reconstructed. Other always-on-top applications can still cover a selected window.
 - Output is a static SDR PNG. HDR color fidelity, game/exclusive-fullscreen capture and secure desktops are not certified. The pointer itself is not deliberately composited into the screenshot.
 - Full display means one monitor, not a stitched all-monitor export. Area selection spans the virtual desktop. Coordinate tests cover negative origins and scaled layouts; mixed-DPI multi-monitor hardware still needs a separate acceptance pass.
-- The editor supports images/output up to 20,000 pixels per side and 40 million total pixels, up to 500 annotations and 50,000 total freehand points. Padding is 0–500 pixels; project metadata is capped at 4 MB and embedded image data at 160 MB. An image can remain capturable/viewable under Phase 1 limits even if it exceeds editor limits.
+- The editor supports images/output up to 20,000 pixels per side and 40 million total pixels, up to 500 annotations and 50,000 total freehand points. Padding is 0â€“500 pixels; project metadata is capped at 4 MB and embedded image data at 160 MB. An image can remain capturable/viewable under Phase 1 limits even if it exceeds editor limits.
 - Scrolling capture requires overlapping, stable views of one vertical scroll region. Sticky elements, animations, horizontal movement, large jumps, changing window geometry and repeating/blank content can prevent reliable alignment. Exclude fixed elements when selecting the region. Auto-scroll uses a native accessibility scroll action when available, with guarded native wheel input as a fallback. Applications that support neither can be scrolled manually.
 - No OCR, recording, upload links, persistent pins, autostart or updater in this phase. The app/package is unsigned. Project files are Framelet's own format; `.cleanshot` files are not supported.

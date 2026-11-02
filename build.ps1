@@ -12,5 +12,7 @@ $env:NUGET_PACKAGES = Join-Path $frameletRoot '.tools/nuget'
 $frameletConfiguration = if ($Release) { 'Release' } else { 'Debug' }
 & $frameletDotnet restore (Join-Path $frameletRoot 'src/Framelet/Framelet.csproj') --configfile (Join-Path $frameletRoot 'NuGet.Config') --nologo
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+python (Join-Path $frameletRoot 'scripts/prepare_recording_dependencies.py')
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 & $frameletDotnet build (Join-Path $frameletRoot 'src/Framelet/Framelet.csproj') -c $frameletConfiguration --no-restore --nologo
 exit $LASTEXITCODE

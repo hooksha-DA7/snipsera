@@ -3,7 +3,7 @@
   "repository": "hooksha-DA7/framelet",
   "imported_on": "2026-11-01",
   "verified_baseline": "v0.6.0",
-  "latest_preview": null,
+  "latest_preview": "v0.7.0-preview.1",
   "releases": [
     {
       "version": "0.1.0",
@@ -618,6 +618,53 @@
       },
       "notice": "For scrolling capture, leave fixed headers and scrollbars outside the selection and keep some overlap between views. Very repetitive, animated or changing content may need manual adjustment.",
       "source_commit": "5db9eb1bf14a588faa3cc74acb64d1ac83c7dd81"
+    },
+    {
+      "version": "0.7.0-preview.1",
+      "tag": "v0.7.0-preview.1",
+      "build_date": "2026-11-02",
+      "title": "Screen recording",
+      "status": "preview",
+      "prerelease": true,
+      "latest": false,
+      "notes": "releases/notes/v0.7.0-preview.1.md",
+      "release_url": "https://github.com/hooksha-DA7/framelet/releases/tag/v0.7.0-preview.1",
+      "summary": [
+        "MP4 H.264 and animated GIF recording of a window, display, selected area or custom-size frame.",
+        "Quality, frame-rate and resolution controls, with separate microphone and computer-audio toggles for MP4.",
+        "Show/hide cursor and a thin blue click ring that stays aligned within cropped and resized recordings.",
+        "A compact recording bar with pause/resume, elapsed time, Stop and guarded Discard, plus timer/controls in the tray.",
+        "Separate recording history with Open and Show in folder actions."
+      ],
+      "verification": "125 original capture/annotation checks, native capture lifecycle, 11 recording rules, 12 publishing checks and native recording-controller lifecycle passed. Independent probes verified MP4/GIF/window/display/region outputs; an authorized combined-audio test and actual click-ring test passed. Automatic DND is unavailable; broader hardware/audio routing and long-duration coverage remain limited.",
+      "assets": [
+        {
+          "role": "windows-x64",
+          "name": "Framelet-0.7.0-preview.1-win-x64.zip",
+          "sha256": "150c831ddb8fb57e502b85b9914f6f354f33c7e62731da3dbf9bea08f7b5ff76",
+          "bytes": 71917692,
+          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.7.0-preview.1/Framelet-0.7.0-preview.1-win-x64.zip"
+        },
+        {
+          "role": "source",
+          "name": "Framelet-0.7.0-preview.1-source.zip",
+          "sha256": "73a254b4ba8adab1eb2dc4aab9937886c8c7f79a5918bfd469da86635e94e3a7",
+          "bytes": 280899,
+          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.7.0-preview.1/Framelet-0.7.0-preview.1-source.zip"
+        }
+      ],
+      "kind": "Feature preview",
+      "intro": "Record your screen as a video or GIF, with optional audio and cursor highlighting.",
+      "changes": {
+        "Added": [
+          "MP4 H.264 and animated GIF recording of a window, display, selected area or custom-size frame.",
+          "Quality, frame-rate and resolution controls, with separate microphone and computer-audio toggles for MP4.",
+          "Show/hide cursor and a thin blue click ring that stays aligned within cropped and resized recordings.",
+          "A compact recording bar with pause/resume, elapsed time, Stop and guarded Discard, plus timer/controls in the tray.",
+          "Separate recording history with Open and Show in folder actions."
+        ]
+      },
+      "notice": "Preview: enable Do not disturb manually in Windows. MP4 audio uses the default Windows devices; GIF has no sound. Requires .NET 10 Desktop Runtime x64 and the Visual C++ x64 runtime. Keep the complete encoder folder with the app."
     }
   ]
 }

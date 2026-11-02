@@ -12,7 +12,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--version", default="0.6.0")
 parser.add_argument("--run", default="scrolling-package-01")
 ARGS = parser.parse_args()
-if not re.fullmatch(r"\d+\.\d+\.\d+", ARGS.version) or not re.fullmatch(r"[A-Za-z0-9_-]+", ARGS.run):
+if not re.fullmatch(r"\d+\.\d+\.\d+(?:-[A-Za-z0-9]+(?:\.[A-Za-z0-9]+)*)?", ARGS.version) or not re.fullmatch(r"[A-Za-z0-9_-]+", ARGS.run):
     parser.error("Use a numeric release version and a plain run folder name")
 RUN = ROOT / "verification/runs" / ARGS.run
 
@@ -22,8 +22,8 @@ def digest(data):
 
 
 def expected_source():
-    files = {"README.md", "CHANGELOG.md", "RELEASES.md", "BUILD-STATUS.md", "Directory.Build.props", "NuGet.Config",
-             "build.ps1", "test.ps1", "publish.ps1", ".gitignore", "verification/verify_packages.py"}
+    files = {"README.md", "CHANGELOG.md", "RELEASES.md", "BUILD-STATUS.md", "THIRD-PARTY.md", "recording-dependencies.json", "Directory.Build.props", "NuGet.Config",
+             "build.ps1", "test.ps1", "publish.ps1", ".gitignore", "verification/verify_packages.py", "scripts/prepare_recording_dependencies.py"}
     files |= {p.relative_to(ROOT).as_posix() for p in (ROOT / "docs").rglob("*") if p.is_file()}
     for tree in ("src", "tests"):
         files |= {p.relative_to(ROOT).as_posix() for p in (ROOT / tree).rglob("*")
@@ -35,9 +35,11 @@ def expected_source():
 def verify(flavor):
     stem = f"Framelet-{ARGS.version}-{flavor}"
     archive = ROOT / "dist" / f"{stem}.zip"
-    runtime = {"Framelet.exe", "Framelet.dll", "Framelet.deps.json", "Framelet.runtimeconfig.json"}
+    runtime = {"Framelet.exe", "Framelet.dll", "Framelet.deps.json", "Framelet.runtimeconfig.json", "ScreenRecorderLib.dll"}
+    encoder_files = json.loads((ROOT / "recording-dependencies.json").read_text())["encoder"]["runtime_files"]
+    encoder = {"encoder/" + name for name in encoder_files}
     docs = {p.relative_to(ROOT).as_posix() for p in (ROOT / "docs").rglob("*") if p.is_file()}
-    expected = expected_source() if flavor == "source" else runtime | docs | {"README.md", "CHANGELOG.md", "RELEASES.md", "BUILD-STATUS.md"}
+    expected = expected_source() if flavor == "source" else runtime | encoder | docs | {"README.md", "CHANGELOG.md", "RELEASES.md", "BUILD-STATUS.md", "THIRD-PARTY.md", "recording-dependencies.json"}
     with zipfile.ZipFile(archive) as bundle:
         assert bundle.testzip() is None, "ZIP CRC failure"
         names = [entry.filename.replace("\\", "/") for entry in bundle.infolist()]
@@ -56,8 +58,10 @@ def verify(flavor):
             content = data[entry["path"]]
             assert digest(content) == entry["sha256"] and len(content) == entry["bytes"], "Manifest hash mismatch"
             original = (ROOT / "src/Framelet/bin/Release/net10.0-windows" / entry["path"]
-                        if flavor == "win-x64" and entry["path"] in runtime else ROOT / entry["path"])
+                        if flavor == "win-x64" and entry["path"] in runtime | encoder else ROOT / entry["path"])
             assert content == original.read_bytes(), f"Source/build parity failed: {entry['path']}"
+            if entry["path"] in encoder:
+                assert digest(content) == encoder_files[entry["path"].split("/", 1)[1]], "Pinned encoder component differs"
         for name in expected:
             if name.endswith(".md"):
                 for link in re.findall(r"\]\(([^)]+)\)", data[name].decode()):

@@ -3,6 +3,7 @@
 No build, Git push, source rewrite, credential persistence or automatic native acceptance.
 """
 import argparse
+import concurrent.futures
 import hashlib
 import json
 import re
@@ -18,6 +19,39 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def digest(data):
     return hashlib.sha256(data).hexdigest()
+
+
+def public_download_digest(url, size):
+    """Verify large public downloads in bounded, retryable anonymous ranges."""
+    step = 1024 * 1024
+    ranged = size > 8 * step
+
+    def read_part(start):
+        end = min(size - 1, start + step - 1) if ranged else size - 1
+        for attempt in range(3):
+            try:
+                headers = {"User-Agent": "Framelet-release-verifier"}
+                if ranged:
+                    headers["Range"] = f"bytes={start}-{end}"
+                with urlopen(Request(url, headers=headers), timeout=30) as response:
+                    if ranged and (response.status != 206 or response.headers.get("Content-Range") != f"bytes {start}-{end}/{size}"):
+                        raise ValueError("Public download range differs")
+                    content = response.read(end - start + 2)
+                if len(content) != end - start + 1:
+                    raise ValueError("Public download length differs")
+                return content
+            except OSError:
+                if attempt == 2:
+                    raise
+                time.sleep(attempt + 1)
+
+    result = hashlib.sha256()
+    count = 0
+    with concurrent.futures.ThreadPoolExecutor(max_workers=4 if ranged else 1) as pool:
+        for content in pool.map(read_part, range(0, size, step) if ranged else [0]):
+            result.update(content)
+            count += len(content)
+    return result.hexdigest(), count
 
 
 def validate_archive(path, expected):
@@ -93,12 +127,10 @@ def verify_public(entry, release):
     for name, item in expected.items():
         asset = assets[name]
         # Deliberately anonymous: this proves public downloads work without the maintainer's token.
-        request = Request(asset["browser_download_url"], headers={"User-Agent": "Framelet-release-verifier"})
-        with urlopen(request, timeout=60) as response:
-            data = response.read()
-        if digest(data) != item["sha256"] or len(data) != item["bytes"]:
+        downloaded_hash, downloaded_bytes = public_download_digest(asset["browser_download_url"], item["bytes"])
+        if downloaded_hash != item["sha256"] or downloaded_bytes != item["bytes"]:
             raise ValueError("Public download hash differs: " + name)
-        checked.append({"name": name, "sha256": digest(data), "bytes": len(data), "url": asset["browser_download_url"]})
+        checked.append({"name": name, "sha256": downloaded_hash, "bytes": downloaded_bytes, "url": asset["browser_download_url"]})
     return {"tag": entry["tag"], "url": release["html_url"], "prerelease": release["prerelease"], "public_downloads": checked}
 
 

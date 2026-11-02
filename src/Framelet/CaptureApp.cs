@@ -15,7 +15,7 @@ using Forms = System.Windows.Forms;
 
 namespace Framelet;
 
-public sealed class CaptureApp : Application
+public sealed partial class CaptureApp : Application
 {
     public HistoryStore History { get; }
     public AppSettings Settings { get; private set; }
@@ -49,6 +49,8 @@ public sealed class CaptureApp : Application
     {
         this.capturePixels = capturePixels ?? CaptureService.Capture;
         History = new HistoryStore(dataRoot); Settings = History.LoadSettings();
+        Recording = new RecordingController(this, History.Root);
+        Recording.Changed += RecordingChanged;
         overlays = new OverlayVisibility<ImageWindow>((window, show) =>
         {
             window.PresentOverlay(show, !capturing && (show || OverlaysHidden));
@@ -89,9 +91,11 @@ public sealed class CaptureApp : Application
         Item("Repeat last area", "History", () => _ = CaptureAsync(CaptureKind.PreviousArea), Settings.Previous);
         trayMenu.Items.Add(new Separator());
         Item("History and shortcuts", "History", ShowHome); Item("Scrolling capture", "Scrolling", () => _ = CaptureAsync(CaptureKind.Scrolling));
+        Item("Record screen", "Record", OpenRecording);
         Item("Temporarily hide overlays", "HideOverlays", ToggleOverlays); overlayMenu = (MenuItem)trayMenu.Items[trayMenu.Items.Count - 1];
         Item("Quit Framelet", "Close", Quit);
         tray = new Forms.NotifyIcon { Icon = trayIcon, Text = "Framelet — capture, copy, keep", Visible = true };
+        ConfigureRecordingTray();
         tray.MouseUp += (_, e) => { if (e.Button == Forms.MouseButtons.Right) Dispatcher.BeginInvoke(ShowTrayMenu); };
         tray.DoubleClick += (_, _) => ShowHome();
         overlayShelf = new OverlayShelfWindow(this); RefreshOverlayVisibility();
@@ -154,6 +158,7 @@ public sealed class CaptureApp : Application
     public async Task CaptureAsync(CaptureKind kind)
     {
         if (Quitting) return;
+        if (Recording.IsActive) { home.SetStatus("Stop the recording before taking another screenshot."); return; }
         if (capturing || ComponentDispatcher.IsThreadModal) { pendingCapture = kind; return; }
         capturing = true;
         var visible = Windows.Cast<Window>().Where(w => w.IsVisible).ToList();
@@ -327,9 +332,16 @@ public sealed class CaptureApp : Application
         if (home?.IsVisible != true) ConfirmWindow.Ask(Windows.Cast<Window>().FirstOrDefault(w => w.IsActive), "Framelet", message, "OK");
     }
 
-    public void Quit()
+    public async void Quit()
     {
+        if (Recording.State == RecordingState.Starting) { home.SetStatus("Wait for recording to start before quitting."); return; }
+        if (Recording.IsActive)
+        {
+            try { await Recording.StopAsync(); }
+            catch (Exception ex) { Report(ex); return; }
+        }
         foreach (var editor in Windows.Cast<Window>().OfType<EditorWindow>().ToArray()) if (!editor.ConfirmClose()) return;
+        Recording.Dispose();
         Quitting = true; tray?.Dispose(); foreach (Window window in Windows.Cast<Window>().ToArray()) window.Close(); Shutdown();
     }
 }
