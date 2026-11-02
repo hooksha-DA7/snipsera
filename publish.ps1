@@ -1,53 +1,14 @@
-param([string]$Version = '')
+param([string]$Output = '', [string]$StoreIdentity = '', [switch]$DevelopmentMsix, [string]$Inno = '', [string]$MakeAppx = '')
 $ErrorActionPreference = 'Stop'
-$frameletRoot = $PSScriptRoot
-$frameletProject = [xml](Get-Content -LiteralPath (Join-Path $frameletRoot 'src/Framelet/Framelet.csproj') -Raw)
-if (-not $Version) { $Version = $frameletProject.Project.PropertyGroup.InformationalVersion }
-if ($Version -notmatch '^\d+\.\d+\.\d+(?:-[A-Za-z0-9]+(?:\.[A-Za-z0-9]+)*)?$') { throw 'Use a major.minor.patch version with an optional preview suffix.' }
-if ($frameletProject.Project.PropertyGroup.Version -ne $Version.Split('-')[0]) { throw 'Package version must match the application project version.' }
-if ($frameletProject.Project.PropertyGroup.InformationalVersion -ne $Version) { throw 'A stable package requires the same stable informational version. Finish preview acceptance before staging a stable release.' }
-& (Join-Path $frameletRoot 'build.ps1') -Release
+if ($DevelopmentMsix -and $StoreIdentity) { throw 'Choose a Store identity or a development identity, not both.' }
+if (-not $StoreIdentity -and -not $DevelopmentMsix) { $StoreIdentity = Join-Path $PSScriptRoot 'packaging/store-identity.json' }
+$project = [xml](Get-Content -LiteralPath (Join-Path $PSScriptRoot 'src/Framelet/Framelet.csproj') -Raw)
+if (-not $Output) { $Output = Join-Path $PSScriptRoot ('dist/Snipsera-' + $project.Project.PropertyGroup.InformationalVersion + '-candidate-' + [DateTime]::UtcNow.ToString('yyyyMMdd-HHmmss')) }
+$arguments = @((Join-Path $PSScriptRoot 'scripts/package_release.py'), '--output', $Output)
+if ($DevelopmentMsix) { $arguments += '--development-msix' } else { $arguments += @('--store-identity',$StoreIdentity) }
+if ($Inno) { $arguments += @('--inno',$Inno) }
+if ($MakeAppx) { $arguments += @('--makeappx',$MakeAppx) }
+& (Join-Path $PSScriptRoot 'build.ps1') -Release
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-$frameletDist = Join-Path $frameletRoot 'dist'
-$frameletPackage = Join-Path $frameletDist "Framelet-$Version-win-x64"
-$frameletSource = Join-Path $frameletDist "Framelet-$Version-source"
-if ((Test-Path -LiteralPath $frameletPackage) -or (Test-Path -LiteralPath $frameletSource)) {
-    throw 'This version is already staged. Use a fresh version or inspect the existing output before replacing it.'
-}
-$null = New-Item -ItemType Directory -Path $frameletPackage,$frameletSource -Force
-$frameletBinary = Join-Path $frameletRoot 'src/Framelet/bin/Release/net10.0-windows'
-foreach ($file in @('Framelet.exe','Framelet.dll','Framelet.deps.json','Framelet.runtimeconfig.json','ScreenRecorderLib.dll')) {
-    Copy-Item -LiteralPath (Join-Path $frameletBinary $file) -Destination $frameletPackage
-}
-Copy-Item -LiteralPath (Join-Path $frameletBinary 'encoder') -Destination $frameletPackage -Recurse
-foreach ($file in @('README.md','CHANGELOG.md','RELEASES.md','BUILD-STATUS.md','LICENSE','THIRD-PARTY.md','recording-dependencies.json')) {
-    Copy-Item -LiteralPath (Join-Path $frameletRoot $file) -Destination $frameletPackage
-}
-Copy-Item -LiteralPath (Join-Path $frameletRoot 'docs') -Destination $frameletPackage -Recurse
-foreach ($file in @('README.md','CHANGELOG.md','RELEASES.md','BUILD-STATUS.md','LICENSE','THIRD-PARTY.md','recording-dependencies.json','Directory.Build.props','NuGet.Config','build.ps1','test.ps1','publish.ps1','.gitignore')) {
-    Copy-Item -LiteralPath (Join-Path $frameletRoot $file) -Destination $frameletSource
-}
-Copy-Item -LiteralPath (Join-Path $frameletRoot 'docs') -Destination $frameletSource -Recurse
-$null = New-Item -ItemType Directory -Path (Join-Path $frameletSource 'verification') -Force
-Copy-Item -LiteralPath (Join-Path $frameletRoot 'verification/verify_packages.py') -Destination (Join-Path $frameletSource 'verification')
-$null = New-Item -ItemType Directory -Path (Join-Path $frameletSource 'scripts') -Force
-Copy-Item -LiteralPath (Join-Path $frameletRoot 'scripts/prepare_recording_dependencies.py') -Destination (Join-Path $frameletSource 'scripts')
-foreach ($tree in @('src','tests')) {
-    $treeRoot = Join-Path $frameletRoot $tree
-    foreach ($file in Get-ChildItem -LiteralPath $treeRoot -Recurse -File) {
-        $relative = [IO.Path]::GetRelativePath($frameletRoot, $file.FullName)
-        if ($relative -match '[\\/](bin|obj)[\\/]') { continue }
-        if ($file.Extension -notin @('.cs','.csproj','.manifest')) { continue }
-        $destination = Join-Path $frameletSource $relative
-        $null = New-Item -ItemType Directory -Path ([IO.Path]::GetDirectoryName($destination)) -Force
-        Copy-Item -LiteralPath $file.FullName -Destination $destination
-    }
-}
-foreach ($folder in @($frameletPackage,$frameletSource)) {
-    $manifest = @(Get-ChildItem -LiteralPath $folder -File -Recurse | Sort-Object FullName | ForEach-Object {
-        [ordered]@{ path = [IO.Path]::GetRelativePath($folder,$_.FullName).Replace('\','/'); sha256 = (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant(); bytes = $_.Length }
-    })
-    $manifest | ConvertTo-Json -Depth 3 | Set-Content -LiteralPath (Join-Path $folder 'manifest-sha256.json') -Encoding utf8
-    Compress-Archive -LiteralPath $folder -DestinationPath ($folder + '.zip') -CompressionLevel Optimal
-}
-Get-ChildItem -LiteralPath $frameletDist -Filter '*.zip' | Get-FileHash -Algorithm SHA256 | Select-Object Path,Hash
+python @arguments
+exit $LASTEXITCODE

@@ -42,7 +42,7 @@ public sealed class OverlayShelfWindow : Window
     public OverlayShelfWindow(CaptureApp app)
     {
         this.app = app; Ui.Setup(this);
-        Title = "Framelet — hidden captures";
+        Title = "Snipsera — hidden captures";
         WindowStyle = WindowStyle.None; AllowsTransparency = true; Background = Brushes.Transparent; ResizeMode = ResizeMode.NoResize;
         ShowInTaskbar = false; Topmost = true; ShowActivated = false; WindowStartupLocation = WindowStartupLocation.Manual; SizeToContent = SizeToContent.Manual;
 

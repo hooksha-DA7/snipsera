@@ -8,7 +8,7 @@ public sealed class FixtureWindow : Window
 {
     public FixtureWindow()
     {
-        Title = "Framelet Capture Test"; Width = 660; Height = 460; WindowStartupLocation = WindowStartupLocation.CenterScreen;
+        Title = "Snipsera Capture Test"; Width = 660; Height = 460; WindowStartupLocation = WindowStartupLocation.CenterScreen;
         Background = Ui.Brush("#205FDB");
         var grid = new Grid { Margin = new Thickness(32) };
         grid.RowDefinitions.Add(new RowDefinition()); grid.RowDefinitions.Add(new RowDefinition());

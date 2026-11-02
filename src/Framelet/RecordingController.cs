@@ -75,7 +75,7 @@ public sealed class RecordingController : IDisposable
         cancelRequested = false; stopping = null; elapsed.Reset();
         string id = DateTime.Now.ToString("yyyy-MM-dd-HHmmss") + "-" + Guid.NewGuid().ToString("N")[..8];
         temporary = Path.Combine(store.Root, "." + id + ".mp4");
-        destination = Path.Combine(store.Root, "Framelet-" + id + (Options.Format == RecordingFormat.Gif ? ".gif" : ".mp4"));
+        destination = Path.Combine(store.Root, "Snipsera-" + id + (Options.Format == RecordingFormat.Gif ? ".gif" : ".mp4"));
         Notify(RecordingState.Starting, "Preparing recording…");
         try
         {

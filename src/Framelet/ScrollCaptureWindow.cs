@@ -19,7 +19,7 @@ using PixelSize = System.Drawing.Size;
 namespace Framelet;
 
 // Scrolling-capture overlay: one layered, non-activating window over the virtual desktop. The selection plus a 1 px guard stays
-// alpha 0, so wheel and clicks reach the app underneath and screen capture never sees Framelet pixels there. The surface is laid
+// alpha 0, so wheel and clicks reach the app underneath and screen capture never sees Snipsera pixels there. The surface is laid
 // out in physical pixels; the floating bar and preview are scaled to the selection monitor's DPI. No tooltips: their popups could
 // land over the selection. See design/scrolling-2026-11-01/DESIGN.md.
 public sealed class ScrollCaptureWindow : Window
@@ -47,7 +47,7 @@ public sealed class ScrollCaptureWindow : Window
     private double slack;
     private bool fitQueued;
 
-    // Physical rectangles Framelet paints near the selection: ring strips, bar and preview (each including its shadow).
+    // Physical rectangles Snipsera paints near the selection: ring strips, bar and preview (each including its shadow).
     // Everything outside HoleBounds is painted (the dim layer); nothing inside it is, unless PlacementError is set before Start.
     public IReadOnlyList<PixelRect> ObstructionBounds => previewOuter.IsEmpty ? fixedObstructions.ToArray() : fixedObstructions.Append(previewOuter).ToArray();
     public PixelRect HoleBounds { get; private set; }
@@ -60,7 +60,7 @@ public sealed class ScrollCaptureWindow : Window
     public ScrollCaptureWindow(ScrollCaptureSession session)
     {
         this.session = session;
-        Title = "Framelet — scrolling capture";
+        Title = "Snipsera — scrolling capture";
         WindowStyle = WindowStyle.None; AllowsTransparency = true; Background = Brushes.Transparent; ResizeMode = ResizeMode.NoResize;
         ShowInTaskbar = true; Topmost = true; ShowActivated = false; WindowStartupLocation = WindowStartupLocation.Manual; SizeToContent = SizeToContent.Manual;
         FontFamily = Ui.Font; FontSize = 12; Foreground = Ui.Ink;

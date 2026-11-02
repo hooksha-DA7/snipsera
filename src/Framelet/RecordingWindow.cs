@@ -37,13 +37,13 @@ public sealed class RecordingWindow : Window
     public RecordingWindow(CaptureApp app)
     {
         controller = app.Recording; Ui.Setup(this);
-        Title = "Framelet — record screen"; Ui.UseSystemChrome(this);
+        Title = "Snipsera — record screen"; Ui.UseSystemChrome(this);
         Width = 500; Height = 720; MinWidth = 440; MinHeight = 460; WindowStartupLocation = WindowStartupLocation.CenterScreen;
 
         var dock = new DockPanel { Margin = new Thickness(20) };
         var header = new StackPanel { Margin = new Thickness(0, 0, 0, 14) };
         header.Children.Add(Ui.Text("Record screen", 20, Ui.Ink, true));
-        header.Children.Add(Ui.Text("Choose what to record, then start. Recordings are kept in Framelet's history.", 12, Ui.Muted));
+        header.Children.Add(Ui.Text("Choose what to record, then start. Recordings are kept in Snipsera's history.", 12, Ui.Muted));
         DockPanel.SetDock(header, Dock.Top); dock.Children.Add(header);
 
         // Footer: a full-width wrapping status line, then Select and Start right-aligned, set off by a hairline.
@@ -112,7 +112,7 @@ public sealed class RecordingWindow : Window
         audioNote = Ui.Text("GIF recordings have no sound. Choose MP4 to record audio.", 11, Ui.Muted); audioNote.Margin = new Thickness(28, 2, 0, 0);
         capture.Children.Add(audioNote);
 
-        // Focus: Do Not Disturb is only a real control when Windows lets Framelet set it.
+        // Focus: Do Not Disturb is only a real control when Windows lets Snipsera set it.
         var focus = Section("Notifications");
         if (controller.DoNotDisturbAvailable)
         {
@@ -121,7 +121,7 @@ public sealed class RecordingWindow : Window
         }
         else
         {
-            var reason = string.IsNullOrWhiteSpace(controller.DoNotDisturbExplanation) ? "Framelet can't turn on Do Not Disturb automatically on this PC." : controller.DoNotDisturbExplanation;
+            var reason = string.IsNullOrWhiteSpace(controller.DoNotDisturbExplanation) ? "Snipsera can't turn on Do Not Disturb automatically on this PC." : controller.DoNotDisturbExplanation;
             focus.Children.Add(Ui.Text("Do Not Disturb isn't available automatically", 13, Ui.Ink));
             var why = Ui.Text(reason, 11, Ui.Muted); why.Margin = new Thickness(0, 2, 0, 6); focus.Children.Add(why);
             var settings = Ui.Button("Open notification settings", "RecordingNotificationSettings", () => Safe(controller.OpenNotificationSettings));

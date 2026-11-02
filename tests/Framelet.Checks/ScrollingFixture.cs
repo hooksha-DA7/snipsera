@@ -16,7 +16,7 @@ internal static class ScrollingFixture
     {
         Directory.CreateDirectory(output); Native.SetProcessDpiAwarenessContext(new IntPtr(-4));
         var app = new Application(); Ui.Install(app);
-        var backdrop = new Window { Title = "Framelet scrolling test backdrop", WindowStyle = WindowStyle.None, ResizeMode = ResizeMode.NoResize, ShowInTaskbar = false, Background = Ui.Brush("#31475E") };
+        var backdrop = new Window { Title = "Snipsera scrolling test backdrop", WindowStyle = WindowStyle.None, ResizeMode = ResizeMode.NoResize, ShowInTaskbar = false, Background = Ui.Brush("#31475E") };
         backdrop.Loaded += (_, _) => { var area = Native.MonitorAtCursor(true); Native.SetWindowPos(new WindowInteropHelper(backdrop).Handle, IntPtr.Zero, area.X, area.Y, area.Width, area.Height, 0x0010); };
         backdrop.Show();
         var page = new DrawingVisual();
@@ -27,7 +27,7 @@ internal static class ScrollingFixture
             {
                 var tone = new SolidColorBrush(Color.FromRgb((byte)(215 + row * 11 % 39), (byte)(216 + row * 17 % 38), (byte)(218 + row * 23 % 36))); tone.Freeze();
                 dc.DrawRectangle(tone, null, new Rect(0, row * 96, 760, 95));
-                dc.DrawText(new FormattedText($"{row + 1:00}  Framelet scrolling test", CultureInfo.InvariantCulture, FlowDirection.LeftToRight, new Typeface(Ui.Font, FontStyles.Normal, FontWeights.SemiBold, FontStretches.Normal), 24, Ui.Brush("#24342D"), 1.25), new Point(26, row * 96 + 15));
+                dc.DrawText(new FormattedText($"{row + 1:00}  Snipsera scrolling test", CultureInfo.InvariantCulture, FlowDirection.LeftToRight, new Typeface(Ui.Font, FontStyles.Normal, FontWeights.SemiBold, FontStretches.Normal), 24, Ui.Brush("#24342D"), 1.25), new Point(26, row * 96 + 15));
                 dc.DrawText(new FormattedText($"Source row {row + 1}; every numbered section must appear once.", CultureInfo.InvariantCulture, FlowDirection.LeftToRight, new Typeface(Ui.Font, FontStyles.Normal, FontWeights.Normal, FontStretches.Normal), 14, Ui.Brush("#617775"), 1.25), new Point(28, row * 96 + 53));
                 for (int x = 0; x < 12; x++)
                 {
@@ -39,7 +39,7 @@ internal static class ScrollingFixture
         }
         var bitmap = new RenderTargetBitmap(760, 5760, 96, 96, PixelFormats.Pbgra32); bitmap.Render(page); bitmap.Freeze();
         CaptureService.Save(bitmap, Path.Combine(output, "source-page.png"));
-        var window = new Window { Title = "Framelet scrolling test target", Width = 860, Height = 740, WindowStartupLocation = WindowStartupLocation.CenterScreen }; Ui.Setup(window); Ui.UseSystemChrome(window);
+        var window = new Window { Title = "Snipsera scrolling test target", Width = 860, Height = 740, WindowStartupLocation = WindowStartupLocation.CenterScreen }; Ui.Setup(window); Ui.UseSystemChrome(window);
         app.MainWindow = window; window.Closed += (_, _) => backdrop.Close();
         var root = new DockPanel { Margin = new Thickness(20) };
         var label = Ui.Text("Scroll through 60 numbered sections · synthetic test data", 16, Ui.Ink, true); label.Margin = new Thickness(0, 0, 0, 16); DockPanel.SetDock(label, Dock.Top); root.Children.Add(label);

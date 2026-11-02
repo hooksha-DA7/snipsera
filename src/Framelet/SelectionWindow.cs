@@ -43,7 +43,7 @@ public sealed class SelectionWindow : Window
         this.desktop = desktop; this.targets = targets; this.fixedSize = fixedSize;
         fits = fixedSize is { } size && size.Width >= 2 && size.Height >= 2 && size.Width <= desktop.Width && size.Height <= desktop.Height;
         // targetHint replaces the window-picking help when the caller supplies other targets (e.g. whole displays).
-        Title = fixedSize is not null ? "Framelet — position the frame" : targets is null ? "Framelet — select an area" : targetHint is not null ? "Framelet — choose what to capture" : "Framelet — select a window";
+        Title = fixedSize is not null ? "Snipsera — position the frame" : targets is null ? "Snipsera — select an area" : targetHint is not null ? "Snipsera — choose what to capture" : "Snipsera — select a window";
         WindowStyle = WindowStyle.None; ResizeMode = ResizeMode.NoResize; ShowInTaskbar = true;
         Topmost = true; Cursor = fixedSize is not null ? Cursors.SizeAll : Cursors.Cross; Background = Brushes.Black;
         var grid = new Grid();

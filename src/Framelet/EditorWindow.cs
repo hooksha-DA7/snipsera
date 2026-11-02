@@ -95,7 +95,7 @@ public sealed class EditorWindow : Window
         output.Children.Add(Ui.IconButton("Pin", "Pin edited image", "EditorPin", () => pin(Canvas.Image)));
         output.Children.Add(Ui.IconButton("Copy", "Copy edited image · Ctrl+C", "EditorCopy", async () => await CopyImage()));
         var drag = Ui.IconButton("Drag", "Drag edited PNG to another app", "EditorDrag", () => SetStatus("Drag this handle to another app"));
-        DragExport.Attach(drag, (Application.Current as CaptureApp)?.History.Root ?? Path.Combine(Path.GetTempPath(), "Framelet"), () => Canvas.Image, ex => SetStatus(ex.Message, true)); output.Children.Add(drag);
+        DragExport.Attach(drag, (Application.Current as CaptureApp)?.History.Root ?? Path.Combine(Path.GetTempPath(), "Snipsera"), () => Canvas.Image, ex => SetStatus(ex.Message, true)); output.Children.Add(drag);
         output.Children.Add(Action("JPEG…", "ExportJpeg", () => Export(true)));
         output.Children.Add(Action("Save image…", "ExportPng", () => Export(false), true));
         DockPanel.SetDock(output, Dock.Right); footer.Children.Insert(0, output); DockPanel.SetDock(footer, Dock.Bottom); dock.Children.Add(footer);
@@ -187,7 +187,7 @@ public sealed class EditorWindow : Window
         padding.Text = state.Padding.ToString(); SelectColor(background, state.Background);
         undo.IsEnabled = Document.CanUndo; redo.IsEnabled = Document.CanRedo; remove.IsEnabled = Canvas.Selected >= 0;
         dimensions.Text = $"{state.CanvasWidth:N0} × {state.CanvasHeight:N0} px";
-        Title = "Framelet — editor · " + name + (Document.IsDirty ? " *" : ""); updating = false; UpdateZoom();
+        Title = "Snipsera — editor · " + name + (Document.IsDirty ? " *" : ""); updating = false; UpdateZoom();
     }
     private void SyncRatio(bool fromWidth)
     {
@@ -222,8 +222,9 @@ public sealed class EditorWindow : Window
 
     public bool SaveProject()
     {
-        var dialog = new SaveFileDialog { Title = "Save editable project — includes original image", Filter = "Framelet project (*.framelet)|*.framelet", DefaultExt = ".framelet", AddExtension = true,
-            FileName = projectPath is null ? name + ".framelet" : Path.GetFileName(projectPath), InitialDirectory = projectPath is null ? Environment.GetFolderPath(Environment.SpecialFolder.MyPictures) : Path.GetDirectoryName(projectPath) };
+        bool legacyProject = projectPath is not null && Path.GetExtension(projectPath).Equals(".framelet", StringComparison.OrdinalIgnoreCase);
+        var dialog = new SaveFileDialog { Title = "Save editable project — includes original image", Filter = "Snipsera project (*.snipsera)|*.snipsera|Legacy Framelet project (*.framelet)|*.framelet", FilterIndex = legacyProject ? 2 : 1, DefaultExt = legacyProject ? ".framelet" : AppIdentity.ProjectExtension, AddExtension = true,
+            FileName = projectPath is null ? name + AppIdentity.ProjectExtension : Path.GetFileName(projectPath), InitialDirectory = projectPath is null ? Environment.GetFolderPath(Environment.SpecialFolder.MyPictures) : Path.GetDirectoryName(projectPath) };
         if (dialog.ShowDialog(this) != true) return false;
         try { EditFiles.SaveProject(Document, dialog.FileName); projectPath = dialog.FileName; SetStatus("Editable project saved, including the original image"); return true; }
         catch (Exception ex) { SetStatus(ex.Message, true); return false; }
@@ -239,7 +240,7 @@ public sealed class EditorWindow : Window
     public bool ConfirmClose()
     {
         if (!Document.IsDirty) return true;
-        var choice = ConfirmWindow.Ask(this, "Save your edits?", "Save an editable Framelet project to keep your annotations and original image. PNG and JPEG exports contain the flattened image only.", "Save project…", "Discard edits");
+        var choice = ConfirmWindow.Ask(this, "Save your edits?", "Save an editable Snipsera project to keep your annotations and original image. PNG and JPEG exports contain the flattened image only.", "Save project…", "Discard edits");
         return choice == Confirmation.Secondary || choice == Confirmation.Primary && SaveProject();
     }
     private void HandleKey(object sender, KeyEventArgs e)

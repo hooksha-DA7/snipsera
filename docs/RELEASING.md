@@ -1,6 +1,6 @@
-# Publishing a Framelet version
+# Publishing a Snipsera version
 
-Repository: [hooksha-DA7/framelet](https://github.com/hooksha-DA7/framelet). The user requested version history with download links and continued updates as new versions are delivered. This process runs during project work; no background service is installed.
+Repository: [hooksha-DA7/snipsera](https://github.com/hooksha-DA7/snipsera). The user requested version history with download links and continued updates as new versions are delivered. This process runs during project work; no background service is installed.
 
 ## Preserve the release contract
 
@@ -12,7 +12,7 @@ Historical releases attach Windows/source ZIPs with `SHA256SUMS.txt`. The distri
 
 The existing `publish.ps1`, ZIP verifier and release publisher still implement the ZIP release contract. Extend and verify their installer/MSIX support before delivering the next version; the format decision alone does not build or sign these formats. Preserve the existing historical-release verification path.
 
-Framelet's own code is MIT-licensed. Include the root `LICENSE`, `THIRD-PARTY.md` and component licence files in source and runtime packages, including the EXE/MSIX payloads. Preserve third-party terms and previously published artifacts.
+Snipsera's own code is MIT-licensed. Include the root `LICENSE`, `THIRD-PARTY.md` and component licence files in source and runtime packages, including the EXE/MSIX payloads. Preserve third-party terms and previously published artifacts.
 
 ## Add the next version
 

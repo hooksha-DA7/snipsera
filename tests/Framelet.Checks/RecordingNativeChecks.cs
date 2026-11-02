@@ -20,14 +20,14 @@ internal static class RecordingNativeChecks
         Directory.CreateDirectory(output); Native.SetProcessDpiAwarenessContext(new IntPtr(-4));
         var app = new Application(); Ui.Install(app);
         var canvas = new Canvas { Background = new SolidColorBrush(Color.FromRgb(19, 38, 64)) };
-        var title = new TextBlock { Text = "Framelet recording test", Foreground = Brushes.White, FontSize = 30, Margin = new Thickness(30) };
+        var title = new TextBlock { Text = "Snipsera recording test", Foreground = Brushes.White, FontSize = 30, Margin = new Thickness(30) };
         var clock = new TextBlock { Foreground = Brushes.White, FontSize = 25 }; Canvas.SetLeft(clock, 30); Canvas.SetTop(clock, 110);
         var shape = new Rectangle { Width = 100, Height = 100, Fill = Brushes.DeepSkyBlue }; Canvas.SetTop(shape, 220);
         canvas.Children.Add(title); canvas.Children.Add(clock); canvas.Children.Add(shape);
         var click = Ui.Button("Click to test highlighting", "RecordingTestClick", () => { });
         Canvas.SetLeft(click, 450); Canvas.SetTop(click, 315); canvas.Children.Add(click);
         click.PreviewMouseLeftButtonDown += (_, _) => File.WriteAllText(System.IO.Path.Combine(output, "physical-click.json"), JsonSerializer.Serialize(new { utc = DateTimeOffset.UtcNow, kind = "physical mouse down" }));
-        var window = new Window { Title = "Framelet synthetic recording source", Width = 800, Height = 450, Left = 90, Top = 90, WindowStyle = WindowStyle.None, ResizeMode = ResizeMode.NoResize, Topmost = true, Content = canvas };
+        var window = new Window { Title = "Snipsera synthetic recording source", Width = 800, Height = 450, Left = 90, Top = 90, WindowStyle = WindowStyle.None, ResizeMode = ResizeMode.NoResize, Topmost = true, Content = canvas };
         if (fullscreen) window.Loaded += (_, _) =>
         {
             var monitor = System.Windows.Forms.Screen.PrimaryScreen!.Bounds;

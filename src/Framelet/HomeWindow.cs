@@ -16,13 +16,13 @@ public sealed class HomeWindow : Window
     public HomeWindow(CaptureApp app)
     {
         this.app = app; Ui.Setup(this);
-        Title = "Framelet"; Ui.UseSystemChrome(this); Width = 880; Height = 670; MinWidth = 760; MinHeight = 570;
+        Title = "Snipsera"; Ui.UseSystemChrome(this); Width = 880; Height = 670; MinWidth = 760; MinHeight = 570;
         WindowStartupLocation = WindowStartupLocation.CenterScreen;
         var shell = new DockPanel();
         var dock = new DockPanel { Margin = new Thickness(20) };
         var header = new DockPanel { Margin = new Thickness(0, 0, 0, 18) };
         var brand = new StackPanel();
-        var name = Ui.Text("Framelet", 22, Ui.Ink, true);
+        var name = Ui.Text("Snipsera", 22, Ui.Ink, true);
         brand.Children.Add(name); brand.Children.Add(Ui.Text("Capture, annotate, keep close.", 12, Ui.Muted));
         var hide = Ui.Button("Keep in tray", "HideToTray", Hide); hide.VerticalAlignment = VerticalAlignment.Center;
         DockPanel.SetDock(hide, Dock.Right); header.Children.Add(hide); header.Children.Add(brand);

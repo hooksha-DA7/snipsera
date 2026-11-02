@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+ xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+ xmlns:uap10="http://schemas.microsoft.com/appx/manifest/uap/windows10/10"
+ xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+ IgnorableNamespaces="uap uap10 rescap">
+ <Identity Name="REPLACE_FROM_PARTNER_CENTER" Publisher="REPLACE_FROM_PARTNER_CENTER" Version="1.0.0.0" ProcessorArchitecture="x64" />
+ <Properties><DisplayName>Snipsera</DisplayName><PublisherDisplayName>REPLACE_FROM_PARTNER_CENTER</PublisherDisplayName>
+  <Description>Screenshots, annotations and screen recording for Windows 11.</Description><Logo>Assets\Snipsera-50.png</Logo></Properties>
+ <Resources><Resource Language="en-us" /></Resources>
+ <Dependencies><TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.22000.0" MaxVersionTested="10.0.26100.0" /></Dependencies>
+ <Capabilities><rescap:Capability Name="runFullTrust" /></Capabilities>
+ <Applications><Application Id="Snipsera" Executable="Snipsera.exe" uap10:RuntimeBehavior="packagedClassicApp" uap10:TrustLevel="mediumIL">
+  <uap:VisualElements DisplayName="Snipsera" Description="Screenshots, annotations and screen recording." BackgroundColor="transparent" Square150x150Logo="Assets\Snipsera-150.png" Square44x44Logo="Assets\Snipsera-44.png" />
+ </Application></Applications>
+</Package>

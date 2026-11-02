@@ -24,18 +24,18 @@ While recording, screenshot commands are unavailable. Stop first to take another
 
 ## Do not disturb
 
-**Automatic Do not disturb is unavailable in this preview.** Enable it manually in Windows before recording; the setup window includes a notification-settings shortcut. Framelet does not change that setting or turn a manually enabled mode off afterward.
+**Automatic Do not disturb is unavailable in this preview.** Enable it manually in Windows before recording; the setup window includes a notification-settings shortcut. Snipsera does not change that setting or turn a manually enabled mode off afterward.
 
 Microsoft restricts starting and stopping Focus sessions through its public API to approved applications using a Limited Access Feature token. This build has no such approval and does not use undocumented system-setting changes. [Microsoft API reference](https://learn.microsoft.com/en-us/uwp/api/windows.ui.shell.focussessionmanager?view=winrt-26100).
 
 ## Requirements and limits
 
 - Windows 11 x64, .NET 10 Desktop Runtime x64 and the [Visual C++ x64 runtime](https://aka.ms/vs/17/release/vc_redist.x64.exe). Windows N/KN installations also need Media Foundation through the Media Feature Pack.
-- Extract the entire download. Keep `ScreenRecorderLib.dll` and the complete `encoder` folder alongside Framelet's original runtime files.
+- Extract the entire download. Keep `ScreenRecorderLib.dll` and the complete `encoder` folder alongside Snipsera's original runtime files.
 - Keep a region inside one display. Choose a smaller output resolution for sources larger than the encoder permits. Protected content or a locked desktop may produce black frames or a capture error.
 - Window mode records the selected window. Choose display/area mode when you also need separate windows or dialogs.
 - Higher FPS, larger resolution and High quality use more CPU/storage. GIF conversion uses a temporary MP4 and two bounded-memory conversion passes, so it takes extra time and disk space after Stop.
-- If microphone capture is denied, enable desktop-app microphone access yourself in Windows privacy settings. Framelet does not bypass that permission.
+- If microphone capture is denied, enable desktop-app microphone access yourself in Windows privacy settings. Snipsera does not bypass that permission.
 
 The recording bar is excluded through Windows capture affinity. If Windows refuses the exclusion request, the bar is hidden and the tray remains available for Pause/Stop. Cursor/click capture is local; the click hook observes mouse-button positions only while that option is enabled. It neither injects input nor records keystrokes. No recordings are uploaded.
 

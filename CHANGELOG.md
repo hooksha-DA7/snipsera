@@ -2,6 +2,19 @@
 
 [Downloads and release notes](RELEASES.md)
 
+## 1.0.0-preview.1 — Unreleased
+
+Framelet is now Snipsera. This build is in preparation and is not a published download.
+
+### Added
+
+- EXE installer and MSIX packaging with a bundled .NET runtime. Signing and Store certification are still pending.
+
+### Improved
+
+- The app, tray, editor and export filenames use the Snipsera name.
+- Existing Framelet history and shortcuts remain available. Both .snipsera and .framelet editable projects are supported.
+
 ## 0.7.0-preview.1 — 2026-11-02
 
 Feature preview. Record your screen as a video or GIF, with optional audio and cursor highlighting.

@@ -12,7 +12,7 @@ internal sealed class DropPad : Window
 {
     public DropPad(string output)
     {
-        Title = "Framelet native drag target"; WindowStyle = WindowStyle.None; ResizeMode = ResizeMode.NoResize; Background = Ui.Brush("#31475E"); AllowDrop = true;
+        Title = "Snipsera native drag target"; WindowStyle = WindowStyle.None; ResizeMode = ResizeMode.NoResize; Background = Ui.Brush("#31475E"); AllowDrop = true;
         var root = new Grid();
         root.Children.Add(new System.Windows.Shapes.Ellipse { Fill = Ui.Brush("#2849A7BF"), Width = 1400, Height = 1400, HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Bottom, Margin = new Thickness(-500, 0, 0, -700) });
         var stack = new StackPanel { Width = 270, HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 34, 0) };

@@ -41,7 +41,7 @@ public sealed partial class CaptureApp
     private void RecordingChanged()
     {
         string clock = Recording.Elapsed.TotalHours >= 1 ? Recording.Elapsed.ToString(@"hh\:mm\:ss") : Recording.Elapsed.ToString(@"mm\:ss");
-        if (tray is not null) tray.Text = Recording.IsActive ? $"Framelet — {(Recording.State == RecordingState.Paused ? "Paused" : "Recording")} {clock}" : "Framelet — capture, copy, keep";
+        if (tray is not null) tray.Text = Recording.IsActive ? $"Snipsera — {(Recording.State == RecordingState.Paused ? "Paused" : "Recording")} {clock}" : "Snipsera — capture, copy, keep";
         if (stopRecordingMenu is not null)
         {
             stopRecordingMenu.IsEnabled = Recording.State is RecordingState.Recording or RecordingState.Paused;

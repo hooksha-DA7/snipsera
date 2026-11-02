@@ -1,0 +1,14 @@
+[
+  {
+    "name": "windows-sdk-buildtools.10.0.28000.2957.nupkg",
+    "url": "https://api.nuget.org/v3-flatcontainer/microsoft.windows.sdk.buildtools/10.0.28000.2957/microsoft.windows.sdk.buildtools.10.0.28000.2957.nupkg",
+    "sha256": "b7163fc6f636172726d0985963e4f7f11c41afe1c7fdfe78f8051877360ed696",
+    "bytes": 22369897
+  },
+  {
+    "name": "innosetup-7.1.1-x64.exe",
+    "url": "https://github.com/jrsoftware/issrc/releases/download/is-7_1_1/innosetup-7.1.1-x64.exe",
+    "sha256": "8a5a6711c3766a6e5fb74f280ba0e3551e719ce94538d901fdbd1f8f9920b3f0",
+    "bytes": 14336568
+  }
+]

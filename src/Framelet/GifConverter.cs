@@ -11,7 +11,7 @@ internal static class GifConverter
     internal static string EncoderPath => Path.Combine(AppContext.BaseDirectory, "encoder", "ffmpeg.exe");
     internal static void RequireEncoder()
     {
-        if (!File.Exists(EncoderPath)) throw new FileNotFoundException("The GIF converter is missing. Extract the complete Framelet download, including its encoder folder.");
+        if (!File.Exists(EncoderPath)) throw new FileNotFoundException("The GIF converter is missing. Extract the complete Snipsera download, including its encoder folder.");
     }
     internal static async Task ConvertAsync(string input, string output, RecordingOptions options, CancellationToken token)
     {

@@ -40,7 +40,7 @@ internal static class CaptureLifecycle
             {
                 if (waitForInput)
                 {
-                    app.MainWindow.Title = "Framelet lifecycle check - press F9 to run";
+                    app.MainWindow.Title = "Snipsera lifecycle check - press F9 to run";
                     var ready = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
                     KeyEventHandler start = (_, e) => { if (e.Key == Key.F9) { e.Handled = true; ready.TrySetResult(); } };
                     app.MainWindow.PreviewKeyDown += start;

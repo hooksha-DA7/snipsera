@@ -174,7 +174,7 @@ def publish(args):
         raise ValueError("A draft already exists; inspect it, then use --resume")
     if release is None:
         command = ["release", "create", entry["tag"], "--repo", repo, "--verify-tag", "--draft", "--latest=false",
-                   "--title", f"Framelet {entry['version']} — {entry['title']}", "--notes-file", str(ROOT / entry["notes"])]
+                   "--title", f"{entry.get('product', 'Framelet')} {entry['version']} — {entry['title']}", "--notes-file", str(ROOT / entry["notes"])]
         if entry["prerelease"]:
             command.append("--prerelease")
         github(executable, command)

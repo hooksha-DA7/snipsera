@@ -19,7 +19,7 @@ internal sealed class ScrollAutomation : IDisposable
     public ScrollAutomation(IntPtr target, Point point)
     {
         this.target = target; this.point = point;
-        var thread = new Thread(Work) { IsBackground = true, Name = "Framelet Auto-scroll" }; thread.SetApartmentState(ApartmentState.MTA); thread.Start();
+        var thread = new Thread(Work) { IsBackground = true, Name = "Snipsera Auto-scroll" }; thread.SetApartmentState(ApartmentState.MTA); thread.Start();
     }
     public async Task<bool> ScrollAsync(CancellationToken token)
     {

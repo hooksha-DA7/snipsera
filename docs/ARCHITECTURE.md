@@ -1,6 +1,6 @@
 # Architecture
 
-Framelet is a native WPF application targeting `net10.0-windows`. Windows Forms supplies only the notification-area icon; its menu is WPF Fluent. There are no third-party runtime packages or web views.
+Snipsera is a native WPF application targeting `net10.0-windows`. Windows Forms supplies only the notification-area icon; its menu is WPF Fluent. There are no third-party runtime packages or web views.
 
 | Component | Responsibility |
 | --- | --- |

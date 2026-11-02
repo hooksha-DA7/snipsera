@@ -40,7 +40,7 @@ public sealed class RecordingBarWindow : Window
     public RecordingBarWindow(RecordingController controller)
     {
         this.controller = controller; Ui.Setup(this);
-        Title = "Framelet — recording";
+        Title = "Snipsera — recording";
         WindowStyle = WindowStyle.None; AllowsTransparency = true; Background = Brushes.Transparent; ResizeMode = ResizeMode.NoResize;
         ShowInTaskbar = false; Topmost = true; ShowActivated = false; SizeToContent = SizeToContent.WidthAndHeight; MaxWidth = 520;
         WindowStartupLocation = WindowStartupLocation.Manual; FontFamily = Ui.Font;

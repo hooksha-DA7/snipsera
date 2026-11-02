@@ -69,7 +69,7 @@ public sealed partial class CaptureApp : Application
         home = new HomeWindow(this); MainWindow = home;
         home.SourceInitialized += (_, _) =>
         {
-            hotkeySink = new HwndSource(new HwndSourceParameters("Framelet hotkeys") { ParentWindow = new IntPtr(-3), Width = 0, Height = 0, WindowStyle = 0 });
+            hotkeySink = new HwndSource(new HwndSourceParameters("Snipsera hotkeys") { ParentWindow = new IntPtr(-3), Width = 0, Height = 0, WindowStyle = 0 });
             hotkeys = new HotkeyService(hotkeySink.Handle, kind => _ = CaptureAsync(kind));
             try { hotkeys.Apply(Settings); } catch (Exception ex) { home.SetStatus(ex.Message, true); }
             HwndSource.FromHwnd(new WindowInteropHelper(home).Handle)?.AddHook((IntPtr hwnd, int msg, IntPtr wp, IntPtr lp, ref bool handled) =>
@@ -93,8 +93,8 @@ public sealed partial class CaptureApp : Application
         Item("History and shortcuts", "History", ShowHome); Item("Scrolling capture", "Scrolling", () => _ = CaptureAsync(CaptureKind.Scrolling));
         Item("Record screen", "Record", OpenRecording);
         Item("Temporarily hide overlays", "HideOverlays", ToggleOverlays); overlayMenu = (MenuItem)trayMenu.Items[trayMenu.Items.Count - 1];
-        Item("Quit Framelet", "Close", Quit);
-        tray = new Forms.NotifyIcon { Icon = trayIcon, Text = "Framelet — capture, copy, keep", Visible = true };
+        Item("Quit Snipsera", "Close", Quit);
+        tray = new Forms.NotifyIcon { Icon = trayIcon, Text = "Snipsera — capture, copy, keep", Visible = true };
         ConfigureRecordingTray();
         tray.MouseUp += (_, e) => { if (e.Button == Forms.MouseButtons.Right) Dispatcher.BeginInvoke(ShowTrayMenu); };
         tray.DoubleClick += (_, _) => ShowHome();
@@ -298,12 +298,12 @@ public sealed partial class CaptureApp : Application
 
     public void OpenImageOrProject()
     {
-        var dialog = new OpenFileDialog { Title = "Open image or editable project", Filter = "Images and Framelet projects|*.png;*.jpg;*.jpeg;*.framelet|PNG and JPEG images|*.png;*.jpg;*.jpeg|Framelet project|*.framelet", CheckFileExists = true };
+        var dialog = new OpenFileDialog { Title = "Open image or editable project", Filter = "Images and editable projects|*.png;*.jpg;*.jpeg;*.snipsera;*.framelet|PNG and JPEG images|*.png;*.jpg;*.jpeg|Snipsera and legacy projects|*.snipsera;*.framelet", CheckFileExists = true };
         var owner = Windows.Cast<Window>().FirstOrDefault(w => w.IsActive) ?? home;
         if (dialog.ShowDialog(owner) != true) return;
         try
         {
-            bool project = Path.GetExtension(dialog.FileName).Equals(".framelet", StringComparison.OrdinalIgnoreCase);
+            bool project = AppIdentity.IsProject(dialog.FileName);
             var document = project ? EditFiles.LoadProject(dialog.FileName) : new EditDocument(EditFiles.LoadImage(dialog.FileName));
             ShowEditor(document, Path.GetFileNameWithoutExtension(dialog.FileName), project ? dialog.FileName : null);
         }
@@ -319,7 +319,7 @@ public sealed partial class CaptureApp : Application
     public void SaveImage(BitmapSource image, Window owner)
     {
         var dialog = new SaveFileDialog { Title = "Save capture", Filter = "PNG image (*.png)|*.png", DefaultExt = ".png", AddExtension = true,
-            FileName = "Framelet-" + DateTime.Now.ToString("yyyy-MM-dd-HHmmss") + ".png", InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures) };
+            FileName = "Snipsera-" + DateTime.Now.ToString("yyyy-MM-dd-HHmmss") + ".png", InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures) };
         if (dialog.ShowDialog(owner) != true) return;
         try { CaptureService.Save(image, dialog.FileName); home.SetStatus("Capture saved"); }
         catch (Exception ex) { Report(ex); }
@@ -329,7 +329,7 @@ public sealed partial class CaptureApp : Application
     {
         string message = exception is System.ComponentModel.Win32Exception ? "Windows could not read the display. Unlock your desktop and try again." : exception.Message;
         if (home is not null) home.SetStatus(message, true);
-        if (home?.IsVisible != true) ConfirmWindow.Ask(Windows.Cast<Window>().FirstOrDefault(w => w.IsActive), "Framelet", message, "OK");
+        if (home?.IsVisible != true) ConfirmWindow.Ask(Windows.Cast<Window>().FirstOrDefault(w => w.IsActive), "Snipsera", message, "OK");
     }
 
     public async void Quit()

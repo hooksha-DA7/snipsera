@@ -66,6 +66,8 @@ def render(catalog):
 
 def render_changelog(catalog):
     lines = ["# Changelog", "", "[Downloads and release notes](RELEASES.md)", ""]
+    if catalog.get("unreleased"):
+        lines += [f"## {catalog['unreleased']['version']} — Unreleased", "", catalog["unreleased"]["intro"], "", *change_sections(catalog["unreleased"])]
     for entry in reversed(catalog["releases"]):
         lines += [f"## {entry['version']} — {entry['build_date']}", "",
                   f"{entry['kind']}. {entry['intro']}", "", *change_sections(entry)]

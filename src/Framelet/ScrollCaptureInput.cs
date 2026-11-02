@@ -46,7 +46,7 @@ internal sealed class ScrollCaptureInput : IScrollCaptureInput
             var name = new StringBuilder(256); GetClassName(root, name, name.Capacity); browser = name.ToString().StartsWith("Chrome_WidgetWin", StringComparison.Ordinal);
             if (!browser) automation = new ScrollAutomation(root, new System.Windows.Point(point.X, point.Y));
         }
-        escape = new HwndSource(new HwndSourceParameters("Framelet scrolling escape") { ParentWindow = new IntPtr(-3), Width = 0, Height = 0, WindowStyle = 0 });
+        escape = new HwndSource(new HwndSourceParameters("Snipsera scrolling escape") { ParentWindow = new IntPtr(-3), Width = 0, Height = 0, WindowStyle = 0 });
         escape.AddHook((IntPtr hwnd, int msg, IntPtr wp, IntPtr lp, ref bool handled) =>
         { if (msg == 0x0312 && wp.ToInt32() == 3901) { handled = true; escape?.Dispatcher.BeginInvoke(cancel); } return IntPtr.Zero; });
         if (!Native.RegisterHotKey(escape.Handle, 3901, 0x4000, 0x1B)) { escape.Dispose(); escape = null; }
@@ -72,7 +72,7 @@ internal sealed class ScrollCaptureInput : IScrollCaptureInput
         if (!area.Contains(cursor.X, cursor.Y))
         {
             var underPointer = WindowFromPoint(cursor); Native.GetWindowThreadProcessId(underPointer, out uint pointerProcess);
-            // Move once from Framelet's opt-in control. Later pointer movement out of the region pauses Auto.
+            // Move once from Snipsera's opt-in control. Later pointer movement out of the region pauses Auto.
             if (wheelActive || pointerProcess != Environment.ProcessId || !SetCursorPos(area.Left + area.Width / 2, area.Top + area.Height / 2)) return false;
             if (!Native.GetCursorPos(out cursor) || !area.Contains(cursor.X, cursor.Y)) return false;
         }

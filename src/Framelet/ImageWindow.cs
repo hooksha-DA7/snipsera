@@ -202,7 +202,7 @@ public sealed class ImageWindow : Window
 
     internal void SetPinned(bool pinned)
     {
-        IsPinned = pinned; Title = pinned ? "Framelet — pinned capture" : "Framelet — preview";
+        IsPinned = pinned; Title = pinned ? "Snipsera — pinned capture" : "Snipsera — preview";
         // Pin is a direct toggle: the accent fill shows the pinned state; it never opens a menu.
         string label = pinned ? "Unpin" : "Pin"; pinMenu.Header = label; AutomationProperties.SetName(pinButton, label);
         pinButton.ToolTip = pinned ? "Unpin · return to preview" : "Pin · keep on screen"; AutomationProperties.SetItemStatus(pinButton, pinned ? "Pinned" : "Not pinned");

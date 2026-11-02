@@ -52,6 +52,7 @@ internal static class Program
     [STAThread]
     public static int Main(string[] args)
     {
+        if (args.Length == 2 && args[0] == "--identity-check") return IdentityChecks.Run(args[1]);
         if (args.Length == 2 && args[0] == "--recording-check") return RecordingChecks.Run(args[1]);
         if (args.Length == 2 && args[0] == "--recording-source") return RecordingNativeChecks.Source(args[1]);
         if (args.Length == 2 && args[0] == "--recording-native") return RecordingNativeChecks.Run(args[1]);

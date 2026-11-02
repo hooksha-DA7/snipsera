@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "repository": "hooksha-DA7/framelet",
+  "repository": "hooksha-DA7/snipsera",
   "imported_on": "2026-11-01",
   "verified_baseline": "v0.6.0",
   "latest_preview": "v0.7.0-preview.1",
@@ -14,7 +14,7 @@
       "prerelease": false,
       "latest": false,
       "notes": "releases/notes/v0.1.0.md",
-      "release_url": "https://github.com/hooksha-DA7/framelet/releases/tag/v0.1.0",
+      "release_url": "https://github.com/hooksha-DA7/snipsera/releases/tag/v0.1.0",
       "summary": [
         "Area, window and full-display capture, plus a shortcut to capture the last area again.",
         "Custom global shortcuts and a tray menu for capture actions.",
@@ -28,14 +28,14 @@
           "name": "Framelet-0.1.0-win-x64.zip",
           "sha256": "3b1ddaa05a51777af469d2fb0c02ecc541b217f228cec9e40a5432679796edaf",
           "bytes": 114879,
-          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.1.0/Framelet-0.1.0-win-x64.zip"
+          "url": "https://github.com/hooksha-DA7/snipsera/releases/download/v0.1.0/Framelet-0.1.0-win-x64.zip"
         },
         {
           "role": "source",
           "name": "Framelet-0.1.0-source.zip",
           "sha256": "355dc0997dd9664e193928e5481acc3970229473b5f8a187849ef2a54854832e",
           "bytes": 40092,
-          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.1.0/Framelet-0.1.0-source.zip"
+          "url": "https://github.com/hooksha-DA7/snipsera/releases/download/v0.1.0/Framelet-0.1.0-source.zip"
         }
       ],
       "source_commit": "143f09254321cac7fe494dca1d07a3ded87985d9",
@@ -59,7 +59,7 @@
       "prerelease": false,
       "latest": false,
       "notes": "releases/notes/v0.2.0.md",
-      "release_url": "https://github.com/hooksha-DA7/framelet/releases/tag/v0.2.0",
+      "release_url": "https://github.com/hooksha-DA7/snipsera/releases/tag/v0.2.0",
       "summary": [
         "An editor for captures, imported PNG/JPEG images and saved Framelet projects.",
         "Arrows, lines, rectangles, ellipses, text, numbered counters, highlighting and freehand drawing.",
@@ -75,14 +75,14 @@
           "name": "Framelet-0.2.0-win-x64.zip",
           "sha256": "08362cb67e59ed4a38423e4ffa8bfdb419e6f88dcdd5d7a2513241840096f8d7",
           "bytes": 144638,
-          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.2.0/Framelet-0.2.0-win-x64.zip"
+          "url": "https://github.com/hooksha-DA7/snipsera/releases/download/v0.2.0/Framelet-0.2.0-win-x64.zip"
         },
         {
           "role": "source",
           "name": "Framelet-0.2.0-source.zip",
           "sha256": "37a61b4aa6b60f889a6c57be2f4944250ad4bb169ca3f8190358eb23805d2bc3",
           "bytes": 70333,
-          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.2.0/Framelet-0.2.0-source.zip"
+          "url": "https://github.com/hooksha-DA7/snipsera/releases/download/v0.2.0/Framelet-0.2.0-source.zip"
         }
       ],
       "source_commit": "ca239829ffe73687d946d4208cfdd54b95b9e911",
@@ -111,7 +111,7 @@
       "prerelease": false,
       "latest": false,
       "notes": "releases/notes/v0.3.0.md",
-      "release_url": "https://github.com/hooksha-DA7/framelet/releases/tag/v0.3.0",
+      "release_url": "https://github.com/hooksha-DA7/snipsera/releases/tag/v0.3.0",
       "summary": [
         "A resize grip and a double-click toggle between compact and larger pin views.",
         "Hand-drawn arrow and ellipse styles, with a Clean option for regular shapes.",
@@ -128,14 +128,14 @@
           "name": "Framelet-0.3.0-win-x64.zip",
           "sha256": "db99aab456f6c6f8b0a24f0259c677b918b503882265bc6dd44982b5cc63fc08",
           "bytes": 158295,
-          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.3.0/Framelet-0.3.0-win-x64.zip"
+          "url": "https://github.com/hooksha-DA7/snipsera/releases/download/v0.3.0/Framelet-0.3.0-win-x64.zip"
         },
         {
           "role": "source",
           "name": "Framelet-0.3.0-source.zip",
           "sha256": "90fa78de600ab00721340ec77120e138aadd43180b468f8548e6e61e00f8c765",
           "bytes": 87840,
-          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.3.0/Framelet-0.3.0-source.zip"
+          "url": "https://github.com/hooksha-DA7/snipsera/releases/download/v0.3.0/Framelet-0.3.0-source.zip"
         }
       ],
       "source_commit": "8515fe18cfb51bbe0857431584981d2899c6261a",
@@ -164,7 +164,7 @@
       "prerelease": false,
       "latest": false,
       "notes": "releases/notes/v0.4.0.md",
-      "release_url": "https://github.com/hooksha-DA7/framelet/releases/tag/v0.4.0",
+      "release_url": "https://github.com/hooksha-DA7/snipsera/releases/tag/v0.4.0",
       "summary": [
         "Drag and drop from previews, pins and the editor into compatible Windows apps.",
         "Pin opacity controls in the right-click menu and with Ctrl+mouse wheel.",
@@ -181,14 +181,14 @@
           "name": "Framelet-0.4.0-win-x64.zip",
           "sha256": "fa4cef18442542de336e60903a39390de428c49df5994c2077aef4aed25ac4b0",
           "bytes": 167891,
-          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.4.0/Framelet-0.4.0-win-x64.zip"
+          "url": "https://github.com/hooksha-DA7/snipsera/releases/download/v0.4.0/Framelet-0.4.0-win-x64.zip"
         },
         {
           "role": "source",
           "name": "Framelet-0.4.0-source.zip",
           "sha256": "d945535bfd2cf9601a066aea4940e1dcbee7831762d608cbe39005c4d730edd1",
           "bytes": 98682,
-          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.4.0/Framelet-0.4.0-source.zip"
+          "url": "https://github.com/hooksha-DA7/snipsera/releases/download/v0.4.0/Framelet-0.4.0-source.zip"
         }
       ],
       "source_commit": "a44660b82835670e50872a03f326f6b41e65d46c",
@@ -219,7 +219,7 @@
       "prerelease": false,
       "latest": false,
       "notes": "releases/notes/v0.4.1.md",
-      "release_url": "https://github.com/hooksha-DA7/framelet/releases/tag/v0.4.1",
+      "release_url": "https://github.com/hooksha-DA7/snipsera/releases/tag/v0.4.1",
       "summary": [
         "Made capture actions consistent, full-width rows with larger click targets.",
         "Reduced visual clutter when the rows are not being hovered or selected."
@@ -231,14 +231,14 @@
           "name": "Framelet-0.4.1-win-x64.zip",
           "sha256": "2a2d34ec5040ac8f11b0c569e6183aeb37a4e6cc48a548569b40867594e8eb51",
           "bytes": 167971,
-          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.4.1/Framelet-0.4.1-win-x64.zip"
+          "url": "https://github.com/hooksha-DA7/snipsera/releases/download/v0.4.1/Framelet-0.4.1-win-x64.zip"
         },
         {
           "role": "source",
           "name": "Framelet-0.4.1-source.zip",
           "sha256": "c341ba576cdb0aad180b24b29a441c4c47abb848eb054c2f9d090f461820c2ed",
           "bytes": 98777,
-          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.4.1/Framelet-0.4.1-source.zip"
+          "url": "https://github.com/hooksha-DA7/snipsera/releases/download/v0.4.1/Framelet-0.4.1-source.zip"
         }
       ],
       "source_commit": "33633091dd3c981bfa327ded779c5444d90dd108",
@@ -260,7 +260,7 @@
       "prerelease": false,
       "latest": false,
       "notes": "releases/notes/v0.5.0.md",
-      "release_url": "https://github.com/hooksha-DA7/framelet/releases/tag/v0.5.0",
+      "release_url": "https://github.com/hooksha-DA7/snipsera/releases/tag/v0.5.0",
       "summary": [
         "Classic, Filled, Open and Curved arrows, with visual style samples.",
         "Draggable arrow endpoints and a bend handle for curved arrows; each drag is one undo step.",
@@ -279,14 +279,14 @@
           "name": "Framelet-0.5.0-win-x64.zip",
           "sha256": "a89fa3e36a1e49cc76d03c19d5bae0bd95b3c0adbd5c6090602637e26a4b68e4",
           "bytes": 178438,
-          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.5.0/Framelet-0.5.0-win-x64.zip"
+          "url": "https://github.com/hooksha-DA7/snipsera/releases/download/v0.5.0/Framelet-0.5.0-win-x64.zip"
         },
         {
           "role": "source",
           "name": "Framelet-0.5.0-source.zip",
           "sha256": "cbbdf3d706817b253dcd5212c9cb0c4f8fcdf27736b3a37b729d2804ee507ab2",
           "bytes": 114594,
-          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.5.0/Framelet-0.5.0-source.zip"
+          "url": "https://github.com/hooksha-DA7/snipsera/releases/download/v0.5.0/Framelet-0.5.0-source.zip"
         }
       ],
       "source_commit": "25df3aa3e8aa9b73e73e1ff0cfdffc9abde2f329",
@@ -319,7 +319,7 @@
       "prerelease": true,
       "latest": false,
       "notes": "releases/notes/v0.5.1.md",
-      "release_url": "https://github.com/hooksha-DA7/framelet/releases/tag/v0.5.1",
+      "release_url": "https://github.com/hooksha-DA7/snipsera/releases/tag/v0.5.1",
       "summary": [
         "Moved floating actions into a hover toolbar outside the image in this version.",
         "Removed extra space around very wide or tall captures and preserved their proportions.",
@@ -333,14 +333,14 @@
           "name": "Framelet-0.5.1-win-x64.zip",
           "sha256": "59c9ce59999fd0e8852979496458efaea7ff8a98e55c70e58a03c8f1fc376948",
           "bytes": 182792,
-          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.5.1/Framelet-0.5.1-win-x64.zip"
+          "url": "https://github.com/hooksha-DA7/snipsera/releases/download/v0.5.1/Framelet-0.5.1-win-x64.zip"
         },
         {
           "role": "source",
           "name": "Framelet-0.5.1-source.zip",
           "sha256": "0931dda19e81cace830f2a04a903f9232a1510f54bb96c402589004a15b3524c",
           "bytes": 119836,
-          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.5.1/Framelet-0.5.1-source.zip"
+          "url": "https://github.com/hooksha-DA7/snipsera/releases/download/v0.5.1/Framelet-0.5.1-source.zip"
         }
       ],
       "source_commit": "28943cda46f706580308982e242c6a65144a9242",
@@ -367,7 +367,7 @@
       "prerelease": false,
       "latest": false,
       "notes": "releases/notes/v0.5.2.md",
-      "release_url": "https://github.com/hooksha-DA7/framelet/releases/tag/v0.5.2",
+      "release_url": "https://github.com/hooksha-DA7/snipsera/releases/tag/v0.5.2",
       "summary": [
         "Restored corner actions and centered Copy/Save buttons on previews and pins.",
         "Added compact layouts for shallow or narrow images, keeping drag access available.",
@@ -382,14 +382,14 @@
           "name": "Framelet-0.5.2-win-x64.zip",
           "sha256": "5c633286f10170b6cdf9cb583564706d80266e52fe52b2cb5a905bbb7ab66947",
           "bytes": 191279,
-          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.5.2/Framelet-0.5.2-win-x64.zip"
+          "url": "https://github.com/hooksha-DA7/snipsera/releases/download/v0.5.2/Framelet-0.5.2-win-x64.zip"
         },
         {
           "role": "source",
           "name": "Framelet-0.5.2-source.zip",
           "sha256": "64fa9accc4343fae42b3aea60e4eabe9c54f826e3a4f36113532eba46b28760f",
           "bytes": 130410,
-          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.5.2/Framelet-0.5.2-source.zip"
+          "url": "https://github.com/hooksha-DA7/snipsera/releases/download/v0.5.2/Framelet-0.5.2-source.zip"
         }
       ],
       "source_commit": "724798e65e5d410704f84880567bc9fe66a3a8b9",
@@ -417,7 +417,7 @@
       "prerelease": true,
       "latest": false,
       "notes": "releases/notes/v0.6.0-preview.2.md",
-      "release_url": "https://github.com/hooksha-DA7/framelet/releases/tag/v0.6.0-preview.2",
+      "release_url": "https://github.com/hooksha-DA7/snipsera/releases/tag/v0.6.0-preview.2",
       "summary": [
         "Select a scrolling region, start capture, scroll down and choose Done to create one tall image.",
         "A growing preview and optional Auto-scroll, with Cancel to discard the session.",
@@ -430,14 +430,14 @@
           "name": "Framelet-0.6.0-preview-win-x64.zip",
           "sha256": "25c47eecff0190bcc4782cbff2375a0dbd89432e8bd7b982e2bf166ab730ac2b",
           "bytes": 215893,
-          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.6.0-preview.2/Framelet-0.6.0-preview-win-x64.zip"
+          "url": "https://github.com/hooksha-DA7/snipsera/releases/download/v0.6.0-preview.2/Framelet-0.6.0-preview-win-x64.zip"
         },
         {
           "role": "source",
           "name": "Framelet-0.6.0-preview-source.zip",
           "sha256": "acc2eabc37191d1e0cf03d5f572c73c74acf460f98314c514a0fbd3689627b75",
           "bytes": 161774,
-          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.6.0-preview.2/Framelet-0.6.0-preview-source.zip"
+          "url": "https://github.com/hooksha-DA7/snipsera/releases/download/v0.6.0-preview.2/Framelet-0.6.0-preview-source.zip"
         }
       ],
       "source_commit": "2fc6785e1be0ac01fa28809a233690c67a2a3ecf",
@@ -462,7 +462,7 @@
       "prerelease": true,
       "latest": false,
       "notes": "releases/notes/v0.6.0-preview.3.md",
-      "release_url": "https://github.com/hooksha-DA7/framelet/releases/tag/v0.6.0-preview.3",
+      "release_url": "https://github.com/hooksha-DA7/snipsera/releases/tag/v0.6.0-preview.3",
       "summary": [
         "Matched pages with sparse text, short overlaps and small changing widgets more reliably in automated checks.",
         "Changed Chrome Auto-scroll to small native wheel steps. It pauses if you leave the selected area, switch apps or hold a modifier key.",
@@ -479,14 +479,14 @@
           "name": "Framelet-0.6.0-preview.3-win-x64.zip",
           "sha256": "57fa85c65b0bfbeac956ca49e23681d08c11f2e2120b59003c331228cb8ae682",
           "bytes": 226061,
-          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.6.0-preview.3/Framelet-0.6.0-preview.3-win-x64.zip"
+          "url": "https://github.com/hooksha-DA7/snipsera/releases/download/v0.6.0-preview.3/Framelet-0.6.0-preview.3-win-x64.zip"
         },
         {
           "role": "source",
           "name": "Framelet-0.6.0-preview.3-source.zip",
           "sha256": "1b04a42f4c866cda7be2b2d237c8fdf329f308332ac1c0c3ecf715237bebdf11",
           "bytes": 177226,
-          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.6.0-preview.3/Framelet-0.6.0-preview.3-source.zip"
+          "url": "https://github.com/hooksha-DA7/snipsera/releases/download/v0.6.0-preview.3/Framelet-0.6.0-preview.3-source.zip"
         }
       ],
       "source_commit": "44c98707138e93d5ccf155ef12c9b89a442dd09e",
@@ -517,7 +517,7 @@
       "prerelease": true,
       "latest": false,
       "notes": "releases/notes/v0.6.0-preview.4.md",
-      "release_url": "https://github.com/hooksha-DA7/framelet/releases/tag/v0.6.0-preview.4",
+      "release_url": "https://github.com/hooksha-DA7/snipsera/releases/tag/v0.6.0-preview.4",
       "summary": [
         "Scroll down one notch over a preview or pin to hide the floating group.",
         "A small tab at the bottom left: click it or hover briefly to restore the images.",
@@ -533,14 +533,14 @@
           "name": "Framelet-0.6.0-preview.4-win-x64.zip",
           "sha256": "01e89098b72137b937986ad82ed5dabd83056000efec428fd74f017f8d9d6cc2",
           "bytes": 239279,
-          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.6.0-preview.4/Framelet-0.6.0-preview.4-win-x64.zip"
+          "url": "https://github.com/hooksha-DA7/snipsera/releases/download/v0.6.0-preview.4/Framelet-0.6.0-preview.4-win-x64.zip"
         },
         {
           "role": "source",
           "name": "Framelet-0.6.0-preview.4-source.zip",
           "sha256": "4930ac37653ff54bd8c68087c9ff49c9061f13c9f0a9753a82296256d4888614",
           "bytes": 200110,
-          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.6.0-preview.4/Framelet-0.6.0-preview.4-source.zip"
+          "url": "https://github.com/hooksha-DA7/snipsera/releases/download/v0.6.0-preview.4/Framelet-0.6.0-preview.4-source.zip"
         }
       ],
       "source_commit": "6865ee5e93bdda175cd132606550f2914f17d5f1",
@@ -570,7 +570,7 @@
       "prerelease": false,
       "latest": true,
       "notes": "releases/notes/v0.6.0.md",
-      "release_url": "https://github.com/hooksha-DA7/framelet/releases/tag/v0.6.0",
+      "release_url": "https://github.com/hooksha-DA7/snipsera/releases/tag/v0.6.0",
       "summary": [
         "Scrolling capture: select a region, scroll manually or use Auto-scroll, then keep one tall image with Done.",
         "Temporarily hide all floating captures with a downward wheel gesture, then restore them from the small left-edge tab.",
@@ -588,14 +588,14 @@
           "name": "Framelet-0.6.0-win-x64.zip",
           "sha256": "0ca935ec66538965525c0b808b33832c0d28d684e87efb90bbd6b29e9f114783",
           "bytes": 251342,
-          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.6.0/Framelet-0.6.0-win-x64.zip"
+          "url": "https://github.com/hooksha-DA7/snipsera/releases/download/v0.6.0/Framelet-0.6.0-win-x64.zip"
         },
         {
           "role": "source",
           "name": "Framelet-0.6.0-source.zip",
           "sha256": "590f6ed2f4afcffadde857c0098527f41a048249273c7f24079961054c27a318",
           "bytes": 214550,
-          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.6.0/Framelet-0.6.0-source.zip"
+          "url": "https://github.com/hooksha-DA7/snipsera/releases/download/v0.6.0/Framelet-0.6.0-source.zip"
         }
       ],
       "kind": "Feature release and bug fixes",
@@ -628,7 +628,7 @@
       "prerelease": true,
       "latest": false,
       "notes": "releases/notes/v0.7.0-preview.1.md",
-      "release_url": "https://github.com/hooksha-DA7/framelet/releases/tag/v0.7.0-preview.1",
+      "release_url": "https://github.com/hooksha-DA7/snipsera/releases/tag/v0.7.0-preview.1",
       "summary": [
         "MP4 H.264 and animated GIF recording of a window, display, selected area or custom-size frame.",
         "Quality, frame-rate and resolution controls, with separate microphone and computer-audio toggles for MP4.",
@@ -643,14 +643,14 @@
           "name": "Framelet-0.7.0-preview.1-win-x64.zip",
           "sha256": "150c831ddb8fb57e502b85b9914f6f354f33c7e62731da3dbf9bea08f7b5ff76",
           "bytes": 71917692,
-          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.7.0-preview.1/Framelet-0.7.0-preview.1-win-x64.zip"
+          "url": "https://github.com/hooksha-DA7/snipsera/releases/download/v0.7.0-preview.1/Framelet-0.7.0-preview.1-win-x64.zip"
         },
         {
           "role": "source",
           "name": "Framelet-0.7.0-preview.1-source.zip",
           "sha256": "73a254b4ba8adab1eb2dc4aab9937886c8c7f79a5918bfd469da86635e94e3a7",
           "bytes": 280899,
-          "url": "https://github.com/hooksha-DA7/framelet/releases/download/v0.7.0-preview.1/Framelet-0.7.0-preview.1-source.zip"
+          "url": "https://github.com/hooksha-DA7/snipsera/releases/download/v0.7.0-preview.1/Framelet-0.7.0-preview.1-source.zip"
         }
       ],
       "kind": "Feature preview",
@@ -667,5 +667,19 @@
       "notice": "Preview: enable Do not disturb manually in Windows. MP4 audio uses the default Windows devices; GIF has no sound. Requires .NET 10 Desktop Runtime x64 and the Visual C++ x64 runtime. Keep the complete encoder folder with the app.",
       "source_commit": "d078fa8a74b30a6e7629b8e7fcd446bd80adf8b3"
     }
-  ]
+  ],
+  "product": "Snipsera",
+  "unreleased": {
+    "version": "1.0.0-preview.1",
+    "intro": "Framelet is now Snipsera. This build is in preparation and is not a published download.",
+    "changes": {
+      "Improved": [
+        "The app, tray, editor and export filenames use the Snipsera name.",
+        "Existing Framelet history and shortcuts remain available. Both .snipsera and .framelet editable projects are supported."
+      ],
+      "Added": [
+        "EXE installer and MSIX packaging with a bundled .NET runtime. Signing and Store certification are still pending."
+      ]
+    }
+  }
 }

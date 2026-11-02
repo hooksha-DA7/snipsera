@@ -1,11 +1,9 @@
-# Recording preview 1
+# Snipsera preview in preparation
 
-Build: 0.7.0-preview.1, 2026-11-02.
+Candidate: **1.0.0-preview.1**, 2 November 2026. This is the first build under the Snipsera name, following Framelet 0.7.0-preview.1.
 
-Adds screen recording as MP4 H.264 or GIF, source selection, quality/FPS/resolution, microphone and computer audio, cursor controls, a source-aligned click ring, pause/resume, elapsed time and separate recording history.
+The app labels, executable and export filenames use Snipsera. Existing history, shortcuts, legacy editable projects and the shared single-instance lock remain compatible. The capture controls and layout are unchanged. EXE installer, MSIX and ZIP packaging are prepared for the new identity.
 
-All 125 original capture/annotation checks, the foreground native capture lifecycle, 11 recording rules and 12 publishing checks passed. Native window/display/region recording, two-pass GIF output, an authorized five-second combined audio test and a real click-highlight test passed. Media files were checked independently for codec, dimensions, frame rate and duration. Controller integration preserves existing pins and screenshot history. See [recording verification](docs/RECORDING-VERIFICATION.md) for evidence and limits.
+The Microsoft Store name is reserved under the personal publisher. Signing, certification and packaged-app acceptance must be reported separately; a draft Store product is not a published app. The public stable release remains Framelet 0.6.0, and the published recording preview remains Framelet 0.7.0-preview.1. Historical downloads are preserved.
 
-Automatic Do not disturb is unavailable; enable it manually in Windows. This preview needs .NET 10 Desktop Runtime x64 and the Visual C++ x64 runtime. Extract the full package, including ScreenRecorderLib.dll and the encoder folder. Quit older Framelet copies before starting it.
-
-The stable download remains 0.6.0. Historical archives are unchanged.
+See [name-change notes](docs/REBRANDING.md) and [distribution setup](docs/DISTRIBUTION.md).
