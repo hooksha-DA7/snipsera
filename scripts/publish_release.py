@@ -82,6 +82,40 @@ def validate_archive(path, expected):
                 raise ValueError("Manifest content differs: " + item["path"])
 
 
+def candidate_paths(args, entry):
+    roles = {"windows-x64": "windows", "source": "source", "installer-x64": "installer", "msix-x64": "msix"}
+    paths = []
+    for expected in entry["assets"]:
+        option = roles.get(expected["role"])
+        value = getattr(args, option, None) if option else None
+        if not value: raise ValueError("Provide the reviewed artifact for role: " + expected["role"])
+        path = Path(value).resolve()
+        data = path.read_bytes()
+        if path.name != expected["name"] or len(data) != expected["bytes"] or digest(data) != expected["sha256"]:
+            raise ValueError("Artifact differs from the reviewed catalog: " + path.name)
+        if path.suffix.lower() == ".zip": validate_archive(path, expected)
+        paths.append(path)
+    if entry.get("product") == "Snipsera":
+        if not {"installer-x64", "source"}.issubset({a["role"] for a in entry["assets"]}):
+            raise ValueError("Snipsera releases require an EXE installer and reviewed source")
+        subject = entry.get("certificate_subject")
+        if not subject: raise ValueError("Record the approved signing certificate subject")
+        for path in paths:
+            if path.suffix.lower() in {".exe", ".msix"}:
+                subprocess.run(["pwsh", "-NoProfile", "-File", str(ROOT / "scripts/verify_signatures.ps1"), "-Files", str(path), "-ExpectedPublisher", subject], check=True)
+        submission = entry.get("store_submission")
+        if not submission or not getattr(args, "store_submission", None):
+            raise ValueError("Provide the matching MSIX Store submission and record its reviewed hash")
+        msix = Path(args.store_submission).resolve()
+        content = msix.read_bytes()
+        if msix.name != submission["name"] or len(content) != submission["bytes"] or digest(content) != submission["sha256"]:
+            raise ValueError("Store submission differs from the reviewed catalog")
+        with zipfile.ZipFile(msix) as bundle:
+            if bundle.testzip() is not None or "AppxManifest.xml" not in bundle.namelist():
+                raise ValueError("Invalid Store submission package")
+    return paths
+
+
 def github(executable, arguments, *, missing_ok=False):
     for attempt in range(3):
         result = subprocess.run([str(executable), *arguments], capture_output=True, text=True, encoding="utf-8", errors="replace")
@@ -142,11 +176,7 @@ def publish(args):
     if entry["latest"] and entry["prerelease"]:
         raise ValueError("A prerelease cannot become the verified baseline")
     if not args.verify_only:
-        if not args.windows or not args.source:
-            raise ValueError("Provide --windows and --source ZIP paths")
-        paths = [Path(args.windows).resolve(), Path(args.source).resolve()]
-        for path, expected in zip(paths, entry["assets"]):
-            validate_archive(path, expected)
+        paths = candidate_paths(args, entry)
     else:
         paths = []
     if not args.publish and not args.verify_only:
@@ -209,6 +239,9 @@ if __name__ == "__main__":
     parser.add_argument("--version", required=True)
     parser.add_argument("--windows")
     parser.add_argument("--source")
+    parser.add_argument("--installer")
+    parser.add_argument("--msix", help="An explicitly signed public MSIX asset, when offered")
+    parser.add_argument("--store-submission", help="Reviewed Store MSIX; validated but never uploaded as a public GitHub asset")
     parser.add_argument("--gh")
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--publish", action="store_true")

@@ -31,8 +31,8 @@ def prepare():
         return
     archive = cache / "ffmpeg-8.1-lgpl-verified.zip"
     if not archive.exists() or digest(archive) != lock["sha256"]:
-        parts = cache / "parts"
-        parts.mkdir(exist_ok=True)
+        parts = cache / "parts" / lock["sha256"]
+        parts.mkdir(parents=True, exist_ok=True)
         step = 1024 * 1024
 
         def download(index):

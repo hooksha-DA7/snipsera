@@ -1,0 +1,6 @@
+<artifact-configuration xmlns="http://signpath.io/artifact-configuration/v1">
+  <zip-file>
+    <pe-file path="Snipsera.exe" product-name="Snipsera" company-name="hooksha-DA7"><authenticode-sign /></pe-file>
+    <pe-file path="Snipsera.dll" product-name="Snipsera" company-name="hooksha-DA7"><authenticode-sign /></pe-file>
+  </zip-file>
+</artifact-configuration>

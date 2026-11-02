@@ -1,10 +1,10 @@
 {
   "encoder": {
-    "name": "ffmpeg-n8.1-latest-win64-lgpl-shared-8.1.zip",
+    "name": "ffmpeg-n8.1.3-29-gad3b795b72-win64-lgpl-shared-8.1.zip",
     "version": "n8.1.3-29-gad3b795b72-20261101",
-    "url": "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-n8.1-latest-win64-lgpl-shared-8.1.zip",
-    "sha256": "ef8da9db3cb771bc6ae7835c6bf51c4543d0d0e852873d13aaac637fbd457853",
-    "bytes": 80347911,
+    "url": "https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2026-11-01-12-49/ffmpeg-n8.1.3-29-gad3b795b72-win64-lgpl-shared-8.1.zip",
+    "sha256": "786b43f77ea260af71fbb1bcdaabd43df83492122fb5575027f659d490d30b37",
+    "bytes": 80356443,
     "license": "LGPL-3.0-or-later",
     "source": "https://github.com/BtbN/FFmpeg-Builds",
     "purpose": "MP4-to-GIF conversion only",

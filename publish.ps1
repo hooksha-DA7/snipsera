@@ -1,4 +1,4 @@
-param([string]$Output = '', [string]$StoreIdentity = '', [switch]$DevelopmentMsix, [string]$Inno = '', [string]$MakeAppx = '')
+param([string]$Output = '', [string]$StoreIdentity = '', [switch]$DevelopmentMsix, [string]$Inno = '', [string]$MakeAppx = '', [string]$SignedApps = '', [string]$ExpectedPublisher = '')
 $ErrorActionPreference = 'Stop'
 if ($DevelopmentMsix -and $StoreIdentity) { throw 'Choose a Store identity or a development identity, not both.' }
 if (-not $StoreIdentity -and -not $DevelopmentMsix) { $StoreIdentity = Join-Path $PSScriptRoot 'packaging/store-identity.json' }
@@ -8,6 +8,7 @@ $arguments = @((Join-Path $PSScriptRoot 'scripts/package_release.py'), '--output
 if ($DevelopmentMsix) { $arguments += '--development-msix' } else { $arguments += @('--store-identity',$StoreIdentity) }
 if ($Inno) { $arguments += @('--inno',$Inno) }
 if ($MakeAppx) { $arguments += @('--makeappx',$MakeAppx) }
+if ($SignedApps) { $arguments += @('--signed-apps',$SignedApps,'--expected-publisher',$ExpectedPublisher) }
 & (Join-Path $PSScriptRoot 'build.ps1') -Release
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 python @arguments

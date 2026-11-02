@@ -11,7 +11,7 @@ def download_block(catalog):
     entries = {item["tag"]: item for item in catalog["releases"]}
     baseline = entries[catalog["verified_baseline"]]
     preview = entries.get(catalog.get("latest_preview"))
-    windows = next(asset for asset in baseline["assets"] if asset["role"] == "windows-x64")
+    windows = next((asset for asset in baseline["assets"] if asset["role"] == "installer-x64"), None) or next(asset for asset in baseline["assets"] if asset["role"] == "windows-x64")
     return (START + "\n"
             + f"[Download for Windows ({baseline['version']})]({windows['url']}) · "
             + (f"[Try the preview ({preview['version']})]({preview['release_url']}) · " if preview else "")
@@ -32,6 +32,11 @@ def change_sections(entry):
 def download_links(catalog, entry):
     assets = {asset["role"]: asset for asset in entry["assets"]}
     sums = f"https://github.com/{catalog['repository']}/releases/download/{entry['tag']}/SHA256SUMS.txt"
+    if entry.get("product") == "Snipsera":
+        labels = {"installer-x64": "EXE installer", "windows-x64": "Portable ZIP", "source": "Source ZIP", "msix-x64": "Signed MSIX"}
+        links = [f"[{labels[role]}]({assets[role]['url']})" for role in labels if role in assets]
+        if entry.get("store_url"): links.append(f"[Microsoft Store]({entry['store_url']})")
+        return " · ".join(links + [f"[Checksums]({sums})"])
     return (f"[Windows ZIP]({assets['windows-x64']['url']}) · "
             + f"[Source ZIP]({assets['source']['url']}) · [Checksums]({sums})")
 
@@ -41,13 +46,14 @@ def release_body(catalog, entry):
     lines += change_sections(entry)
     if entry.get("notice"):
         lines += [entry["notice"], ""]
-    lines += ["### Download", "", download_links(catalog, entry), "",
-              "Extract the Windows ZIP and open **Framelet.exe**. Requires Windows 11 x64 and the [.NET 10 Desktop Runtime x64](https://dotnet.microsoft.com/en-us/download/dotnet/10.0). Quit any older Framelet copy from its tray menu first.", ""]
+    instructions = ("Run the EXE installer, or extract the portable ZIP and open **Snipsera.exe**. Windows 11 x64 is required; .NET is included. Quit an older copy from its tray menu first. The installer checks the Visual C++ x64 runtime needed for recording."
+                    if entry.get("product") == "Snipsera" else "Extract the Windows ZIP and open **Framelet.exe**. Requires Windows 11 x64 and the [.NET 10 Desktop Runtime x64](https://dotnet.microsoft.com/en-us/download/dotnet/10.0). Quit any older Framelet copy from its tray menu first.")
+    lines += ["### Download", "", download_links(catalog, entry), "", instructions, ""]
     return lines
 
 
 def render_notes(catalog, entry):
-    return "\n".join([f"# Framelet {entry['version']}: {entry['title']}", "",
+    return "\n".join([f"# {entry.get('product', 'Framelet')} {entry['version']}: {entry['title']}", "",
                        f"{entry['build_date']} · {entry['kind']}", "",
                        *release_body(catalog, entry)])
 

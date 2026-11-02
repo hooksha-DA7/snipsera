@@ -17,9 +17,9 @@ for prefix, uri in {"": FOUNDATION, "uap": "http://schemas.microsoft.com/appx/ma
 
 
 def source_files():
-    files = {ROOT / name for name in ("README.md", "CHANGELOG.md", "RELEASES.md", "BUILD-STATUS.md", "LICENSE", "THIRD-PARTY.md", "recording-dependencies.json", "Directory.Build.props", "NuGet.Config", "build.ps1", "test.ps1", "publish.ps1", ".gitignore", "verification/verify_packages.py")}
-    extensions = {".cs", ".csproj", ".manifest", ".png", ".ico", ".json", ".md", ".txt", ".py", ".ps1", ".xml", ".iss"}
-    for tree in ("src", "tests", "scripts", "packaging", "docs", "releases"):
+    files = {ROOT / name for name in ("README.md", "CHANGELOG.md", "RELEASES.md", "BUILD-STATUS.md", "LICENSE", "THIRD-PARTY.md", "PRIVACY.md", "SUPPORT.md", "global.json", "recording-dependencies.json", "Directory.Build.props", "NuGet.Config", "build.ps1", "test.ps1", "publish.ps1", ".gitignore", "verification/verify_packages.py")}
+    extensions = {".cs", ".csproj", ".manifest", ".png", ".ico", ".json", ".md", ".txt", ".py", ".ps1", ".xml", ".iss", ".yml", ".yaml"}
+    for tree in ("src", "tests", "scripts", "packaging", "docs", "releases", ".github/workflows"):
         files.update(p for p in (ROOT / tree).rglob("*") if p.is_file() and p.suffix in extensions and not {"bin", "obj", "__pycache__"}.intersection(p.relative_to(ROOT).parts))
     return sorted(files)
 
@@ -50,9 +50,12 @@ def main():
     group.add_argument("--store-identity", type=Path, help="Private JSON: name, publisher, publisher_display_name")
     group.add_argument("--development-msix", action="store_true", help="Test identity; never submit to Store")
     parser.add_argument("--output", type=Path, required=True, help="Fresh folder; never overwrites")
+    parser.add_argument("--signed-apps", type=Path, help="Verified SignPath application binaries to package")
+    parser.add_argument("--expected-publisher", help="Exact approved certificate subject for signed application files")
     parser.add_argument("--inno", type=Path, default=ROOT / ".tools/packaging/inno/ISCC.exe")
     parser.add_argument("--makeappx", type=Path, default=ROOT / ".tools/packaging/windows-sdk-buildtools/bin/10.0.28000.0/x64/makeappx.exe")
     args = parser.parse_args()
+    if bool(args.signed_apps) != bool(args.expected_publisher): parser.error("Signed applications require the expected certificate subject")
     for tool in (args.inno, args.makeappx):
         if not tool.is_file(): parser.error("Packaging tool missing: " + str(tool))
     project = ET.parse(ROOT / "src/Framelet/Framelet.csproj")
@@ -69,7 +72,10 @@ def main():
     env = os.environ.copy()
     env.update(DOTNET_CLI_HOME=str(ROOT / ".tools/dotnet-home"), NUGET_PACKAGES=str(ROOT / ".tools/nuget"), DOTNET_CLI_TELEMETRY_OPTOUT="1")
     subprocess.run([str(dotnet), "publish", str(ROOT / "src/Framelet/Framelet.csproj"), "-c", "Release", "-r", "win-x64", "--self-contained", "true", "-p:DebugType=None", "-p:DebugSymbols=false", "--output", str(runtime), "--nologo"], cwd=ROOT, env=env, check=True)
-    for name in ("README.md", "CHANGELOG.md", "RELEASES.md", "BUILD-STATUS.md", "LICENSE", "THIRD-PARTY.md", "recording-dependencies.json"):
+    if args.signed_apps:
+        subprocess.run(["pwsh", "-NoProfile", "-File", str(ROOT / "scripts/verify_signatures.ps1"), "-Directory", str(args.signed_apps.resolve()), "-ExpectedPublisher", args.expected_publisher], check=True)
+        for name in ("Snipsera.exe", "Snipsera.dll"): shutil.copy2(args.signed_apps / name, runtime / name)
+    for name in ("README.md", "CHANGELOG.md", "RELEASES.md", "BUILD-STATUS.md", "LICENSE", "THIRD-PARTY.md", "PRIVACY.md", "SUPPORT.md", "recording-dependencies.json"):
         shutil.copy2(ROOT / name, runtime / name)
     shutil.copytree(ROOT / "docs", runtime / "docs")
     source = output / f"Snipsera-{version}-source"
@@ -89,7 +95,8 @@ def main():
     files = sorted(p for p in output.iterdir() if p.suffix in {".exe", ".msix", ".zip"})
     artifacts = [{"name": p.name, "bytes": p.stat().st_size, "sha256": hashlib.sha256(p.read_bytes()).hexdigest()} for p in files]
     (output / "SHA256SUMS.txt").write_text("".join(a["sha256"] + "  " + a["name"] + "\n" for a in artifacts), encoding="utf-8")
-    receipt = {"version": version, "msix_version": msix_version, "identity_kind": suffix, "identity": details, "signing": "Unsigned candidates; SignPath and Store certification pending.", "acceptance": "Package creation only; installation, upgrade, uninstall and packaged runtime acceptance pending.", "artifacts": artifacts}
+    commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip() if (ROOT / ".git").exists() else None
+    receipt = {"version": version, "msix_version": msix_version, "source_commit": commit, "source_ref": os.environ.get("GITHUB_REF"), "identity_kind": suffix, "identity": details, "signing": "Application files signed; installer and MSIX not yet signed." if args.signed_apps else "Unsigned candidates; SignPath and Store certification pending.", "acceptance": "Package creation only; installation, upgrade, uninstall and packaged runtime acceptance pending.", "artifacts": artifacts}
     (output / "package-results.json").write_text(json.dumps(receipt, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(receipt, indent=2))
 

@@ -16,7 +16,7 @@ Snipsera is the new name for Framelet. The downloads below are the existing Fram
 
 Version **0.6.0** is the stable screenshot release. The **0.7 preview** adds screen recording and also needs the [Visual C++ x64 runtime](https://aka.ms/vs/17/release/vc_redist.x64.exe). Extract its complete `encoder` folder with the app.
 
-The existing downloads are portable and currently unsigned. It runs locally, without an account or cloud service.
+The existing downloads are portable and currently unsigned. Snipsera runs locally, without an account or cloud service.
 
 ## Take a screenshot
 
@@ -51,7 +51,7 @@ Closing the home window leaves the app in the tray. Use its **Quit** command to 
 
 ## More help
 
-[User guide](docs/USER-GUIDE.md) · [Release notes and downloads](RELEASES.md) · [Build from source](docs/DEVELOPMENT.md) · [Report a problem](https://github.com/hooksha-DA7/snipsera/issues)
+[User guide](docs/USER-GUIDE.md) · [Release notes and downloads](RELEASES.md) · [Build from source](docs/DEVELOPMENT.md) · [Report a problem](https://github.com/hooksha-DA7/snipsera/issues) · [Privacy](PRIVACY.md) · [Signing status](docs/CODE-SIGNING.md)
 
 Snipsera is an independent Windows app inspired by CleanShot's workflow. It is not affiliated with CleanShot.
 

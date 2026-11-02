@@ -1,0 +1,158 @@
+name: Windows release candidates
+
+on:
+  workflow_dispatch:
+    inputs:
+      sign:
+        description: Request approved SignPath signing (matching release tags only)
+        type: boolean
+        default: false
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: windows-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: windows-2025
+    timeout-minutes: 60
+    environment: ${{ inputs.sign && 'release-signing' || 'candidate-build' }}
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.14'
+      - name: Check source version and signing boundary
+        id: meta
+        env:
+          REQUEST_SIGNING: ${{ inputs.sign || false }}
+        run: python scripts/release_metadata.py
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+      - name: Prepare verified packaging tools
+        run: ./scripts/setup_packaging_tools.ps1
+      - name: Build EXE, MSIX and source candidates
+        run: ./publish.ps1 -Output dist/unsigned
+      - name: Run focused checks
+        run: ./scripts/check_release.ps1 -Output verification/runs/hosted
+      - name: Verify candidate contents and source parity
+        run: python scripts/verify_candidate.py --candidate dist/unsigned
+      - name: Test installer on this fresh hosted Windows runner
+        run: ./scripts/test_installer.ps1 -Candidate dist/unsigned -Output verification/runs/hosted-installer -ExerciseUpgrade
+      - name: Upload unsigned candidates
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: Snipsera-${{ steps.meta.outputs.version }}-unsigned
+          path: |
+            dist/unsigned/*.exe
+            dist/unsigned/*.msix
+            dist/unsigned/*.zip
+            dist/unsigned/SHA256SUMS.txt
+            dist/unsigned/package-results.json
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14
+      - name: Check approved signing configuration
+        if: ${{ inputs.sign }}
+        env:
+          SIGNPATH_API_TOKEN: ${{ secrets.SIGNPATH_API_TOKEN }}
+          SIGNPATH_ORGANIZATION_ID: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          SIGNPATH_PROJECT_SLUG: ${{ vars.SIGNPATH_PROJECT_SLUG }}
+          SIGNPATH_POLICY_SLUG: ${{ vars.SIGNPATH_POLICY_SLUG }}
+          SIGNPATH_APP_CONFIGURATION: ${{ vars.SIGNPATH_APP_CONFIGURATION }}
+          SIGNPATH_INSTALLER_CONFIGURATION: ${{ vars.SIGNPATH_INSTALLER_CONFIGURATION }}
+          SIGNPATH_EXPECTED_PUBLISHER: ${{ vars.SIGNPATH_EXPECTED_PUBLISHER }}
+        run: |
+          foreach ($name in @('SIGNPATH_API_TOKEN','SIGNPATH_ORGANIZATION_ID','SIGNPATH_PROJECT_SLUG','SIGNPATH_POLICY_SLUG','SIGNPATH_APP_CONFIGURATION','SIGNPATH_INSTALLER_CONFIGURATION','SIGNPATH_EXPECTED_PUBLISHER')) {
+            if ([string]::IsNullOrWhiteSpace([Environment]::GetEnvironmentVariable($name))) { throw "Signing configuration missing: $name" }
+          }
+      - name: Upload own application binaries for signing
+        if: ${{ inputs.sign }}
+        id: app_unsigned
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: Snipsera-application-unsigned
+          path: |
+            dist/unsigned/${{ steps.meta.outputs.runtime_folder }}/Snipsera.exe
+            dist/unsigned/${{ steps.meta.outputs.runtime_folder }}/Snipsera.dll
+          if-no-files-found: error
+          compression-level: 0
+      - name: Sign own application binaries
+        if: ${{ inputs.sign }}
+        uses: signpath/github-action-submit-signing-request@f6d04783b4569d051e0c80105fe66e82819d0092 # v3
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG }}
+          signing-policy-slug: ${{ vars.SIGNPATH_POLICY_SLUG }}
+          artifact-configuration-slug: ${{ vars.SIGNPATH_APP_CONFIGURATION }}
+          github-artifact-id: ${{ steps.app_unsigned.outputs.artifact-id }}
+          wait-for-completion: true
+          wait-for-completion-timeout-in-seconds: 1800
+          output-artifact-directory: dist/signed-apps
+      - name: Repackage verified signed application files
+        if: ${{ inputs.sign }}
+        env:
+          EXPECTED_PUBLISHER: ${{ vars.SIGNPATH_EXPECTED_PUBLISHER }}
+        run: ./publish.ps1 -Output dist/signed -SignedApps dist/signed-apps -ExpectedPublisher $env:EXPECTED_PUBLISHER
+      - name: Upload installer for signing
+        if: ${{ inputs.sign }}
+        id: installer_unsigned
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: Snipsera-installer-unsigned
+          path: dist/signed/*-setup-win-x64.exe
+          if-no-files-found: error
+          compression-level: 0
+      - name: Sign installer
+        if: ${{ inputs.sign }}
+        uses: signpath/github-action-submit-signing-request@f6d04783b4569d051e0c80105fe66e82819d0092 # v3
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG }}
+          signing-policy-slug: ${{ vars.SIGNPATH_POLICY_SLUG }}
+          artifact-configuration-slug: ${{ vars.SIGNPATH_INSTALLER_CONFIGURATION }}
+          github-artifact-id: ${{ steps.installer_unsigned.outputs.artifact-id }}
+          parameters: |
+            version: "${{ steps.meta.outputs.version }}"
+          wait-for-completion: true
+          wait-for-completion-timeout-in-seconds: 1800
+          output-artifact-directory: dist/signed-installer
+      - name: Verify returned signatures and compute final checksums
+        if: ${{ inputs.sign }}
+        env:
+          EXPECTED_PUBLISHER: ${{ vars.SIGNPATH_EXPECTED_PUBLISHER }}
+        run: |
+          python scripts/finalize_signed_release.py --candidate dist/signed --signed-installer dist/signed-installer --expected-publisher $env:EXPECTED_PUBLISHER
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python scripts/verify_candidate.py --candidate dist/signed --require-signed --expected-publisher $env:EXPECTED_PUBLISHER
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          ./scripts/test_installer.ps1 -Candidate dist/signed -Output verification/runs/signed-installer
+      - name: Upload signed release candidates
+        if: ${{ inputs.sign }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: Snipsera-${{ steps.meta.outputs.version }}-signed
+          path: |
+            dist/signed/*.exe
+            dist/signed/*.msix
+            dist/signed/*.zip
+            dist/signed/SHA256SUMS.txt
+            dist/signed/package-results.json
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 30
