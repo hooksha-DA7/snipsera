@@ -14,3 +14,6 @@
 - Keep README focused on the app, downloading it and using it. Release notes should describe concrete Added, Improved and Fixed behavior in plain language; keep agent/workflow details and test receipts in developer documentation.
 
 - Public files, comments and release descriptions should use the project and owner identity only. Keep internal tooling, work assignments and development conversations private. Use the personal owner for commit, tag, release and upload attribution.
+
+- Distribution decision, 2026-11-02: every future delivered version must be packaged as both an EXE installer and an MSIX, alongside reviewed source and checksums. The chosen routes are SignPath Foundation for GitHub installer signing and Microsoft Store for MSIX distribution/signing. A portable ZIP may remain an additional option. Preserve all historical assets.
+- Signing/submission status must be explicit. Selecting these routes is not proof of SignPath acceptance, a Store app identity, a signed artifact or certification. Store MSIX identity must come from the personal publisher's Partner Center app. An unsigned submission package is not a public installable download. Follow docs/DISTRIBUTION.md; do not silently choose an open-source licence or substitute a company publisher.

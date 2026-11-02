@@ -8,7 +8,9 @@ Use a fresh version for every published artifact. Preserve the original local ar
 
 The first import contains eight historical numbered builds and three complete scrolling/overlay previews. The external-toolbar `0.5.1` build is marked superseded. Incomplete private staging attempts were excluded. Historical Git commits were reconstructed from archived source ZIPs in chronological order using the actual import date. Release notes retain the original build dates; GitHub publication dates are not backdated.
 
-Windows/source ZIPs are attached to each release with `SHA256SUMS.txt`. GitHub's automatic source downloads are the tagged repository tree and are distinct from the attached ZIPs.
+Historical releases attach Windows/source ZIPs with `SHA256SUMS.txt`. The distribution decision from 2026-11-02 requires both an EXE installer and an MSIX for future delivered versions, plus reviewed source and checksums. The portable ZIP may remain available. SignPath Foundation is the selected route for installer signing; Microsoft Store is the selected MSIX distribution/signing route. See [distribution setup](DISTRIBUTION.md) for onboarding and verification requirements. GitHub's automatic source downloads are the tagged repository tree and are distinct from the attached source ZIPs.
+
+The existing `publish.ps1`, ZIP verifier and release publisher still implement the ZIP release contract. Extend and verify their installer/MSIX support before delivering the next version; the format decision alone does not build or sign these formats. Preserve the existing historical-release verification path.
 
 ## Add the next version
 
@@ -21,7 +23,7 @@ Windows/source ZIPs are attached to each release with `SHA256SUMS.txt`. GitHub's
 
    The ordinary full suite opens windows and must wait while desktop testing is paused.
 
-2. Build/package fresh Windows and source ZIPs. Check ZIP paths/CRC, allowlisted contents, manifests, source/build parity and documentation links. Inspect the exact files for public disclosure. Never include reference media/installers, user screenshots/history, credentials, private logs or agent transcripts. Do not relabel an old ZIP as a new binary build.
+2. Build/package the EXE installer and MSIX for the same version, plus source and any optional portable ZIP. Check allowlisted contents, source/build parity, documentation links and final artifact hashes. Check ZIP paths/CRC/manifests where applicable; validate the MSIX manifest/identity/version/dependencies and test installer install/upgrade/uninstall without deleting user history. Inspect signatures on the exact final artifacts. Store submission packages may be unsigned before certification and must not be advertised as directly installable. Never include reference media/installers, user screenshots/history, credentials, private logs or agent transcripts. Do not relabel an old package as a new binary build.
 3. Add a curated entry to `releases/catalog.json` with `kind`, `intro`, categorized `changes` (Added/Improved/Fixed) and any user-facing `notice`. Record the real build date, runtime/source asset names, byte sizes and SHA256, status, verification limits. Describe behavior users will notice; avoid agent attribution, test-count reports and private workflow history in public notes. Mark previews `prerelease: true`, `latest: false`. Update the verified baseline only after its acceptance is complete.
 4. Commit the source with the git-commit workflow. Tag the exact source snapshot as `v<VERSION>` and push that commit/tag to the personal repository. The release script uses `--verify-tag` and does not create or push source for you.
 5. Plan the upload (no remote mutation):
