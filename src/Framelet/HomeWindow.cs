@@ -3,6 +3,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Threading;
 
 namespace Framelet;
 
@@ -11,7 +12,7 @@ public sealed class HomeWindow : Window
     private readonly CaptureApp app;
     private readonly StackPanel history = new();
     private readonly TextBlock status = Ui.Text("Ready to capture", 12, Ui.Muted);
-    private readonly TextBox[] shortcuts = new TextBox[4];
+    private readonly ShortcutRecorder[] shortcuts = new ShortcutRecorder[4];
     private readonly TextBlock[] badges = new TextBlock[4];
     public HomeWindow(CaptureApp app)
     {
@@ -87,24 +88,36 @@ public sealed class HomeWindow : Window
         }
         OverlayState(); app.OverlayVisibilityChanged += OverlayState; Closed += (_, _) => app.OverlayVisibilityChanged -= OverlayState;
         left.Children.Add(overlays);
-        var settings = new StackPanel(); settings.Children.Add(Ui.Text("Use Ctrl and/or Alt, optionally Shift, plus a letter, number or F1–F11.", 11, Ui.Muted));
+        var settings = new StackPanel();
+        var help = Ui.Text("Select a box and press the keys you want, then Save shortcuts. Esc cancels a change; Tab moves on.", 11, Ui.Muted);
+        var rule = Ui.Text(ShortcutRecorder.Rule, 11, Ui.Muted); rule.Margin = new Thickness(0, 4, 0, 8);
+        settings.Children.Add(help); settings.Children.Add(rule);
         for (int i = 0; i < shortcuts.Length; i++)
         {
-            settings.Children.Add(Ui.Text(labels[i], 11));
-            shortcuts[i] = new TextBox { Text = app.Settings.Bindings[i], FontSize = 12, Padding = new Thickness(7), Margin = new Thickness(0, 3, 0, 8) };
+            var label = Ui.Text(labels[i], 11); settings.Children.Add(label);
+            shortcuts[i] = new ShortcutRecorder(labels[i], app.Settings.Bindings[i], app.SuspendShortcuts, ex => SetStatus(ex.Message, true)) { FontSize = 12, Padding = new Thickness(7), Margin = new Thickness(0, 3, 0, 8) };
             System.Windows.Automation.AutomationProperties.SetAutomationId(shortcuts[i], "Shortcut" + i);
+            System.Windows.Automation.AutomationProperties.SetLabeledBy(shortcuts[i], label);
+            shortcuts[i].Changed += recorder => SetStatus(recorder.IsPending ? $"{labels[Array.IndexOf(shortcuts, recorder)]}: {recorder.Shortcut} — select Save shortcuts to apply" : "Shortcut unchanged");
+            shortcuts[i].Rejected += message => SetStatus(message, true);
             settings.Children.Add(shortcuts[i]);
         }
         settings.Children.Add(Ui.Button("Save shortcuts", "SaveShortcuts", () =>
         {
             try
             {
-                app.UpdateSettings(new AppSettings(shortcuts[0].Text, shortcuts[1].Text, shortcuts[2].Text, shortcuts[3].Text));
-                for (int i = 0; i < badges.Length; i++) badges[i].Text = app.Settings.Bindings[i];
+                // Pressing Save moves focus off the recorder first, so the current shortcuts are restored before they are replaced.
+                app.UpdateSettings(new AppSettings(shortcuts[0].Shortcut, shortcuts[1].Shortcut, shortcuts[2].Shortcut, shortcuts[3].Shortcut));
+                for (int i = 0; i < badges.Length; i++) { badges[i].Text = app.Settings.Bindings[i]; shortcuts[i].MarkSaved(app.Settings.Bindings[i]); }
                 SetStatus("Shortcuts saved");
             }
             catch (Exception ex) { SetStatus(ex.Message, true); }
         }));
+        // A hidden or closed Home window never keeps the capture shortcuts suspended.
+        void Release() { foreach (var recorder in shortcuts) recorder.Release(); }
+        IsVisibleChanged += (_, _) => { if (!IsVisible) Release(); }; Deactivated += (_, _) => Release(); Closed += (_, _) => Release();
+        // WPF restores keyboard focus after Activated and may not raise a new focus event, so check once input has settled.
+        Activated += (_, _) => Dispatcher.InvokeAsync(() => { if (IsActive) foreach (var recorder in shortcuts) recorder.Resume(); }, DispatcherPriority.Input);
         left.Children.Add(new Expander { Header = "Keyboard shortcuts", Content = settings, Margin = new Thickness(0, 16, 0, 0), Padding = new Thickness(8) });
         var leftScroll = new ScrollViewer { Content = left, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
         columns.Children.Add(leftScroll);
@@ -134,14 +147,14 @@ public sealed class HomeWindow : Window
         {
             var row = new DockPanel();
             var image = new Image { Width = 142, Height = 84, Stretch = Stretch.Uniform, Margin = new Thickness(0, 0, 16, 0) };
-            try { image.Source = CaptureService.Load(app.History.ImagePath(entry), 280); }
-            catch (Exception ex) when (ex is IOException or NotSupportedException or ArgumentException or FileFormatException) { image.ToolTip = "Image could not be opened. Capture again or remove this entry."; }
+            try { image.Source = app.History.LoadImage(entry, 280); }
+            catch (Exception ex) when (ex is IOException or NotSupportedException or ArgumentException or FileFormatException or System.Text.Json.JsonException) { image.ToolTip = "Image or saved edits could not be opened. The local files are preserved."; }
             DockPanel.SetDock(image, Dock.Left); row.Children.Add(image);
             var text = new StackPanel(); text.Children.Add(Ui.Text(entry.Label, 12, Ui.Ink, true)); text.Children.Add(Ui.Text(entry.TimeLabel, 11, Ui.Muted));
             var actions = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 10, 0, 0) };
             actions.Children.Add(Ui.IconButton("Open", "Open preview", "Open" + entry.Id, () => app.OpenEntry(entry)));
             actions.Children.Add(Ui.IconButton("Copy", "Copy", "Copy" + entry.Id, async () =>
-            { try { await CaptureService.Copy(CaptureService.Load(app.History.ImagePath(entry))); SetStatus("Copied to clipboard"); } catch (Exception ex) { SetStatus(ex.Message, true); } }));
+            { try { await CaptureService.Copy(app.History.LoadImage(entry)); SetStatus("Copied to clipboard"); } catch (Exception ex) { SetStatus(ex.Message, true); } }));
             actions.Children.Add(Ui.IconButton("Delete", "Remove", "Remove" + entry.Id, () =>
             {
                 if (ConfirmWindow.Ask(this, "Remove this capture?", "This removes the image from local history. Copies you saved elsewhere are kept.", "Remove") != Confirmation.Primary) return;

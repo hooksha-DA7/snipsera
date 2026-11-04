@@ -17,38 +17,7 @@ internal static class UiChecks
     private static void Require(bool value, string message) { if (!value) throw new Exception(message); }
     public static void Run(string output, Action<string, Action> test)
     {
-        test("Floating previews stay small at the left across DPI and negative origins", () =>
-        {
-            foreach (double dpi in new[] { 1d, 1.25, 1.5, 2 }) foreach (var work in new[] { new PixelRect(0, 0, 1920, 1040), new PixelRect(-1920, -200, 1920, 1040), new PixelRect(0, 0, 1280, 720) })
-            foreach (Size image in new[] { new Size(7680, 4320), new Size(400, 2400), new Size(3000, 200), new Size(100, 100) })
-            { var r = FloatingLayout.Preview(work, image, dpi); Require(work.Contains(r), "Preview offscreen"); Require(r.Width <= 240 * dpi && r.Height <= 166 * dpi, "Preview too large"); Require(Math.Abs(r.Left - work.Left - 12 * dpi) <= 1, "Preview is not left anchored"); Require(Math.Abs(work.Bottom - r.Bottom - 12 * dpi) <= 1, "Preview is not bottom anchored"); }
-        });
-        test("One to eight pins form bounded nonoverlapping left stacks at multiple DPI scales", () =>
-        {
-            foreach (double dpi in new[] { 1d, 1.25, 1.5, 2 }) foreach (var work in new[] { new PixelRect(0, 0, 1920, 1040), new PixelRect(-1280, -200, 1280, 720), new PixelRect(0, 0, 1024, 768) })
-            for (int count = 1; count <= 8; count++)
-            {
-                var images = Enumerable.Range(0, count).Select(i => i % 2 == 0 ? new Size(3840, 2160) : new Size(600, 1800)).ToArray();
-                var rects = FloatingLayout.Pins(work, images, dpi); var preview = FloatingLayout.Preview(work, new Size(3840, 2160), dpi);
-                Require(rects.Count == count, "Pin lost");
-                for (int i = 0; i < count; i++)
-                { Require(work.Contains(rects[i]), "Pin offscreen"); Require(rects[i].Width <= 256 * dpi && rects[i].Height <= 192 * dpi, "Pin too large"); Require(!rects[i].IntersectsWith(preview), "Pin overlaps reserved preview"); for (int j = 0; j < i; j++) Require(!rects[i].IntersectsWith(rects[j]), "Pins overlap"); }
-            }
-        });
-        test("Floating frames preserve wide and tall aspect ratios and one pin matches its preview", () =>
-        {
-            var work = new PixelRect(0, 0, 2560, 1400);
-            foreach (double dpi in new[] { 1d, 1.25, 1.5, 2 })
-            foreach (var image in new[] { new Size(1551, 574), new Size(1187, 547), new Size(3000, 200), new Size(400, 2400), new Size(100, 100) })
-            {
-                var preview = FloatingLayout.Preview(work, image, dpi); var pin = FloatingLayout.Pins(work, [image], dpi)[0];
-                Require(preview.Size == pin.Size, "Pinning changed the compact size");
-                double width = preview.Width - 16 * dpi, height = preview.Height - 16 * dpi;
-                double expectedHeight = width * image.Height / image.Width;
-                // Integer physical-pixel bounds may round either image edge by less than one pixel.
-                Require(Math.Abs(height - expectedHeight) <= 1 + image.Height / image.Width, "Frame adds empty space instead of fitting the image");
-            }
-        });
+        Layout(test);
         test("Sketch arrows curve and have open heads; sketch ovals keep their interior clear", () =>
         {
             var image = White(); var doc = new EditDocument(image);
@@ -128,6 +97,49 @@ internal static class UiChecks
             }
             finally { app.ThemeMode = previous; Appearance.Current.Refresh(); }
 #pragma warning restore WPF0001
+        });
+    }
+    public static void Layout(Action<string, Action> test)
+    {
+        test("Floating previews stay small at the left across DPI and negative origins", () =>
+        {
+            foreach (double dpi in new[] { 1d, 1.25, 1.5, 2 }) foreach (var work in new[] { new PixelRect(0, 0, 1920, 1040), new PixelRect(-1920, -200, 1920, 1040), new PixelRect(0, 0, 1280, 720) })
+            foreach (Size image in new[] { new Size(7680, 4320), new Size(400, 2400), new Size(3000, 200), new Size(100, 100) })
+            { var r = FloatingLayout.Preview(work, image, dpi); Require(work.Contains(r), "Preview offscreen"); Require(r.Width <= 240 * dpi && r.Height <= 166 * dpi, "Preview too large"); Require(Math.Abs(r.Left - work.Left - 12 * dpi) <= 1, "Preview is not left anchored"); Require(Math.Abs(work.Bottom - r.Bottom - 12 * dpi) <= 1, "Preview is not bottom anchored"); }
+        });
+        test("One to eight pins form bounded nonoverlapping left stacks at multiple DPI scales", () =>
+        {
+            foreach (double dpi in new[] { 1d, 1.25, 1.5, 2 }) foreach (var work in new[] { new PixelRect(0, 0, 1920, 1040), new PixelRect(-1280, -200, 1280, 720), new PixelRect(0, 0, 1024, 768) })
+            for (int count = 1; count <= 8; count++)
+            {
+                var images = Enumerable.Range(0, count).Select(i => i % 2 == 0 ? new Size(3840, 2160) : new Size(600, 1800)).ToArray();
+                var rects = FloatingLayout.Pins(work, images, dpi); var preview = FloatingLayout.Preview(work, new Size(3840, 2160), dpi);
+                Require(rects.Count == count, "Pin lost");
+                // Windows overlap only by their transparent shadow margins; the visible images must stay apart.
+                var shown = rects.Select(Visible).ToArray(); var previewImage = Visible(preview);
+                for (int i = 0; i < count; i++)
+                { Require(work.Contains(rects[i]), "Pin offscreen"); Require(rects[i].Width <= 256 * dpi && rects[i].Height <= 192 * dpi, "Pin too large"); Require(rects[i].Size == rects[0].Size, "Pins differ in size"); Require(!shown[i].IntersectsWith(previewImage), "Pin overlaps reserved preview"); for (int j = 0; j < i; j++) Require(!shown[i].IntersectsWith(shown[j]), "Pins overlap"); }
+                PixelRect Visible(PixelRect r) { int m = (int)Math.Round(FloatingLayout.Margin * dpi); return PixelRect.Inflate(r, -m, -m); }
+            }
+        });
+        test("Floating cards share one compact size for every aspect ratio, with a tight visible gap", () =>
+        {
+            var work = new PixelRect(0, 0, 2560, 1400);
+            foreach (double dpi in new[] { 1d, 1.25, 1.5, 2 })
+            {
+                int m = (int)Math.Round(FloatingLayout.Margin * dpi), gap = (int)Math.Round(FloatingLayout.Gap * dpi);
+                Size[] images = [new(1551, 574), new(1187, 547), new(3000, 200), new(400, 2400), new(100, 100)];
+                var expected = new System.Drawing.Size((int)Math.Floor(FloatingLayout.CardWidth * dpi) + 2 * m, (int)Math.Floor(FloatingLayout.CardHeight * dpi) + 2 * m);
+                foreach (var image in images)
+                {
+                    var preview = FloatingLayout.Preview(work, image, dpi); var pin = FloatingLayout.Pins(work, [image], dpi)[0];
+                    Require(preview.Size == expected && pin.Size == expected, "Card size depends on the capture");
+                    Require(preview.Top + m - (pin.Bottom - m) == gap, "Pin is not tight above the preview");
+                }
+                var stack = FloatingLayout.Pins(work, images, dpi);
+                for (int i = 1; i < stack.Count; i++)
+                    Require(stack[i].Left == stack[i - 1].Left ? stack[i - 1].Top + m - (stack[i].Bottom - m) == gap : stack[i].Left + m - (stack[i - 1].Right - m) == gap && stack[i].Bottom == stack[0].Bottom, "Stacked pins are not evenly tight");
+            }
         });
     }
     public static BitmapSource White()

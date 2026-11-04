@@ -35,14 +35,27 @@ public readonly record struct Hotkey(uint Modifiers, uint VirtualKey)
                 case "SHIFT": modifiers |= 4; break;
                 default:
                     if (key != Key.None) throw new FormatException("Choose one key with Ctrl and/or Alt, optionally Shift.");
-                    string name = raw.Length == 1 && char.IsDigit(raw[0]) ? "D" + raw : raw;
+                    string name = raw.ToUpperInvariant() is "PRINTSCREEN" or "PRINTSCRN" or "PRTSC" or "PRTSCN" or "SNAPSHOT" ? "PrintScreen"
+                        : raw.Length == 1 && char.IsDigit(raw[0]) ? "D" + raw : raw;
                     if (!Enum.TryParse(name, true, out key) || !Enum.IsDefined(key)) throw new FormatException("That shortcut key is not supported.");
                     break;
             }
         }
         bool allowedKey = key >= Key.A && key <= Key.Z || key >= Key.D0 && key <= Key.D9 || key >= Key.F1 && key <= Key.F11;
-        if ((modifiers & 3) == 0 || !allowedKey) throw new FormatException("Use Ctrl and/or Alt with a letter, number or F1–F11. Shift is optional.");
+        if (key != Key.PrintScreen && ((modifiers & 3) == 0 || !allowedKey)) throw new FormatException("Use Print Screen, or Ctrl and/or Alt with a letter, number or F1–F11. Shift is optional.");
         return new Hotkey(modifiers, (uint)KeyInterop.VirtualKeyFromKey(key));
+    }
+
+    public static string? FromKey(Key key, ModifierKeys modifiers)
+    {
+        if ((modifiers & ~(ModifierKeys.Control | ModifierKeys.Alt | ModifierKeys.Shift)) != 0) return null;
+        string name = key == Key.PrintScreen ? "PrintScreen"
+            : key >= Key.D0 && key <= Key.D9 ? ((int)(key - Key.D0)).ToString(CultureInfo.InvariantCulture) : key.ToString();
+        string binding = (modifiers.HasFlag(ModifierKeys.Control) ? "Ctrl+" : "")
+            + (modifiers.HasFlag(ModifierKeys.Alt) ? "Alt+" : "")
+            + (modifiers.HasFlag(ModifierKeys.Shift) ? "Shift+" : "") + name;
+        try { _ = Parse(binding); return binding; }
+        catch (FormatException) { return null; }
     }
 }
 

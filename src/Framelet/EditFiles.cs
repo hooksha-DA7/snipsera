@@ -47,7 +47,7 @@ public static class EditFiles
         image.Freeze(); return image;
     }
 
-    public static void SaveProject(EditDocument document, string path)
+    public static void SaveProject(EditDocument document, string path, bool markSaved = true)
     {
         EditDocument.Validate(document.State, document.Original.PixelWidth, document.Original.PixelHeight);
         byte[] metadata = JsonSerializer.SerializeToUtf8Bytes(new ProjectData(3, document.Original.PixelWidth, document.Original.PixelHeight, document.State), Json);
@@ -62,7 +62,7 @@ public static class EditFiles
             using var original = archive.CreateEntry("original.png", CompressionLevel.NoCompression).Open();
             png.Position = 0; png.CopyTo(original);
         });
-        document.MarkSaved();
+        if (markSaved) document.MarkSaved();
     }
     public static EditDocument LoadProject(string path)
     {

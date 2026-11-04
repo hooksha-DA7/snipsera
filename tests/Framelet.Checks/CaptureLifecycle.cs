@@ -63,7 +63,10 @@ internal static class CaptureLifecycle
                 if (AutomationProperties.GetName(pinButton) != "Unpin") throw new Exception("Pin button did not become Unpin");
                 pinButton.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
                 if (preview.IsPinned || !preview.IsVisible || Native.Bounds(handle).Size != size) throw new Exception("Unpin failed to keep the preview");
-                if (app.Windows.Cast<Window>().OfType<ImageWindow>().Where(w => w.IsPinned).Any(w => Native.Bounds(new WindowInteropHelper(w).Handle).IntersectsWith(Native.Bounds(handle)))) throw new Exception("Unpinned preview overlaps the reflowed stack");
+                // Docked windows overlap only by their transparent shadow margins; compare the visible images.
+                int shadow = (int)Math.Round(FloatingLayout.Margin * Native.GetDpiForWindow(handle) / 96d);
+                System.Drawing.Rectangle VisibleImage(IntPtr window) => System.Drawing.Rectangle.Inflate(Native.Bounds(window), -shadow, -shadow);
+                if (app.Windows.Cast<Window>().OfType<ImageWindow>().Where(w => w.IsPinned).Any(w => VisibleImage(new WindowInteropHelper(w).Handle).IntersectsWith(VisibleImage(handle)))) throw new Exception("Unpinned preview overlaps the reflowed stack");
                 preview.RevealActions(true); preview.Hide();
                 if (buttons.Any(b => b.IsVisible)) throw new Exception("On-image actions survived hidden capture window");
                 preview.Show();

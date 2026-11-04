@@ -11,8 +11,8 @@
     <Company>hooksha-DA7</Company>
     <ApplicationIcon>Assets/Snipsera.ico</ApplicationIcon>
     <RootNamespace>Framelet</RootNamespace>
-    <Version>1.0.1</Version>
-    <InformationalVersion>1.0.1-preview.1</InformationalVersion>
+    <Version>1.0.2</Version>
+    <InformationalVersion>1.0.2-preview.1</InformationalVersion>
     <Description>Screenshots, annotations and screen recording for Windows 11.</Description>
     <!-- WPF owns DPI via the manifest; WinForms is used only for the tray icon. -->
     <NoWarn>$(NoWarn);WFO0003</NoWarn>

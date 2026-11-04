@@ -52,6 +52,8 @@ internal static class Program
     [STAThread]
     public static int Main(string[] args)
     {
+        if (args.Length == 2 && args[0] == "--feedback-check") return FeedbackChecks.Run(args[1]);
+        if (args.Length == 2 && args[0] == "--feedback-visual-check") return FeedbackVisualChecks.Run(args[1]);
         if (args.Length == 2 && args[0] == "--store-screenshots") return StoreScreenshots.Run(args[1]);
         if (args.Length == 2 && args[0] == "--identity-check") return IdentityChecks.Run(args[1]);
         if (args.Length == 2 && args[0] == "--recording-check") return RecordingChecks.Run(args[1]);

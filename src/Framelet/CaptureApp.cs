@@ -155,6 +155,8 @@ public sealed partial class CaptureApp : Application
         catch { hotkeys.Apply(old); throw; }
     }
 
+    public IDisposable SuspendShortcuts() => hotkeys?.Suspend() ?? throw new InvalidOperationException("Shortcuts are not ready.");
+
     public async Task CaptureAsync(CaptureKind kind)
     {
         if (Quitting) return;
@@ -248,7 +250,7 @@ public sealed partial class CaptureApp : Application
     {
         try
         {
-            var image = CaptureService.Load(History.ImagePath(entry));
+            var image = History.LoadImage(entry);
             using var replacing = overlays.BeginUpdate();
             preview?.Close(); preview = FloatingWindow(image, entry, false); if (OverlaysHidden) OverlayShelfImage = image; overlays.Track(preview);
         }
@@ -294,7 +296,17 @@ public sealed partial class CaptureApp : Application
         }
     }
 
-    public void EditImage(BitmapSource image) { ShowEditor(new EditDocument(image)); if (preview is not null) overlays.SetDesired(preview, false); }
+    public void EditImage(BitmapSource image, CaptureEntry? entry = null)
+    {
+        try
+        {
+            var stored = entry is null ? null : History.Entries.FirstOrDefault(e => e.Id == entry.Id);
+            var editingPreview = preview is not null && ReferenceEquals(preview.CaptureImage, image) ? preview : null;
+            ShowEditor(stored is null ? new EditDocument(image) : History.LoadDocument(stored), historyEntry: stored, editingPreview: editingPreview);
+            if (editingPreview is not null) overlays.SetDesired(editingPreview, false);
+        }
+        catch (Exception ex) { Report(ex); }
+    }
 
     public void OpenImageOrProject()
     {
@@ -310,9 +322,21 @@ public sealed partial class CaptureApp : Application
         catch (Exception ex) { Report(ex); }
     }
 
-    private void ShowEditor(EditDocument document, string name = "Capture", string? projectPath = null)
+    private void ShowEditor(EditDocument document, string name = "Capture", string? projectPath = null, CaptureEntry? historyEntry = null, ImageWindow? editingPreview = null)
     {
-        var editor = new EditorWindow(document, image => Pin(image, new CaptureEntry(Guid.NewGuid().ToString("N"), DateTimeOffset.UtcNow, "Edited", image.PixelWidth, image.PixelHeight)), OpenImageOrProject, name, projectPath);
+        bool saved = false;
+        void Persist(EditDocument edited)
+        {
+            historyEntry = History.SaveEdits(edited, historyEntry); saved = true;
+            home.RefreshHistory();
+        }
+        var editor = new EditorWindow(document, image => { Persist(document); Pin(image, historyEntry!); }, OpenImageOrProject, name, projectPath, Persist);
+        editor.Closed += (_, _) =>
+        {
+            if (Quitting) return;
+            if (saved && historyEntry is not null && (preview is null || preview == editingPreview)) OpenEntry(historyEntry);
+            else if (editingPreview is not null && preview == editingPreview) overlays.SetDesired(editingPreview, true);
+        };
         editor.Show(); editor.Activate();
     }
 

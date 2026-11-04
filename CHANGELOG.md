@@ -2,6 +2,26 @@
 
 [Downloads and release notes](RELEASES.md)
 
+## 1.0.2-preview.1 — Unreleased
+
+Compact floating cards, shortcuts recorded from the keyboard, and edits saved automatically in history.
+
+### Added
+
+- Record capture shortcuts by pressing the keys, including Print Screen on its own.
+- Edits save automatically in local history and reopen with their editable layers.
+
+### Improved
+
+- Docked previews and pins use matching 4:3 cards with a tighter gap.
+- Wide, tall and square captures keep the same card size; copy, save and drag retain the full image.
+
+### Fixed
+
+- Closing an editor keeps its edits without a save-or-discard prompt.
+- Existing capture shortcuts pause while a new shortcut is being recorded.
+- Print Screen keeps its modifiers when the keyboard sends both press and release events.
+
 ## 1.0.1-preview.1 — 2026-11-02
 
 Preview release. Framelet is now Snipsera, with a Windows installer and the screenshot, annotation and recording tools in one download.

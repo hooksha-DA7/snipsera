@@ -2,7 +2,7 @@
 
 Screenshots and screen recording for Windows 11. Capture part of your screen, mark it up, and copy or save it. Pin references beside your work, or record a window, display or area as MP4 or GIF.
 
-Snipsera is the new name for Framelet. Try the preview below, or choose Framelet 0.6.0 for the stable screenshot build.
+Snipsera is the new name for Framelet. Get it from Microsoft Store or try the latest GitHub preview below. Historical Framelet downloads are still available.
 
 ## Download and run
 
@@ -16,7 +16,7 @@ The installer includes .NET. Screen recording needs the [Microsoft Visual C++ x6
 
 For the portable version, extract the complete ZIP and open **Snipsera.exe**. Keep its files and `encoder` folder together.
 
-**The GitHub EXE and portable ZIP are unsigned previews.** Windows may show a warning when you download or start them. Installer code signing is pending; see the [release notes](releases/notes/v1.0.1-preview.1.md) for current limits. Snipsera is also available from Microsoft Store. [Code signing policy](docs/CODE-SIGNING.md).
+**The GitHub EXE and portable ZIP are unsigned previews.** Windows may show a warning when you download or start them. The Store release is currently 1.0.1; the latest preview changes are in the GitHub download. Installer code signing is pending; see the [release notes](releases/notes/v1.0.1-preview.1.md) for current limits. Snipsera is also available from Microsoft Store. [Code signing policy](docs/CODE-SIGNING.md).
 
 Snipsera runs locally, without an account or cloud service. Older Framelet downloads remain available in the [release history](RELEASES.md).
 
@@ -29,9 +29,9 @@ Snipsera runs locally, without an account or cloud service. Older Framelet downl
 | Capture a display | Ctrl+Alt+Shift+3 |
 | Repeat the last area | Ctrl+Alt+Shift+4 |
 
-You can also capture from the home window or tray menu. Change the shortcuts under **Keyboard shortcuts** on the home screen.
+You can also capture from the home window or tray menu. In the latest preview, change them under **Keyboard shortcuts**: select a box, press your keys and save. You can use **Print Screen** on its own.
 
-A small preview appears at the bottom left. Hover over it to **Copy**, **Save**, **Pin** or **Annotate**. Take another screenshot whenever you need one; the previous capture stays in history.
+A compact preview appears at the bottom left. In the latest preview, docked screenshots use matching cards with a tight gap. Hover over it to **Copy**, **Save**, **Pin** or **Annotate**. Take another screenshot whenever you need one; the previous capture stays in history.
 
 ## Record your screen
 
@@ -46,7 +46,7 @@ Do not disturb must be enabled manually in Windows for this preview. [Recording 
 - **Pin references.** Keep up to eight images on top of other windows. Drag or resize a pin, or adjust its opacity with Ctrl+mouse wheel.
 - **Annotate and edit.** Add arrows, shapes, text, numbered steps, highlights or freehand marks. Crop, resize and add a background, with undo and redo.
 - **Copy, save or drag.** Copy to the clipboard, save a PNG/JPEG from the editor, or drag an image into another app.
-- **Keep an editable project.** Save a `.framelet` file to return to your annotations later.
+- **Keep your edits.** The latest preview saves edits in history automatically when you close the editor. Save a separate `.snipsera` project to keep an editable copy permanently; legacy `.framelet` files still open.
 - **Find recent screenshots.** History keeps your latest 100 captures on this PC. Save anything you want to keep permanently.
 
 Closing the home window leaves the app in the tray. Use its **Quit** command to exit. Quit an older copy before starting another version so the capture shortcuts are available.

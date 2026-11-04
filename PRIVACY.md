@@ -1,6 +1,6 @@
 # Snipsera privacy policy
 
-Effective date: 2 November 2026.
+Effective date: 4 November 2026.
 
 Snipsera captures screenshots and screen recordings on your Windows PC. It does not require an account. The app itself does not upload your captures, send analytics or use a cloud processing service.
 
@@ -9,6 +9,7 @@ Snipsera captures screenshots and screen recordings on your Windows PC. It does 
 - Screenshots, recordings, editable projects and exports can contain anything visible in the selected screen area. Check a capture before sharing it.
 - Microphone and computer audio are recorded only when you enable those options for an MP4 recording. They are off by default. GIF output does not include audio.
 - History and preferences are stored in your local Windows profile. New installations use `%LOCALAPPDATA%\Snipsera`. An existing `%LOCALAPPDATA%\Framelet` folder may continue to be used after upgrading. A custom `--data-dir` takes precedence.
+- Editing a capture automatically saves its original pixels, annotations and image settings in a local history project. History thumbnails and copies use the edited result.
 - Editable projects retain the original image and reversible annotations. A masked region can still be recovered from an editable project; share a flattened image when you need to cover sensitive content.
 
 Snipsera does not add its own encryption to these files. Access is governed by Windows file permissions and any encryption you enable separately. Files saved in a folder managed by another sync service may be uploaded by that service.
@@ -19,7 +20,7 @@ Copy places an image on the Windows clipboard. Dragging or saving a capture make
 
 ## Keeping and removing data
 
-Screenshot history keeps the latest 100 captures. Exported images, editable projects and recordings may remain after their history entries disappear. Delete files you no longer need. Uninstalling Snipsera preserves your saved capture data; remove its data folder separately if you want to erase it. Windows backups, synchronization services and the Recycle Bin may retain their own copies.
+Screenshot history keeps the latest 100 captures. Removing or pruning an entry also removes its automatic history project. Images and editable projects saved separately, and recordings, may remain after their history entries disappear. Delete files you no longer need. Uninstalling Snipsera preserves your saved capture data; remove its data folder separately if you want to erase it. Windows backups, synchronization services and the Recycle Bin may retain their own copies.
 
 ## External services
 

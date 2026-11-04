@@ -9,6 +9,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Threading;
 using Microsoft.Win32;
 
 namespace Framelet;
@@ -32,12 +33,16 @@ public sealed class EditorWindow : Window
     private readonly Dictionary<string, Button> tools = [];
     private readonly Button undo, redo, remove;
     private bool updating;
+    private readonly Action<EditDocument>? saveHistory;
+    private readonly DispatcherTimer historySave = new() { Interval = TimeSpan.FromMilliseconds(600) };
+    private EditState historyState = null!;
+    private bool savingHistory;
     private double resizeRatio;
     private sealed record Swatch(string Name, string Value);
 
-    public EditorWindow(EditDocument document, Action<System.Windows.Media.Imaging.BitmapSource> pin, Action open, string name = "Capture", string? projectPath = null)
+    public EditorWindow(EditDocument document, Action<System.Windows.Media.Imaging.BitmapSource> pin, Action open, string name = "Capture", string? projectPath = null, Action<EditDocument>? saveHistory = null)
     {
-        Document = document; this.name = name; this.projectPath = projectPath;
+        Document = document; this.name = name; this.projectPath = projectPath; this.saveHistory = saveHistory; historyState = document.State;
         Ui.Setup(this); Ui.UseSystemChrome(this); Width = 1120; Height = 780; MinWidth = 900; MinHeight = 560; WindowStartupLocation = WindowStartupLocation.CenterScreen;
         Canvas = new EditCanvas(document) { Report = ex => SetStatus(ex.Message, true) };
         Canvas.MakeMark = (kind, points) => new Mark(kind, points, SelectedColor(colors), Number(strokes, 4), text.Text, Number(fonts, 24),
@@ -136,8 +141,10 @@ public sealed class EditorWindow : Window
         aspect.Checked += (_, _) => { if (int.TryParse(width.Text, out int w) && int.TryParse(height.Text, out int h) && h > 0) resizeRatio = (double)w / h; };
         zoom.SelectionChanged += (_, _) => UpdateZoom(); viewport.SizeChanged += (_, _) => UpdateZoom();
         document.Changed += Refresh;
+        document.Changed += QueueHistorySave;
+        historySave.Tick += (_, _) => FlushHistory();
         Closing += (_, e) => { if (Application.Current is not CaptureApp { Quitting: true } && !ConfirmClose()) e.Cancel = true; };
-        Closed += (_, _) => { Canvas.Dispose(); document.Changed -= Refresh; };
+        Closed += (_, _) => { historySave.Stop(); Canvas.Dispose(); document.Changed -= Refresh; document.Changed -= QueueHistorySave; };
         KeyDown += HandleKey;
         Refresh(); ChooseTool("Arrow");
     }
@@ -239,9 +246,35 @@ public sealed class EditorWindow : Window
     }
     public bool ConfirmClose()
     {
+        if (saveHistory is not null) { Canvas.CancelGesture(); return FlushHistory(); }
         if (!Document.IsDirty) return true;
         var choice = ConfirmWindow.Ask(this, "Save your edits?", "Save an editable Snipsera project to keep your annotations and original image. PNG and JPEG exports contain the flattened image only.", "Save project…", "Discard edits");
         return choice == Confirmation.Secondary || choice == Confirmation.Primary && SaveProject();
+    }
+
+    private void QueueHistorySave()
+    {
+        if (saveHistory is null || savingHistory) return;
+        historySave.Stop();
+        if (Document.State != historyState) historySave.Start();
+    }
+
+    public bool FlushHistory()
+    {
+        historySave.Stop();
+        if (saveHistory is null || Document.State == historyState) return true;
+        try
+        {
+            savingHistory = true;
+            saveHistory(Document); historyState = Document.State; Document.MarkSaved();
+            SetStatus("Saved to history"); return true;
+        }
+        catch (Exception ex)
+        {
+            SetStatus("Edits could not be saved to history. Keep this editor open and retry, or export a copy. " + ex.Message, true);
+            return false;
+        }
+        finally { savingHistory = false; }
     }
     private void HandleKey(object sender, KeyEventArgs e)
     {

@@ -53,17 +53,19 @@ public sealed class ImageWindow : Window
     public ImageWindow(CaptureApp app, BitmapSource image, CaptureEntry entry, bool pinned, string? warning = null)
     {
         CaptureImage = image;
-        Ui.Setup(this); Width = 240; Height = 166; MinWidth = 18; MinHeight = 18;
+        Ui.Setup(this); Width = FloatingLayout.MaxWidth; Height = FloatingLayout.MaxHeight; MinWidth = 18; MinHeight = 18;
         WindowStyle = WindowStyle.None; AllowsTransparency = true; Background = Brushes.Transparent;
         ResizeMode = ResizeMode.NoResize; ShowInTaskbar = true; Topmost = true; ShowActivated = false;
-        var root = new Grid { Margin = new Thickness(8), RenderTransform = drift }; presented = root;
+        var root = new Grid { Margin = new Thickness(FloatingLayout.Margin), RenderTransform = drift }; presented = root;
         var card = new Border { Background = Brushes.Transparent, CornerRadius = new CornerRadius(FloatingVisuals.Radius),
             Effect = new DropShadowEffect { BlurRadius = 18, ShadowDepth = 2, Opacity = .18 } };
         var surface = new Grid { Background = Brushes.Transparent };
         surface.SizeChanged += (_, e) => { FloatingVisuals.Round(surface, e.NewSize); LayoutControls(e.NewSize); };
-        thumbnail = new Image { Source = image, Stretch = Stretch.Uniform };
+        // Docked cards share one size, so the thumbnail fills the card and crops evenly around the centre. A resized pin follows the
+        // capture's aspect ratio and shows it whole. Copy, Save, Annotate and Drag always use the full bitmap.
+        thumbnail = new Image { Source = image, Stretch = Stretch.UniformToFill, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
         RenderOptions.SetBitmapScalingMode(thumbnail, BitmapScalingMode.HighQuality);
-        surface.Children.Add(thumbnail);
+        surface.Children.Add(new Border { ClipToBounds = true, Child = thumbnail });
         // A soft top/bottom shade lifts the corner controls without blurring or tinting the capture's centre.
         var shade = new LinearGradientBrush { StartPoint = new Point(0, 0), EndPoint = new Point(0, 1) };
         shade.GradientStops.Add(new GradientStop(Color.FromArgb(0x42, 0, 0, 0), 0)); shade.GradientStops.Add(new GradientStop(Color.FromArgb(0x14, 0, 0, 0), .5)); shade.GradientStops.Add(new GradientStop(Color.FromArgb(0x42, 0, 0, 0), 1)); shade.Freeze();
@@ -93,7 +95,7 @@ public sealed class ImageWindow : Window
         async void Copy() { try { await CaptureService.Copy(image); Copied(); } catch (Exception ex) { app.Report(ex); } }
         void Save() { RevealActions(false); app.SaveImage(image, this); }
         pinButton = AddControl(layer, "Pin", "Pin", "PinCapture", Toggle, "Pin");
-        editButton = AddControl(layer, "Pen", "Annotate", "EditCapture", () => { RevealActions(false); app.EditImage(image); }, "Annotate");
+        editButton = AddControl(layer, "Pen", "Annotate", "EditCapture", () => { RevealActions(false); app.EditImage(image, entry); }, "Annotate");
         copyButton = AddControl(layer, "Copy", "Copy", "CopyCapture", Copy, "Copy · Ctrl+C");
         saveButton = AddControl(layer, "Save", "Save…", "SaveCapture", Save, "Save… · Ctrl+S");
         dragButton = AddControl(layer, "Drag", "Drag image to another app", "DragCapture", () => Notice("Drag this button into another app"), "Drag to another app");
@@ -122,7 +124,7 @@ public sealed class ImageWindow : Window
         MenuItem Menu(string label, Action action) { var item = new MenuItem { Header = label }; item.Click += (_, _) => { menu.IsOpen = false; RevealActions(false); Dispatcher.BeginInvoke(action); }; menu.Items.Add(item); return item; }
         Menu("Capture area", () => _ = app.CaptureAsync(CaptureKind.Area)); Menu("Capture window", () => _ = app.CaptureAsync(CaptureKind.Window)); Menu("Capture display", () => _ = app.CaptureAsync(CaptureKind.Screen));
         Menu("Scrolling capture", () => _ = app.CaptureAsync(CaptureKind.Scrolling)); menu.Items.Add(new Separator());
-        pinMenu = Menu("Pin", Toggle); Menu("Copy", Copy).InputGestureText = "Ctrl+C"; Menu("Save…", Save).InputGestureText = "Ctrl+S"; Menu("History", app.ShowHome); Menu("Annotate", () => app.EditImage(image));
+        pinMenu = Menu("Pin", Toggle); Menu("Copy", Copy).InputGestureText = "Ctrl+C"; Menu("Save…", Save).InputGestureText = "Ctrl+S"; Menu("History", app.ShowHome); Menu("Annotate", () => app.EditImage(image, entry));
         // Keyboard-discoverable alternative to the wheel-down gesture.
         Menu("Temporarily hide overlays", () => app.HideOverlays(this)).InputGestureText = "Scroll down";
         opacity = new Slider { Minimum = .2, Maximum = 1, Value = 1, Width = 150, TickFrequency = .05, Margin = new Thickness(8, 5, 8, 8), ToolTip = "Pinned image opacity" };
@@ -149,7 +151,7 @@ public sealed class ImageWindow : Window
         surface.MouseLeftButtonDown += (_, e) =>
         {
             if (DragExport.IsControl(e.OriginalSource as DependencyObject)) return;
-            if (e.ClickCount == 2) { if (IsPinned) ResizeCard(Width < 350 ? Math.Max(360, Math.Min(600, image.PixelWidth / DockScale + 16)) : FloatingLayout.Preview(DockWorkArea, new Size(image.PixelWidth, image.PixelHeight), DockScale).Width / DockScale); else app.EditImage(image); e.Handled = true; return; }
+            if (e.ClickCount == 2) { if (IsPinned) ResizeCard(Width < 350 ? Math.Max(360, Math.Min(600, image.PixelWidth / DockScale + 16)) : FloatingLayout.Preview(DockWorkArea, new Size(image.PixelWidth, image.PixelHeight), DockScale).Width / DockScale); else app.EditImage(image, entry); e.Handled = true; return; }
             if (IsPinned && e.LeftButton == MouseButtonState.Pressed)
             {
                 RevealActions(false); var handle = new WindowInteropHelper(this).Handle; Native.GetWindowRect(handle, out var before);
@@ -214,7 +216,7 @@ public sealed class ImageWindow : Window
             opacity.Value = 1;
             if (IsLoaded)
             {
-                var bounds = Native.Bounds(new WindowInteropHelper(this).Handle); int margin = (int)Math.Round(12 * DockScale);
+                var bounds = Native.Bounds(new WindowInteropHelper(this).Handle); int margin = (int)Math.Round(FloatingLayout.Edge * DockScale);
                 Place(new DrawingRect(DockWorkArea.Left + margin, DockWorkArea.Bottom - margin - bounds.Height, bounds.Width, bounds.Height), DockScale);
             }
         }

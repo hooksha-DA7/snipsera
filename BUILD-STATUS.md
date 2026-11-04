@@ -1,13 +1,15 @@
 # Snipsera preview
 
-Preview: **1.0.1-preview.1**, 2 November 2026, following Framelet 0.7.0-preview.1. The GitHub prerelease offers an unsigned EXE installer, portable ZIP, source and checksums. The earlier private 1.0.0 candidate was replaced during Store package validation.
+Preview: **1.0.2-preview.1**, 4 November 2026.
 
-The app labels, executable and export filenames use Snipsera. Existing history, shortcuts, legacy editable projects and the shared single-instance lock remain compatible. The capture controls and layout are unchanged. EXE installer, MSIX and ZIP packaging are prepared for the new identity.
+Docked previews and pins now use matching 200 × 150 thumbnails with an 8-DIP visible gap. The complete image remains available to copy, save, drag and edit. Shortcut fields record the keys pressed, including Print Screen, and temporarily suspend capture bindings while focused. Edits save automatically in local history, with their original pixels and editable layers; closing the editor flushes pending edits without the usual save prompt. A failed save keeps the editor open.
 
-The personal Microsoft Store submission includes its English listing, three screenshots, privacy/support links, free pricing, age ratings and desktop-capability explanation. Package **1.0.1.0** was submitted for certification on 2 November 2026; Microsoft review is pending. Publishing is held until the maintainer selects Publish now. Package validation, certification and final runtime acceptance are separate steps.
+Verification: **130 automated and offscreen checks passed** with no compiler warnings. They cover editable-history persistence/recovery/retention and failed writes, shortcut event logic, consistent card geometry across DPI and negative-origin monitors, actual detached card rendering with reachable on-image actions, existing scrolling/overlay/recording rules, identity and packaging/release rules. The test renders use generated pixels and do not show windows or read the desktop.
 
-SignPath Foundation received the application on 2 November 2026. Acceptance, signing credentials and live signing verification are pending. GitHub-hosted Windows builds and installer install/reinstall/upgrade-fixture/uninstall checks have passed. Clean Windows 11 and final packaged capture/recording acceptance remain pending; preparing a Sandbox kit is not a passed test.
+Live keyboard/global-hotkey behavior, clean Windows 11 and final installed-MSIX capture/recording acceptance remain unverified for this preview. Desktop testing remains paused. EXE/MSIX packaging and archive verification are separate from runtime acceptance.
 
-The public stable release remains Framelet 0.6.0. The latest preview is Snipsera 1.0.1-preview.1; historical Framelet downloads are preserved.
+Partner Center confirmed **In Microsoft Store** on 4 November 2026 for package **1.0.1.0** and supplied the [public download link](https://apps.microsoft.com/detail/9NFL9VHL8GKV). The 1.0.2.0 update has not been submitted. Store certification does not sign the EXE downloaded from GitHub.
 
-See [name-change notes](docs/REBRANDING.md) and [distribution setup](docs/DISTRIBUTION.md).
+The GitHub preview remains unsigned. SignPath's application was submitted on 2 November; no signing-provider status check or live signing request was performed in this update. Framelet 0.6.0 remains the stable screenshot baseline. Historical downloads are preserved.
+
+See [user guide](docs/USER-GUIDE.md), [distribution setup](docs/DISTRIBUTION.md) and [release history](RELEASES.md).

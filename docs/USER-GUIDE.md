@@ -4,11 +4,17 @@
 
 ## Run
 
-For the upcoming Snipsera build, run the EXE installer or extract the entire portable ZIP and open **Snipsera.exe**. These new packages include .NET. Screen recording also requires the [Visual C++ x64 runtime](https://aka.ms/vs/17/release/vc_redist.x64.exe). No account or cloud service is needed to use the app.
+Install Snipsera from [Microsoft Store](https://apps.microsoft.com/detail/9NFL9VHL8GKV), or run the GitHub EXE installer. For a portable download, extract the entire ZIP and open **Snipsera.exe**. These new packages include .NET. Screen recording also requires the [Visual C++ x64 runtime](https://aka.ms/vs/17/release/vc_redist.x64.exe). No account or cloud service is needed to use the app.
 
-The downloads currently published as Framelet use **Framelet.exe** and require the .NET 10 Desktop Runtime x64. Close earlier copies through their tray menu before launching a new build. New projects use `.snipsera`; legacy `.framelet` projects continue to open.
+Historical Framelet downloads use **Framelet.exe** and require the .NET 10 Desktop Runtime x64. Close earlier copies through their tray menu before launching a new build. New projects use `.snipsera`; legacy `.framelet` projects continue to open.
 
 Closing the home window keeps Snipsera running in the notification area. Double-click its tray icon or launch Snipsera again to reopen history. Use **Quit Snipsera** in the tray menu to exit and release the hotkeys. It does not automatically start with Windows.
+
+## Shortcuts and compact cards
+
+Under **Keyboard shortcuts**, select an action box and press the actual keys you want, then choose **Save shortcuts**. **Print Screen** works by itself or with Ctrl, Alt or Shift. Escape cancels a pending change; Tab moves to the next box. Existing capture shortcuts pause while you record a new chord. If Windows reserves Print Screen for Snipping Tool, turn off **Use the Print Screen key to open screen capture** under Windows **Settings > Accessibility > Keyboard**, then save the shortcut again. Snipsera does not change that Windows setting.
+
+Docked previews and pins use matching 200 × 150 thumbnails with an 8-pixel logical gap between visible cards. Wide, tall and square captures fill the same card; only the thumbnail is cropped. Copy, save, drag and editing retain the complete image. Pins flow into additional columns when needed and scale down on small work areas. Manually moved or resized pins remain under your control.
 
 ## Capture
 
@@ -24,7 +30,7 @@ Press **Esc** or right-click to cancel selection. Snipsera hides its own home, p
 
 You can capture again while the previous preview, pins or editor are open. The new preview replaces the previous preview after a successful capture; each original stays in history. A request received while capture is finishing is queued; multiple waiting requests coalesce to the latest action. If a save/confirmation dialog is open, capture waits for you to dismiss that dialog. Selection itself is asynchronous and does not disable the other app windows.
 
-Use the home buttons or tray menu for the same actions. Expand **Keyboard shortcuts** to customize them, then select **Save shortcuts**. Supported combinations contain Ctrl and/or Alt, optional Shift, and one letter, digit or F1–F11. If another application owns a requested shortcut, Snipsera explains the conflict and keeps the previous bindings. A startup conflict leaves the capture buttons usable; change the shortcuts to enable them.
+Use the home buttons or tray menu for the same actions. Expand **Keyboard shortcuts** to customize them, then select **Save shortcuts**. Supported shortcuts include Print Screen on its own or with modifiers, or Ctrl and/or Alt, optional Shift, and one letter, digit or F1–F11. If another application owns a requested shortcut, Snipsera explains the conflict and keeps the previous bindings. A startup conflict leaves the capture buttons usable; change the shortcuts to enable them.
 
 ## Scrolling capture
 
@@ -67,12 +73,13 @@ The app follows Windows app light/dark mode and accent colors. Editor/history us
 
 Default folder: `%LOCALAPPDATA%\Snipsera`
 
-- `captures\<capture-id>.png`: screenshots.
+- `captures\<capture-id>.png`: original screenshots.
+- `captures\<capture-id>.snipsera`: automatically saved edits, original pixels and reversible layers for that history entry.
 - `history.json` and `history.json.bak`: capture metadata and previous committed index.
 - `settings.json`: shortcuts after saving custom settings.
 - `drag-exports\<owned-id>.png`: local PNGs staged for file drag-and-drop. Targets can read them after the gesture ends. Owned files older than seven days are cleaned on a later drag; unrelated files are kept. These are unencrypted local copies, like capture history.
 
-History retains the latest **100 captures**, pruning older owned PNGs after the new history index is committed. Export anything you need to keep permanently. **Remove** asks for confirmation and removes that history image; exported copies elsewhere remain. Screenshots are unencrypted local files. Snipsera contains no upload, telemetry or network code.
+History retains the latest **100 captures**, pruning older owned PNGs and their automatic edit projects after the new history index is committed. Export anything you need to keep permanently. **Remove** asks for confirmation and removes that history image and its automatic edit project; exported copies elsewhere remain. Screenshots are unencrypted local files. Snipsera contains no upload, telemetry or network code.
 
 Damaged indexes are preserved and recoverable PNGs are rediscovered. Recovered files can lose their original capture mode and are labeled Area. If saving history fails during a capture, the preview still offers Copy and Save and displays a warning.
 
@@ -93,9 +100,9 @@ Open **Annotate** from a preview or pin, or use **Open image / project…** on t
 
 **Solid mask** covers a region with opaque black in flattened output. **Blur** and **Pixelate** soften or obscure content and should not be used as secure redaction. Exported images contain the rendered result; the editable project retains the original image and reversible layers, including masked pixels. Share a flattened PNG/JPEG when masking sensitive content.
 
-**Save project…** writes a self-contained `.snipsera` file (or keeps an opened legacy `.framelet` filename) with the original pixels, layers and image settings. New projects use version 3 for arrow styles, bend geometry and freehand smoothing and are readable by Snipsera and Framelet 0.5.0 or newer. This version reads versions 1, 2 and 3, preserving legacy rendering. Reopen it using Open; it does not depend on the screenshot remaining in history. Undo history is not stored in the project. Closing a dirty editor or quitting the app prompts you with **Save project…**, **Discard edits** and **Cancel**; Cancel keeps it open. There is no autosave or automatic recovery of unsaved work after a crash.
+**Save project…** writes a self-contained `.snipsera` file (or keeps an opened legacy `.framelet` filename) with the original pixels, layers and image settings. New projects use version 3 for arrow styles, bend geometry and freehand smoothing and are readable by Snipsera and Framelet 0.5.0 or newer. This version reads versions 1, 2 and 3, preserving legacy rendering. Reopen it using Open; it does not depend on the screenshot remaining in history. Undo history is not stored in the project. Edits save automatically to local history after a short pause and before the editor closes or the app quits. Closing the editor does not ask you to save or discard. If saving fails, it stays open with an error so you can retry or export a copy. Changes made just before a crash may not have reached disk.
 
-**PNG…** and **JPEG…** export a flattened image. JPEG uses quality 95 and fills transparency with white. **Copy** and **Pin** use the same edited result. Editing a pinned flattened result starts a new document with that flattened image as its original. Edited output is not added automatically to capture history; save a project or export it to keep it. Projects and exported copies are outside the 100-capture retention policy.
+**PNG…** and **JPEG…** export a flattened image. JPEG uses quality 95 and fills transparency with white. **Copy** and **Pin** use the same edited result. Reopening a history capture for annotation restores its original pixels and saved layers. Edits update that history entry rather than adding duplicates; imported images enter history when first edited. An external project or exported copy stays separate from automatic history saves and is outside the 100-capture retention policy.
 
 Editor shortcuts: **Ctrl+Z** undo, **Ctrl+Y** redo, **Ctrl+S** save project, **Ctrl+C** copy the edited image, **Delete** remove the selected object. Text fields retain their own copy/undo behavior. Save project opens a filename dialog, including for an already saved project.
 
