@@ -124,6 +124,14 @@ class ReleaseLogChecks(unittest.TestCase):
         self.assertNotIn("0.6.0-preview.4", block)
         self.assertIn("0.5.2", block)
 
+    def test_store_download_survives_preview_pointer_changes(self):
+        updated = copy.deepcopy(self.catalog)
+        updated["store_url"] = "https://apps.microsoft.com/detail/9NFL9VHL8GKV"
+        for preview in ("v1.0.1-preview.1", "v0.6.0-preview.3", None):
+            updated["latest_preview"] = preview
+            with self.subTest(preview=preview):
+                self.assertIn(f"[Get Snipsera from Microsoft Store]({updated['store_url']})", LOG.download_block(updated))
+
     def test_readme_does_not_offer_an_old_preview_after_stable_promotion(self):
         updated = copy.deepcopy(self.catalog)
         updated["latest_preview"] = None

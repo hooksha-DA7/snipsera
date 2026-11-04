@@ -11,14 +11,15 @@ def download_block(catalog):
     entries = {item["tag"]: item for item in catalog["releases"]}
     baseline = entries[catalog["verified_baseline"]]
     preview = entries.get(catalog.get("latest_preview"))
+    store = f"[Get Snipsera from Microsoft Store]({catalog['store_url']}) · " if catalog.get("store_url") else ""
     if preview and preview.get("product") == "Snipsera":
         assets = {asset["role"]: asset for asset in preview["assets"]}
-        return (START + "\n"
+        return (START + "\n" + store
                 + f"[Download Snipsera preview ({preview['version']})]({assets['installer-x64']['url']}) · "
                 + (f"[Portable ZIP]({assets['windows-x64']['url']}) · " if 'windows-x64' in assets else "")
                 + f"[Stable {baseline['version']}]({baseline['release_url']}) · [All releases](RELEASES.md)\n" + END)
     windows = next((asset for asset in baseline["assets"] if asset["role"] == "installer-x64"), None) or next(asset for asset in baseline["assets"] if asset["role"] == "windows-x64")
-    return (START + "\n"
+    return (START + "\n" + store
             + f"[Download for Windows ({baseline['version']})]({windows['url']}) · "
             + (f"[Try the preview ({preview['version']})]({preview['release_url']}) · " if preview else "")
             + "[All releases](RELEASES.md)\n" + END)

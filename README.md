@@ -7,18 +7,16 @@ Snipsera is the new name for Framelet. Try the preview below, or choose Framelet
 ## Download and run
 
 <!-- FRAMELET_DOWNLOADS_START -->
-[Download Snipsera preview (1.0.1-preview.1)](https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.1-preview.1/Snipsera-1.0.1-preview.1-setup-win-x64.exe) · [Portable ZIP](https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.1-preview.1/Snipsera-1.0.1-preview.1-win-x64.zip) · [Stable 0.6.0](https://github.com/hooksha-DA7/snipsera/releases/tag/v0.6.0) · [All releases](RELEASES.md)
+[Get Snipsera from Microsoft Store](https://apps.microsoft.com/detail/9NFL9VHL8GKV) · [Download Snipsera preview (1.0.1-preview.1)](https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.1-preview.1/Snipsera-1.0.1-preview.1-setup-win-x64.exe) · [Portable ZIP](https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.1-preview.1/Snipsera-1.0.1-preview.1-win-x64.zip) · [Stable 0.6.0](https://github.com/hooksha-DA7/snipsera/releases/tag/v0.6.0) · [All releases](RELEASES.md)
 <!-- FRAMELET_DOWNLOADS_END -->
 
-1. Download the **EXE installer** above.
-2. Run it and follow the setup steps.
-3. Open **Snipsera** from the Start menu.
+Install Snipsera from **Microsoft Store** above, then open it from the Start menu. If you prefer the GitHub download, run the **EXE installer** and follow the setup steps.
 
 The installer includes .NET. Screen recording needs the [Microsoft Visual C++ x64 runtime](https://aka.ms/vs/17/release/vc_redist.x64.exe); setup checks for it and offers the official download when it is missing.
 
 For the portable version, extract the complete ZIP and open **Snipsera.exe**. Keep its files and `encoder` folder together.
 
-**This is an unsigned preview.** Windows may show a warning when you download or start it. Code signing is pending; see the [release notes](releases/notes/v1.0.1-preview.1.md) for current limits. The Store package has been submitted for certification. [Code signing policy](docs/CODE-SIGNING.md).
+**The GitHub EXE and portable ZIP are unsigned previews.** Windows may show a warning when you download or start them. Installer code signing is pending; see the [release notes](releases/notes/v1.0.1-preview.1.md) for current limits. Snipsera is also available from Microsoft Store. [Code signing policy](docs/CODE-SIGNING.md).
 
 Snipsera runs locally, without an account or cloud service. Older Framelet downloads remain available in the [release history](RELEASES.md).
 

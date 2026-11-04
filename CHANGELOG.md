@@ -20,7 +20,7 @@ Preview release. Framelet is now Snipsera, with a Windows installer and the scre
 - The installer reports the matching application version in its file properties.
 - The Store package declares the Microsoft C++ runtime dependency needed by the recorder.
 
-**Unsigned preview.** Windows may warn when you download or start it. Code signing and final Windows 11 acceptance are pending. The Store package has been submitted for certification. Enable Do not disturb manually in Windows.
+**Unsigned GitHub preview.** Windows may warn when you download or start it. Code signing and final Windows 11 acceptance are pending. A Microsoft Store download is also available. Enable Do not disturb manually in Windows.
 
 ## 0.7.0-preview.1 — 2026-11-02
 

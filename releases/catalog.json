@@ -693,7 +693,7 @@
           "The Store package declares the Microsoft C++ runtime dependency needed by the recorder."
         ]
       },
-      "notice": "**Unsigned preview.** Windows may warn when you download or start it. Code signing and final Windows 11 acceptance are pending. The Store package has been submitted for certification. Enable Do not disturb manually in Windows.",
+      "notice": "**Unsigned GitHub preview.** Windows may warn when you download or start it. Code signing and final Windows 11 acceptance are pending. A Microsoft Store download is also available. Enable Do not disturb manually in Windows.",
       "verification": "102 automated checks and hosted Windows Server installer installation, reinstall, increasing-version fixture upgrade and uninstall passed. Source and package hashes/parity verified. Clean Windows 11 and final installed-MSIX recording acceptance remain pending.",
       "signing_status": "unsigned-preview",
       "source_commit": "c7ec4743bf6533cafe1189c5e77997ffb55d405b",
@@ -725,8 +725,10 @@
         "name": "Snipsera-1.0.1-preview.1-store-submission-x64.msix",
         "bytes": 151332994,
         "sha256": "f7b845d0fb8043c63b31667a48ee18a46be99de62cef4e64f9430ab331f617ba"
-      }
+      },
+      "store_url": "https://apps.microsoft.com/detail/9NFL9VHL8GKV"
     }
   ],
-  "product": "Snipsera"
+  "product": "Snipsera",
+  "store_url": "https://apps.microsoft.com/detail/9NFL9VHL8GKV"
 }

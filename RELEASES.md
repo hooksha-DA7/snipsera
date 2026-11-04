@@ -22,11 +22,11 @@ Framelet is now Snipsera, with a Windows installer and the screenshot, annotatio
 - The installer reports the matching application version in its file properties.
 - The Store package declares the Microsoft C++ runtime dependency needed by the recorder.
 
-**Unsigned preview.** Windows may warn when you download or start it. Code signing and final Windows 11 acceptance are pending. The Store package has been submitted for certification. Enable Do not disturb manually in Windows.
+**Unsigned GitHub preview.** Windows may warn when you download or start it. Code signing and final Windows 11 acceptance are pending. A Microsoft Store download is also available. Enable Do not disturb manually in Windows.
 
 ### Download
 
-[EXE installer](https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.1-preview.1/Snipsera-1.0.1-preview.1-setup-win-x64.exe) · [Portable ZIP](https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.1-preview.1/Snipsera-1.0.1-preview.1-win-x64.zip) · [Source ZIP](https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.1-preview.1/Snipsera-1.0.1-preview.1-source.zip) · [Checksums](https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.1-preview.1/SHA256SUMS.txt)
+[EXE installer](https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.1-preview.1/Snipsera-1.0.1-preview.1-setup-win-x64.exe) · [Portable ZIP](https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.1-preview.1/Snipsera-1.0.1-preview.1-win-x64.zip) · [Source ZIP](https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.1-preview.1/Snipsera-1.0.1-preview.1-source.zip) · [Microsoft Store](https://apps.microsoft.com/detail/9NFL9VHL8GKV) · [Checksums](https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.1-preview.1/SHA256SUMS.txt)
 
 Run the EXE installer, or extract the portable ZIP and open **Snipsera.exe**. Windows 11 x64 is required; .NET is included. Quit an older copy from its tray menu first. The installer checks the Visual C++ x64 runtime needed for recording.
 
