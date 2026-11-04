@@ -2,9 +2,9 @@
 
 [Downloads and release notes](RELEASES.md)
 
-## 1.0.2-preview.2 — 2026-11-04
+## 1.0.2 — 2026-11-04
 
-Preview release. Floating screenshots now sit closer together, and edits stay in history when you close the editor. Shortcut boxes record the keys you press, including Print Screen.
+Release. Floating screenshots now sit closer together, and edits stay in history when you close the editor. Shortcut boxes record the keys you press, including Print Screen.
 
 ### Added
 
@@ -22,7 +22,7 @@ Preview release. Floating screenshots now sit closer together, and edits stay in
 - Existing capture shortcuts pause while a new shortcut is being recorded.
 - Print Screen keeps its modifiers when the keyboard sends both press and release events.
 
-**Unsigned GitHub preview.** Windows may warn when downloading or starting it. The matching Store 1.0.2 update is in certification and will publish automatically after approval. The [current Store download](https://apps.microsoft.com/detail/9NFL9VHL8GKV) remains 1.0.1 until then. Live keyboard/global-shortcut testing and final clean Windows 11/installed-MSIX acceptance are pending. Enable Do not disturb manually in Windows.
+**Unsigned GitHub installer and portable ZIP.** Windows may warn when downloading or starting them. [Snipsera 1.0.2 is available from Microsoft Store](https://apps.microsoft.com/detail/9NFL9VHL8GKV). Live keyboard/global-shortcut testing and final clean Windows 11/installed-MSIX acceptance are pending. Enable Do not disturb manually in Windows.
 
 ## 1.0.1-preview.1 — 2026-11-02
 

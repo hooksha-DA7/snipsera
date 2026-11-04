@@ -1,10 +1,10 @@
 # Releases
 
-The newest Snipsera preview is [1.0.2-preview.2](https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.2-preview.2). For the stable screenshot build, use [Framelet 0.6.0](https://github.com/hooksha-DA7/snipsera/releases/tag/v0.6.0).
+The official Snipsera release is [1.0.2](https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.2-preview.2).
 
-## 1.0.2-preview.2: Compact captures and automatic edit history
+## 1.0.2: Compact captures and automatic edit history
 
-2026-11-04 · Preview release · [Release page](https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.2-preview.2)
+2026-11-04 · Release · [Release page](https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.2-preview.2)
 
 Floating screenshots now sit closer together, and edits stay in history when you close the editor. Shortcut boxes record the keys you press, including Print Screen.
 
@@ -24,7 +24,7 @@ Floating screenshots now sit closer together, and edits stay in history when you
 - Existing capture shortcuts pause while a new shortcut is being recorded.
 - Print Screen keeps its modifiers when the keyboard sends both press and release events.
 
-**Unsigned GitHub preview.** Windows may warn when downloading or starting it. The matching Store 1.0.2 update is in certification and will publish automatically after approval. The [current Store download](https://apps.microsoft.com/detail/9NFL9VHL8GKV) remains 1.0.1 until then. Live keyboard/global-shortcut testing and final clean Windows 11/installed-MSIX acceptance are pending. Enable Do not disturb manually in Windows.
+**Unsigned GitHub installer and portable ZIP.** Windows may warn when downloading or starting them. [Snipsera 1.0.2 is available from Microsoft Store](https://apps.microsoft.com/detail/9NFL9VHL8GKV). Live keyboard/global-shortcut testing and final clean Windows 11/installed-MSIX acceptance are pending. Enable Do not disturb manually in Windows.
 
 ### Download
 

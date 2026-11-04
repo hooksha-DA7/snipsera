@@ -2,12 +2,12 @@
 
 Screenshots and screen recording for Windows 11. Capture part of your screen, mark it up, and copy or save it. Pin references beside your work, or record a window, display or area as MP4 or GIF.
 
-Snipsera is the new name for Framelet. Get it from Microsoft Store or try the latest GitHub preview below. Historical Framelet downloads are still available.
+Snipsera is the new name for Framelet. Get it from Microsoft Store or download the Windows installer below. Historical Framelet downloads are still available.
 
 ## Download and run
 
 <!-- FRAMELET_DOWNLOADS_START -->
-[Get Snipsera from Microsoft Store](https://apps.microsoft.com/detail/9NFL9VHL8GKV) · [Download Snipsera preview (1.0.2-preview.2)](https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.2-preview.2/Snipsera-1.0.2-preview.2-setup-win-x64.exe) · [Portable ZIP](https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.2-preview.2/Snipsera-1.0.2-preview.2-win-x64.zip) · [Stable 0.6.0](https://github.com/hooksha-DA7/snipsera/releases/tag/v0.6.0) · [All releases](RELEASES.md)
+[Get Snipsera from Microsoft Store](https://apps.microsoft.com/detail/9NFL9VHL8GKV) · [Download Snipsera (1.0.2)](https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.2-preview.2/Snipsera-1.0.2-preview.2-setup-win-x64.exe) · [Portable ZIP](https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.2-preview.2/Snipsera-1.0.2-preview.2-win-x64.zip) · [All releases](RELEASES.md)
 <!-- FRAMELET_DOWNLOADS_END -->
 
 Install Snipsera from **Microsoft Store** above, then open it from the Start menu. If you prefer the GitHub download, run the **EXE installer** and follow the setup steps.
@@ -16,7 +16,7 @@ The installer includes .NET. Screen recording needs the [Microsoft Visual C++ x6
 
 For the portable version, extract the complete ZIP and open **Snipsera.exe**. Keep its files and `encoder` folder together.
 
-**The GitHub EXE and portable ZIP are unsigned previews.** Windows may show a warning when you download or start them. The Store release is currently 1.0.1. Version 1.0.2 is submitted for Store approval; its GitHub download stays a preview until Microsoft approves the matching update. Installer code signing is pending; see the [release notes](https://github.com/hooksha-DA7/snipsera/releases) for current limits. Snipsera is also available from Microsoft Store. [Code signing policy](docs/CODE-SIGNING.md).
+**The GitHub EXE and portable ZIP are unsigned.** Windows may show a warning when you download or start them. Snipsera 1.0.2 is available from Microsoft Store and GitHub. Installer code signing is pending; see the [release notes](https://github.com/hooksha-DA7/snipsera/releases) for current limits. [Code signing policy](docs/CODE-SIGNING.md).
 
 Snipsera runs locally, without an account or cloud service. Older Framelet downloads remain available in the [release history](RELEASES.md).
 
