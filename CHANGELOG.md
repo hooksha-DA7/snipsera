@@ -2,24 +2,26 @@
 
 [Downloads and release notes](RELEASES.md)
 
-## 1.0.3 — Unreleased
+## 1.0.3 — 2026-11-04
 
-Compact recording controls, more reliable area selection and faster GIF conversion.
+Preview release. Recording opens in compact floating controls, with separate Record GIF and Record Video buttons. Area selection is more precise, and Compact and Balanced GIFs finish faster.
 
 ### Improved
 
-- Recording opens compact floating controls with separate Record GIF and Record Video buttons.
-- Compact and Balanced GIF conversion uses a faster palette path while keeping the selected frame rate and resolution.
-- GIF conversion shows progress and supports deliberate cancellation.
+- A compact floating panel replaces the large recording setup window.
+- Source, pixel dimensions and capture toggles stay visible; quality, FPS and resolution open under the sliders icon.
+- Compact and Balanced GIFs convert faster while keeping the chosen frame rate and dimensions.
+- GIF conversion shows progress and supports deliberate two-click Discard.
 
 ### Fixed
 
-- Area selection uses physical screen coordinates through mouse release, with an explicit crop inside one display.
-- Canceling a source selection no longer starts recording an older source.
-- Long recording-bar messages keep Stop and Discard visible.
-- Area selection reaches display edges and aligns odd frame sizes without adding a thin border.
-- Recording controls stay on the selected display.
-- Video audio choices survive closing and reopening recording setup during the app session.
+- Area selection uses physical screen coordinates through mouse release and stays inside one display.
+- Area frames reach display edges and align odd sizes without a thin border.
+- Canceling selection keeps recording stopped instead of reusing an older source.
+- Controls stay on the selected display and keep Stop and Discard visible through long messages.
+- Video audio choices survive reopening setup during the current app session.
+
+**Unsigned preview.** Windows may warn when downloading or starting the GitHub EXE or portable ZIP. The [Microsoft Store version](https://apps.microsoft.com/detail/9NFL9VHL8GKV) remains 1.0.2; this update has not been submitted. Live WindowsGraphicsCapture area output, mixed-DPI input and final clean Windows 11/installed-MSIX acceptance are pending. Enable Do not disturb manually in Windows.
 
 ## 1.0.2 — 2026-11-04
 

@@ -1,6 +1,6 @@
 # Snipsera build status
 
-Preview candidate: **1.0.3**, 4 November 2026. The current official Store/GitHub release is **1.0.2**.
+GitHub preview: **1.0.3**, 4 November 2026. The current official Store/GitHub release is **1.0.2**.
 
 Recording setup now uses two compact floating panels with source icons, editable pixel dimensions, capture toggles and separate Record GIF / Record Video actions. Quality, FPS, resolution and notification settings are available under the sliders icon. The bar shows GIF conversion progress and keeps its two-click Discard available while Stop is pending.
 
@@ -15,3 +15,5 @@ Live mouse selection, WindowsGraphicsCapture area output on the user's desktop, 
 The GitHub installer remains unsigned. Store certification does not sign GitHub downloads. SignPath's application was submitted on 2 November; provider status was not rechecked during this change. Store 1.0.3 has not been submitted. New GitHub versions remain previews until the matching Store update is approved. Historical tags and downloads are preserved.
 
 See [recording help](docs/RECORDING.md), [user guide](docs/USER-GUIDE.md), [distribution setup](docs/DISTRIBUTION.md) and [release history](RELEASES.md).
+
+The published preview bytes come from [hosted Windows run 41779038100](https://github.com/hooksha-DA7/snipsera/actions/runs/41779038100), source `1c9bdf8d70488bf4199dea2a608b028e2dcac394`. That run passed all 167 focused checks, package/source verification and exact installer install, synthetic launch, reinstall, increasing-version fixture upgrade and uninstall on Windows Server 2025. The downloaded artifacts were independently hashed and checked against their source before publication. Store 1.0.3 is not submitted.
