@@ -31,6 +31,8 @@ public sealed class RecordingController : IDisposable
     public IReadOnlyList<RecordingResult> RecentRecordings => store.Entries;
     public TimeSpan Elapsed => elapsed.Elapsed;
     public double? ConversionProgress { get; private set; }
+    internal bool VideoMicrophonePreference { get; private set; }
+    internal bool VideoComputerAudioPreference { get; private set; }
     public string Status { get; private set; } = "Choose what to record.";
     public bool IsActive => State is RecordingState.Starting or RecordingState.Recording or RecordingState.Paused or RecordingState.Stopping or RecordingState.Converting;
     public bool CanStart => Target is not null && !IsActive && State != RecordingState.Selecting;
@@ -44,6 +46,7 @@ public sealed class RecordingController : IDisposable
         this.app = app; store = new(historyRoot); this.createEngine = createEngine ?? (() => new ScreenRecordingEngine());
         this.selectTarget = selectTarget ?? app.SelectRecordingTargetAsync;
         options = store.LoadOptions(); LastResult = store.Entries.Count > 0 ? store.Entries[0] : null;
+        if (options.Format == RecordingFormat.Mp4) RememberVideoAudio(options.Microphone, options.ComputerAudio);
         timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(250) };
         timer.Tick += (_, _) =>
         {
@@ -60,7 +63,15 @@ public sealed class RecordingController : IDisposable
         if (options.DoNotDisturb && !DoNotDisturbAvailable) throw new InvalidOperationException(DoNotDisturbExplanation);
         if (options.TargetKind != Options.TargetKind || options.CustomWidth != Options.CustomWidth || options.CustomHeight != Options.CustomHeight)
             Target = null;
-        store.SaveOptions(options); this.options = options with { }; Notify(Target is null ? RecordingState.Idle : RecordingState.Ready, Target?.Label ?? "Choose what to record.");
+        store.SaveOptions(options); this.options = options with { };
+        if (options.Format == RecordingFormat.Mp4) RememberVideoAudio(options.Microphone, options.ComputerAudio);
+        Notify(Target is null ? RecordingState.Idle : RecordingState.Ready, Target?.Label ?? "Choose what to record.");
+    }
+    internal void RememberVideoAudio(bool microphone, bool computerAudio)
+    {
+        CheckDispatcher();
+        if (IsActive || State == RecordingState.Selecting) throw new InvalidOperationException("Finish the recording or selection before changing audio preferences.");
+        VideoMicrophonePreference = microphone; VideoComputerAudioPreference = computerAudio;
     }
     public async Task<bool> SelectTargetAsync(RecordingTargetKind kind)
     {
@@ -147,6 +158,8 @@ public sealed class RecordingController : IDisposable
             {
                 Notify(RecordingState.Converting, "Creating GIF…"); conversion = new();
                 string workingGif = Path.ChangeExtension(temporary, ".gif");
+                // Reject a collision before entering the cleanup scope; an existing file belongs to another operation.
+                if (File.Exists(workingGif)) throw new IOException("A temporary GIF already exists. The MP4 is retained for recovery.");
                 var progress = new Progress<double>(value => dispatcher.BeginInvoke(() =>
                 {
                     if (State != RecordingState.Converting) return;

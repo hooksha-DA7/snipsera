@@ -146,8 +146,9 @@ public static class RecordingSetupVisuals
         return style;
     }
 
-    // Puts a floating window's panel just outside the target (below, above, then beside) inside one work area, using the
-    // scrolling-capture keep-out so it never overlaps the captured pixels. False when no side has room.
+    // Puts a floating window's panel just outside the target (below, above, then beside) inside the target's own work area, using
+    // the scrolling-capture keep-out so it never overlaps the captured pixels. Only that work area is offered, so the controls never
+    // jump to a neighbouring display (e.g. beside a full-display target). False when no side has room.
     internal static bool PlaceOutside(Window window, System.Drawing.Rectangle target, double shadow)
     {
         var handle = new WindowInteropHelper(window).Handle;
@@ -155,7 +156,7 @@ public static class RecordingSetupVisuals
         double self = VisualTreeHelper.GetDpi(window).DpiScaleX, scale = ScrollCaptureLayout.ScaleFor(target);
         int own = (int)Math.Round(shadow * self);
         var body = new Size(Math.Max(1, rect.Right - rect.Left - 2 * own) / self, Math.Max(1, rect.Bottom - rect.Top - 2 * own) / self);
-        if (ScrollCaptureLayout.PlaceBar(target, ScrollCaptureLayout.WorkAreas(), body, body, scale) is not ScrollBarPlacement placed) return false;
+        if (ScrollCaptureLayout.PlaceBar(target, [WorkAreaFor(target)], body, body, scale) is not ScrollBarPlacement placed) return false;
         int margin = (int)Math.Round(shadow * scale);
         // HWND_TOPMOST, SWP_NOSIZE | SWP_NOACTIVATE.
         Native.SetWindowPos(handle, new IntPtr(-1), placed.Body.Left - margin, placed.Body.Top - margin, 0, 0, 0x0011);

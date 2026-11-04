@@ -108,6 +108,26 @@ internal static class RecordingSetupVisualChecks
             catch (Exception ex) { failures++; results.Add(new { name, passed = false, error = ex.ToString() }); Console.WriteLine("FAIL " + name + ": " + ex.Message); }
             finally { typeof(RecordingController).GetProperty(nameof(RecordingController.State))!.SetValue(app.Recording, RecordingState.Idle); bar?.Close(); }
         }
+        try
+        {
+            app.Recording.UpdateOptions(app.Recording.Options with { Format = RecordingFormat.Gif, Microphone = false, ComputerAudio = false });
+            app.Recording.RememberVideoAudio(true, true);
+            for (int i = 0; i < 2; i++)
+            {
+                var setup = new RecordingWindow(app);
+                try
+                {
+                    var toggles = Children((FrameworkElement)setup.Content).OfType<ToggleButton>();
+                    if (toggles.Single(b => AutomationProperties.GetAutomationId(b) == "RecordingMicrophone").IsChecked != true ||
+                        toggles.Single(b => AutomationProperties.GetAutomationId(b) == "RecordingComputerAudio").IsChecked != true)
+                        throw new Exception("Reopening GIF setup lost the video audio choices");
+                }
+                finally { setup.Close(); }
+            }
+            if (app.Recording.Options.Microphone || app.Recording.Options.ComputerAudio) throw new Exception("Remembering video preferences enabled GIF audio");
+            results.Add(new { name = "video-audio-survives-setup-reopen", passed = true }); Console.WriteLine("PASS video-audio-survives-setup-reopen");
+        }
+        catch (Exception ex) { failures++; results.Add(new { name = "video-audio-survives-setup-reopen", passed = false, error = ex.ToString() }); Console.WriteLine("FAIL video-audio-survives-setup-reopen: " + ex.Message); }
         File.WriteAllText(Path.Combine(output, "results.json"), JsonSerializer.Serialize(new { passed = results.Count - failures, failed = failures, desktop = "not used; detached controls rendered offscreen", results }, new JsonSerializerOptions { WriteIndented = true }));
         return failures == 0 ? 0 : 1;
     }

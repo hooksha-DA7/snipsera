@@ -27,7 +27,7 @@ internal static class RecordingImageCropChecks
     {
         const int width = 1280, height = 720;
         var monitor = System.Windows.Forms.Screen.PrimaryScreen!.Bounds;
-        var target = new RecordingTarget(RecordingTargetKind.Area, new(monitor.Left + 120, monitor.Top + 80, 640, 360), IntPtr.Zero, "Synthetic crop");
+        var target = new RecordingTarget(RecordingTargetKind.Area, new(monitor.Left + 120, monitor.Top + 80, 641, 361), IntPtr.Zero, "Synthetic odd crop");
         var options = ScreenRecordingEngine.Configure(target, new() { FramesPerSecond = 10, ShowCursor = false, Resolution = RecordingResolution.Original });
         var display = options.SourceOptions.RecordingSources.OfType<DisplayRecordingSource>().Single();
         byte[] pixels = new byte[width * height * 4];
@@ -65,7 +65,7 @@ internal static class RecordingImageCropChecks
         if (process.ExitCode != 0) throw new Exception(await error);
         byte[] decoded = frame.ToArray();
         if (decoded.Length != 640 * 360 * 3) throw new Exception("Native output did not use the selected dimensions");
-        foreach (var (x, y) in new[] { (8, 8), (630, 8), (8, 350), (630, 350) })
+        foreach (var (x, y) in new[] { (0, 0), (639, 0), (0, 359), (639, 359) })
         {
             int i = (y * 640 + x) * 3;
             if (decoded[i] > 80 || decoded[i + 1] < 140 || decoded[i + 2] > 110) throw new Exception("Encoded corner includes pixels outside the selected green region");

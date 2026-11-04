@@ -39,6 +39,10 @@ internal static class RecordingRefinementChecks
             True(area == new Rectangle(0, 0, 600, 400), "Desktop clipping lost its origin");
             Refuses(() => RecordingGeometry.SourceCrop(new(-20, 100, 640, 360), new(0, 0, 1920, 1080)));
             Refuses(() => RecordingGeometry.SourceCrop(new(20, 20, 1, 10), new(0, 0, 1920, 1080)));
+            True(RecordingGeometry.FromDrag(0, 0, 1919, 1079, new(0, 0, 1920, 1080)) == new Rectangle(0, 0, 1920, 1080), "Last display row or column was omitted");
+            True(RecordingGeometry.FromDrag(100, 80, 740, 440, new(0, 0, 1920, 1080)) == new Rectangle(100, 80, 640, 360), "Odd selection was rescaled instead of trimmed");
+            var odd = RecordingGeometry.SourceCrop(new(100, 80, 641, 361), new(0, 0, 1920, 1080));
+            True(odd.Width == 640 && odd.Height == 360, "Odd crop can introduce a letterbox strip");
         });
         Check("Recorder locks a nonzero area crop and source canvas to the requested output", () =>
         {
@@ -69,8 +73,45 @@ internal static class RecordingRefinementChecks
             try { controller.SelectTargetAsync(RecordingTargetKind.Area).GetAwaiter().GetResult(); throw new Exception("Selection error was hidden"); } catch (IOException) { }
             True(controller.Target == selected && controller.State == RecordingState.Ready, "Selection failure lost the last valid area");
         });
+        Check("Video audio preferences survive silent GIF mode for the app session", () =>
+        {
+            using var controller = new RecordingController(app, Path.Combine(output, "audio-preferences"));
+            controller.UpdateOptions(new() { Microphone = true, ComputerAudio = true });
+            controller.UpdateOptions(controller.Options with { Format = RecordingFormat.Gif, Microphone = false, ComputerAudio = false });
+            True(controller.VideoMicrophonePreference && controller.VideoComputerAudioPreference && !controller.Options.Microphone && !controller.Options.ComputerAudio, "GIF lost video preferences or enabled audio");
+            controller.RememberVideoAudio(false, true);
+            True(!controller.VideoMicrophonePreference && controller.VideoComputerAudioPreference, "Session preferences did not update independently");
+        });
+        Check("GIF name collision preserves both the existing GIF and recovery MP4", () =>
+        {
+            string history = Path.Combine(output, "collision"); var store = new RecordingStore(history);
+            using var controller = new RecordingController(app, history);
+            controller.UpdateOptions(new() { Format = RecordingFormat.Gif });
+            controller.UseTarget(new(RecordingTargetKind.Area, new(80, 100, 640, 360), IntPtr.Zero, "Synthetic area"));
+            string temporary = Path.Combine(store.Root, ".collision.mp4"), gif = Path.ChangeExtension(temporary, ".gif");
+            File.WriteAllText(temporary, "recovery"); File.WriteAllText(gif, "existing GIF");
+            var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+            typeof(RecordingController).GetField("temporary", flags)!.SetValue(controller, temporary);
+            typeof(RecordingController).GetField("destination", flags)!.SetValue(controller, Path.Combine(store.Root, "new.gif"));
+            typeof(RecordingController).GetField("engine", flags)!.SetValue(controller, new CompletedEngine());
+            typeof(RecordingController).GetProperty(nameof(RecordingController.State))!.SetValue(controller, RecordingState.Recording);
+            bool refused = false;
+            try { controller.StopAsync().GetAwaiter().GetResult(); } catch (IOException) { refused = true; }
+            True(refused && File.ReadAllText(gif) == "existing GIF" && File.ReadAllText(temporary) == "recovery", "Collision cleanup deleted a file it did not create");
+            True(controller.State == RecordingState.Failed && controller.Status.Contains(temporary, StringComparison.Ordinal), "Recovery path was not reported");
+        });
         File.WriteAllText(Path.Combine(output, "results.json"), JsonSerializer.Serialize(new { passed = results.Count - failures, failed = failures, desktopCapture = "not performed", results }, new JsonSerializerOptions { WriteIndented = true }));
         return failures == 0 ? 0 : 1;
+    }
+
+    private sealed class CompletedEngine : IRecordingEngine
+    {
+        public Task Completion => Task.CompletedTask;
+        public Task StartAsync(RecordingTarget target, RecordingOptions options, string path) => throw new Exception("No recording should start in this check");
+        public Task StopAsync() => Task.CompletedTask;
+        public void Pause() { }
+        public void Resume() { }
+        public void Dispose() { }
     }
 
     private sealed class ProgressValues : IProgress<double>

@@ -17,6 +17,9 @@ Compact recording controls, more reliable area selection and faster GIF conversi
 - Area selection uses physical screen coordinates through mouse release, with an explicit crop inside one display.
 - Canceling a source selection no longer starts recording an older source.
 - Long recording-bar messages keep Stop and Discard visible.
+- Area selection reaches display edges and aligns odd frame sizes without adding a thin border.
+- Recording controls stay on the selected display.
+- Video audio choices survive closing and reopening recording setup during the app session.
 
 ## 1.0.2 — 2026-11-04
 

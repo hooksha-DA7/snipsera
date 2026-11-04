@@ -48,7 +48,7 @@ public sealed class RecordingWindow : Window
         WindowStyle = WindowStyle.None; AllowsTransparency = true; Background = System.Windows.Media.Brushes.Transparent; ResizeMode = ResizeMode.NoResize;
         SizeToContent = SizeToContent.WidthAndHeight; Topmost = true; WindowStartupLocation = WindowStartupLocation.Manual; FontSize = 13;
         var o = controller.Options; stale = controller.Target; savedRate = o.FramesPerSecond;
-        if (o.Format == RecordingFormat.Mp4) { savedMicrophone = o.Microphone; savedComputerAudio = o.ComputerAudio; }
+        savedMicrophone = controller.VideoMicrophonePreference; savedComputerAudio = controller.VideoComputerAudioPreference;
 
         // Row 1: source segment | width × height.
         string[] glyphs = ["Area", "Window", "Display", "Custom"];
@@ -225,11 +225,18 @@ public sealed class RecordingWindow : Window
             : o with { Format = format, Microphone = savedMicrophone, ComputerAudio = savedComputerAudio, FramesPerSecond = Rates.Contains(savedRate) ? savedRate : o.FramesPerSecond });
     }
 
-    // Audio toggles always edit the video choice; while the stored format is GIF the choice is kept until a video is recorded.
+    // Audio toggles always edit the video choice; while the stored format is GIF the controller keeps it for this session
+    // (GIF options stay silent) until a video is recorded.
     private void Audio(bool mic, bool on)
     {
         if (mic) savedMicrophone = on; else savedComputerAudio = on;
-        if (controller.Options.Format == RecordingFormat.Gif) { Sync(); Refresh(); return; }
+        if (controller.Options.Format == RecordingFormat.Gif)
+        {
+            try { controller.RememberVideoAudio(savedMicrophone, savedComputerAudio); error = null; }
+            catch (Exception ex) { error = ex.Message; }
+            savedMicrophone = controller.VideoMicrophonePreference; savedComputerAudio = controller.VideoComputerAudioPreference;
+            Sync(); Refresh(); return;
+        }
         Apply(o => mic ? o with { Microphone = on } : o with { ComputerAudio = on });
         savedMicrophone = controller.Options.Microphone; savedComputerAudio = controller.Options.ComputerAudio;
         Sync();

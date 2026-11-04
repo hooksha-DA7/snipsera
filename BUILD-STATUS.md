@@ -8,7 +8,7 @@ Area selection uses physical pointer coordinates through mouse release, validate
 
 Compact/Balanced GIFs sample the palette and use faster ordered dithering; High retains full palette analysis and error diffusion. Output FPS, dimensions and timing remain as chosen. Six-second synthetic 720p/1080p benchmarks were about three times faster in Balanced mode; results depend on content and hardware.
 
-Verification: **164 no-window checks passed**, plus a separate native generated-image crop/encoded-pixel check. The build had no compiler warnings or errors. See [recording verification](docs/RECORDING-VERIFICATION.md) for measured results and limits. Existing screenshot/editor/scrolling/overlay checks passed. No user desktop, microphone or computer audio was captured in these tests.
+Verification: **167 no-window checks passed**, plus a separate native generated-image crop/encoded-pixel check. The build had no compiler warnings or errors. See [recording verification](docs/RECORDING-VERIFICATION.md) for measured results and limits. Existing screenshot/editor/scrolling/overlay checks passed. No user desktop, microphone or computer audio was captured in these tests.
 
 Live mouse selection, WindowsGraphicsCapture area output on the user's desktop, clean Windows 11 and final installed-MSIX capture/recording acceptance remain unverified for this candidate. Desktop testing remains paused. Synthetic evidence is not live acceptance.
 
