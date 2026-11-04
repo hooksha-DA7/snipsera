@@ -813,5 +813,21 @@
     }
   ],
   "product": "Snipsera",
-  "store_url": "https://apps.microsoft.com/detail/9NFL9VHL8GKV"
+  "store_url": "https://apps.microsoft.com/detail/9NFL9VHL8GKV",
+  "unreleased": {
+    "version": "1.0.3",
+    "intro": "Compact recording controls, more reliable area selection and faster GIF conversion.",
+    "changes": {
+      "Improved": [
+        "Recording opens compact floating controls with separate Record GIF and Record Video buttons.",
+        "Compact and Balanced GIF conversion uses a faster palette path while keeping the selected frame rate and resolution.",
+        "GIF conversion shows progress and supports deliberate cancellation."
+      ],
+      "Fixed": [
+        "Area selection uses physical screen coordinates through mouse release, with an explicit crop inside one display.",
+        "Canceling a source selection no longer starts recording an older source.",
+        "Long recording-bar messages keep Stop and Discard visible."
+      ]
+    }
+  }
 }

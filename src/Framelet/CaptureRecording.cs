@@ -79,7 +79,8 @@ public sealed partial class CaptureApp
                 ? System.Windows.Forms.Screen.AllScreens.Select((screen, index) => new WindowTarget(IntPtr.Zero, $"Display {index + 1} · {screen.Bounds.Width} × {screen.Bounds.Height}", screen.Bounds)).ToArray() : null;
             var selection = new SelectionWindow(CaptureService.Capture(desktop), desktop,
                 targets, kind == RecordingTargetKind.Custom ? new System.Drawing.Size(width, height) : null,
-                kind == RecordingTargetKind.Display ? "Click a display to record   ·   Esc to cancel" : null);
+                kind == RecordingTargetKind.Display ? "Click a display to record   ·   Esc to cancel" : kind == RecordingTargetKind.Area ? "Drag the area to record   ·   Esc to cancel" : null,
+                physicalDrag: kind == RecordingTargetKind.Area);
             if (!await selection.PickAsync() || selection.Selected is not Rectangle area) return null;
             if (kind == RecordingTargetKind.Custom)
             {
@@ -87,6 +88,8 @@ public sealed partial class CaptureApp
                 if (!desktop.Contains(area)) throw new InvalidOperationException("The custom rectangle extends beyond the desktop. Choose a frame that fits inside one display.");
             }
             if (area.Width < 16 || area.Height < 16) throw new InvalidOperationException("Select an area at least 16 × 16 pixels.");
+            if (kind is RecordingTargetKind.Area or RecordingTargetKind.Custom && !System.Windows.Forms.Screen.AllScreens.Any(screen => screen.Bounds.Contains(area)))
+                throw new InvalidOperationException("Keep the recording area inside one display. Select the area again without crossing the display edge.");
             var targetWindow = selection.SelectedWindow;
             return new(kind, area, targetWindow?.Handle ?? IntPtr.Zero, targetWindow?.Title ?? $"{area.Width} × {area.Height} px");
         }

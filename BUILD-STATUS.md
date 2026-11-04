@@ -1,19 +1,17 @@
 # Snipsera build status
 
-Official release: **1.0.2**, 4 November 2026. Immutable build/tag: **1.0.2-preview.2**.
+Preview candidate: **1.0.3**, 4 November 2026. The current official Store/GitHub release is **1.0.2**.
 
-Docked previews and pins now use matching 200 × 150 thumbnails with an 8-DIP visible gap. The complete image remains available to copy, save, drag and edit. Shortcut fields record the keys pressed, including Print Screen, and temporarily suspend capture bindings while focused. Edits save automatically in local history, with their original pixels and editable layers; closing the editor flushes pending edits without the usual save prompt. A failed save keeps the editor open.
+Recording setup now uses two compact floating panels with source icons, editable pixel dimensions, capture toggles and separate Record GIF / Record Video actions. Quality, FPS, resolution and notification settings are available under the sliders icon. The bar shows GIF conversion progress and keeps its two-click Discard available while Stop is pending.
 
-Verification: **130 automated and offscreen checks passed** with no compiler warnings. They cover editable-history persistence/recovery/retention and failed writes, shortcut event logic, consistent card geometry across DPI and negative-origin monitors, actual detached card rendering with reachable on-image actions, existing scrolling/overlay/recording rules, identity and packaging/release rules. The test renders use generated pixels and do not show windows or read the desktop.
+Area selection uses physical pointer coordinates through mouse release, validates a frame inside one display, and passes an explicit monitor-local crop and output canvas to the recorder. Canceling selection returns a distinct result so a Record action cannot fall back to an old source.
 
-Live keyboard/global-hotkey behavior, clean Windows 11 and final installed-MSIX capture/recording acceptance remain unverified for this build. Desktop testing remains paused. EXE/MSIX packaging and archive verification are separate from runtime acceptance.
+Compact/Balanced GIFs sample the palette and use faster ordered dithering; High retains full palette analysis and error diffusion. Output FPS, dimensions and timing remain as chosen. Six-second synthetic 720p/1080p benchmarks were about three times faster in Balanced mode; results depend on content and hardware.
 
-Partner Center confirmed that submission **1152921505702310050** passed certification and package **1.0.2.0** is now available in Microsoft Store on 4 November 2026. The read-only published package view confirms its filename and version. The [Store download](https://apps.microsoft.com/detail/9NFL9VHL8GKV) and matching GitHub build are the official release. Store certification does not sign the EXE downloaded from GitHub.
+Verification: **164 no-window checks passed**, plus a separate native generated-image crop/encoded-pixel check. The build had no compiler warnings or errors. See [recording verification](docs/RECORDING-VERIFICATION.md) for measured results and limits. Existing screenshot/editor/scrolling/overlay checks passed. No user desktop, microphone or computer audio was captured in these tests.
 
-The GitHub installer remains unsigned. SignPath's application was submitted on 2 November; no signing-provider status check or live signing request was performed in this update. Snipsera 1.0.2 is the current distribution baseline; Framelet 0.6.0 is preserved as an earlier release. Historical downloads are preserved.
+Live mouse selection, WindowsGraphicsCapture area output on the user's desktop, clean Windows 11 and final installed-MSIX capture/recording acceptance remain unverified for this candidate. Desktop testing remains paused. Synthetic evidence is not live acceptance.
 
-See [user guide](docs/USER-GUIDE.md), [distribution setup](docs/DISTRIBUTION.md) and [release history](RELEASES.md).
+The GitHub installer remains unsigned. Store certification does not sign GitHub downloads. SignPath's application was submitted on 2 November; provider status was not rechecked during this change. Store 1.0.3 has not been submitted. New GitHub versions remain previews until the matching Store update is approved. Historical tags and downloads are preserved.
 
-The published files come from [hosted Windows run 41755579172](https://github.com/hooksha-DA7/snipsera/actions/runs/41755579172), which passed the same checks, package verification and installer installation, launch, reinstall, increasing-version fixture upgrade and uninstall on Windows Server 2025. The downloaded artifacts were independently checked against their hashes and tagged source before publication.
-
-The release process now validates the Store product, submission, package version/hash and source commit before official GitHub classification. Its 36 Python workflow checks passed. The promotion changes release metadata without rebuilding or replacing the existing 1.0.2 artifacts.
+See [recording help](docs/RECORDING.md), [user guide](docs/USER-GUIDE.md), [distribution setup](docs/DISTRIBUTION.md) and [release history](RELEASES.md).

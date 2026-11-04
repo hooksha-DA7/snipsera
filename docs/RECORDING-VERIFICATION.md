@@ -1,6 +1,20 @@
-# Recording preview verification
+# Recording verification
 
-Build: 0.7.0-preview.1, 2026-11-02. This is a recording preview; 0.6.0 remains the stable download. Automated checks, native recordings and hands-on input are listed separately below.
+The 0.7.0-preview.1 evidence below is historical, from 2 November 2026. It does not certify later recording changes.
+
+## 1.0.3 recording update — 4 November 2026
+
+The focused no-window release suite passed 164 checks: 128 C# checks and 36 Python checks. This includes the existing screenshot, annotation, scrolling, overlay, recording-rule and release-workflow coverage. No compiler warnings or errors were reported. The normal NuGet audit ran with network access; its first restricted-network attempt failed before tests and was retried without disabling auditing.
+
+New checks cover physical-pixel drag geometry on negative-origin screens, monitor-local crop offsets, cross-display rejection, accepted/canceled/failed target selection, and the explicit recorder crop and output canvas. A separate native image-source test encoded a generated pattern to H.264 and independently decoded it: all four corners and the center came from the selected region. That check used original resolution; it did not exercise WindowsGraphicsCapture or live mouse selection.
+
+The actual GIF converter generated Compact, Balanced and High GIFs from a six-second synthetic H.264 clip. All outputs retained 640 × 360, all 180 frames and six-second timing. Conversion progress stayed within 0–100% and moved forward. Cancellation preserved the MP4 and cleaned up its palette; existing output files were refused. Setup controls were rendered offscreen in light/dark at 100/125/150/200%, with settings open and closed. Visible controls had accessible names and did not overlap or clip. Conversion and long-error bar states kept their controls visible, including Discard while Stop was pending.
+
+In one controlled synthetic 30-FPS benchmark, the old Balanced conversion took 10.8 seconds at 1280 × 720 and 27.4 seconds at 1920 × 1080. Sampled palette analysis plus ordered dithering took 3.5 and 8.7 seconds respectively, retaining all 180 output frames. These are measurements on the development machine, not performance guarantees; scene motion, dimensions and hardware affect time. High keeps full-frame palette analysis and error-diffusion dithering. [FFmpeg palette documentation](https://ffmpeg.org/ffmpeg-all.html#palettegen), [palette-use options](https://ffmpeg.org/ffmpeg-all.html#paletteuse).
+
+Live desktop/global-input testing remains paused. The user's wrong-area report has not been independently reproduced through WindowsGraphicsCapture on their desktop. Mixed-DPI pointer selection, native capture-affinity appearance, physical cursor/click behavior and final installed-MSIX recording acceptance remain pending. Historical native results below are separate from this update's offscreen and synthetic checks.
+
+## Historical recording verification
 
 ## Verified recording paths
 

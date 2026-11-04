@@ -35,9 +35,9 @@ A compact preview appears at the bottom left. In the latest preview, docked scre
 
 ## Record your screen
 
-Choose **Record screen**, select a window, display or area, and choose MP4 or GIF. Set quality, FPS and resolution, then enable cursor/click highlighting or MP4 audio if needed. Start, pause/resume, then Stop to save. The bar and tray show elapsed time; the result offers Open and Show in folder.
+Choose **Record screen** to open the compact floating controls. Select a window, display or area, or enter an exact size, then choose **Record GIF** or **Record Video**. The sliders icon opens quality, FPS and resolution. Toggle cursor/click highlighting or video audio, then pause/resume and Stop from the recording bar. GIF conversion shows progress; Compact and Balanced favor speed.
 
-Do not disturb must be enabled manually in Windows for this preview. [Recording help](docs/RECORDING.md).
+Do not disturb must be enabled manually in Windows. [Recording help](docs/RECORDING.md).
 
 ## Work with your captures
 

@@ -39,12 +39,14 @@ internal sealed class ScreenRecordingEngine : IRecordingEngine
         else
         {
             var monitor = Forms.Screen.FromRectangle(target.Bounds);
-            if (!monitor.Bounds.Contains(target.Bounds)) throw new InvalidOperationException("Keep the recording area within one display.");
+            var crop = RecordingGeometry.SourceCrop(target.Bounds, monitor.Bounds);
             source = new DisplayRecordingSource(monitor.DeviceName)
             {
                 RecorderApi = RecorderApi.WindowsGraphicsCapture,
                 IsCursorCaptureEnabled = options.ShowCursor,
-                SourceRect = new ScreenRect(target.Bounds.X - monitor.Bounds.X, target.Bounds.Y - monitor.Bounds.Y, target.Bounds.Width, target.Bounds.Height)
+                SourceRect = crop,
+                Position = new ScreenPoint(0, 0), OutputSize = new ScreenSize(size.Width, size.Height),
+                AnchorPoint = Anchor.TopLeft, Stretch = StretchMode.Uniform
             };
         }
         var audio = new List<AudioSourceBase>();

@@ -24,6 +24,8 @@ public sealed class SelectionWindow : Window
     // Fixed-size mode: an exact physical-pixel frame follows the pointer; one click places it.
     private readonly System.Drawing.Size? fixedSize;
     private readonly bool fits;
+    private readonly bool physicalDrag;
+    private Native.Point? physicalOrigin;
     private Native.Point pointer;
     private Point? origin;
     private Rect visualSelection;
@@ -38,9 +40,10 @@ public sealed class SelectionWindow : Window
         Show(); return result.Task;
     }
 
-    public SelectionWindow(BitmapSource frozenDesktop, DrawingRect desktop, IReadOnlyList<WindowTarget>? targets = null, System.Drawing.Size? fixedSize = null, string? targetHint = null)
+    public SelectionWindow(BitmapSource frozenDesktop, DrawingRect desktop, IReadOnlyList<WindowTarget>? targets = null, System.Drawing.Size? fixedSize = null, string? targetHint = null, bool physicalDrag = false)
     {
         this.desktop = desktop; this.targets = targets; this.fixedSize = fixedSize;
+        this.physicalDrag = physicalDrag;
         fits = fixedSize is { } size && size.Width >= 2 && size.Height >= 2 && size.Width <= desktop.Width && size.Height <= desktop.Height;
         // targetHint replaces the window-picking help when the caller supplies other targets (e.g. whole displays).
         Title = fixedSize is not null ? "Snipsera — position the frame" : targets is null ? "Snipsera — select an area" : targetHint is not null ? "Snipsera — choose what to capture" : "Snipsera — select a window";
@@ -54,7 +57,7 @@ public sealed class SelectionWindow : Window
             Child = Ui.Text(fixedSize is { } frame
                 ? fits ? $"Move the {frame.Width:N0} × {frame.Height:N0} px frame   ·   Click to place   ·   Arrow keys nudge   ·   Esc to cancel"
                        : $"{frame.Width:N0} × {frame.Height:N0} px is larger than the desktop   ·   Esc to cancel"
-                : targets is null ? "Drag to capture an area   ·   Esc to cancel" : targetHint ?? "Click a window to capture   ·   Esc to cancel", 15, Brushes.White) };
+                : targets is null ? targetHint ?? "Drag to capture an area   ·   Esc to cancel" : targetHint ?? "Click a window to capture   ·   Esc to cancel", 15, Brushes.White) };
         grid.Children.Add(help);
         label.Background = Ui.Brush("#E6232328"); label.Padding = new Thickness(8, 5, 8, 5); label.IsHitTestVisible = false;
         canvas.Children.Add(label); Content = grid;
@@ -70,6 +73,7 @@ public sealed class SelectionWindow : Window
             if (fixedSize is not null) { FollowPointer(); Complete(); return; }
             if (targets is not null) { UpdateWindow(); Complete(); return; }
             origin = e.GetPosition(canvas); CaptureMouse();
+            if (physicalDrag && Native.GetCursorPos(out var start)) physicalOrigin = start;
         };
         MouseMove += (_, e) =>
         {
@@ -78,11 +82,21 @@ public sealed class SelectionWindow : Window
             if (origin is Point start)
             {
                 Point end = e.GetPosition(canvas);
-                var bounds = CaptureGeometry.FromDrag(start.X, start.Y, end.X, end.Y, canvas.ActualWidth, canvas.ActualHeight, desktop);
+                var bounds = physicalOrigin is Native.Point physical && Native.GetCursorPos(out var pointer)
+                    ? RecordingGeometry.FromDrag(physical.X, physical.Y, pointer.X, pointer.Y, desktop)
+                    : CaptureGeometry.FromDrag(start.X, start.Y, end.X, end.Y, canvas.ActualWidth, canvas.ActualHeight, desktop);
                 Selected = bounds; Draw(ToView(bounds));
             }
         };
-        MouseLeftButtonUp += (_, _) => { if (targets is null && origin is not null) { ReleaseMouseCapture(); origin = null; Complete(); } };
+        MouseLeftButtonUp += (_, _) =>
+        {
+            if (targets is null && origin is not null)
+            {
+                if (physicalOrigin is Native.Point start && Native.GetCursorPos(out var end))
+                    Selected = RecordingGeometry.FromDrag(start.X, start.Y, end.X, end.Y, desktop);
+                ReleaseMouseCapture(); origin = null; physicalOrigin = null; Complete();
+            }
+        };
         MouseRightButtonDown += (_, _) => Close();
         KeyDown += (_, e) =>
         {

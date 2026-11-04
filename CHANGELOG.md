@@ -2,6 +2,22 @@
 
 [Downloads and release notes](RELEASES.md)
 
+## 1.0.3 — Unreleased
+
+Compact recording controls, more reliable area selection and faster GIF conversion.
+
+### Improved
+
+- Recording opens compact floating controls with separate Record GIF and Record Video buttons.
+- Compact and Balanced GIF conversion uses a faster palette path while keeping the selected frame rate and resolution.
+- GIF conversion shows progress and supports deliberate cancellation.
+
+### Fixed
+
+- Area selection uses physical screen coordinates through mouse release, with an explicit crop inside one display.
+- Canceling a source selection no longer starts recording an older source.
+- Long recording-bar messages keep Stop and Discard visible.
+
 ## 1.0.2 — 2026-11-04
 
 Release. Floating screenshots now sit closer together, and edits stay in history when you close the editor. Shortcut boxes record the keys you press, including Print Screen.

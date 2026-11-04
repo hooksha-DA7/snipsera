@@ -42,7 +42,7 @@ In Chrome, Auto-scroll uses small native wheel events and moves the pointer from
 
 ## Screen recording
 
-The 0.7 preview adds **Record screen** in Home and the tray. Select a source, choose MP4/GIF and the recording options, then Start. Use the recording bar or tray to pause and stop. [Full recording instructions](RECORDING.md), including audio requirements and the manual Do not disturb limitation.
+Open **Record screen** in Home or the tray. Use the compact panel's source icons and pixel dimensions to choose what to record, then **Record GIF** or **Record Video**. The sliders icon opens quality, FPS and resolution. Use the recording bar or tray to pause and stop; GIF conversion shows progress. [Full recording instructions](RECORDING.md), including audio requirements and the manual Do not disturb limitation.
 
 ## Preview, save and pin
 

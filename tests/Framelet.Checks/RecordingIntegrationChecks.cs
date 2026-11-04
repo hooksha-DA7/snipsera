@@ -38,9 +38,8 @@ internal static class RecordingIntegrationChecks
                 void True(bool value, string message) { if (!value) throw new Exception(message); }
                 var setup = new RecordingWindow(app);
                 setup.Show(); await Task.Delay(200);
-                Render((FrameworkElement)setup.Content, Path.Combine(output, "setup-125.png"), 500, 680, 1.25, true);
-                setup.Width = 440; setup.Height = 460; await Task.Delay(100);
-                Render((FrameworkElement)setup.Content, Path.Combine(output, "setup-narrow-150.png"), 440, 420, 1.5, true);
+                Render((FrameworkElement)setup.Content, Path.Combine(output, "setup-125.png"), setup.ActualWidth, setup.ActualHeight, 1.25);
+                Render((FrameworkElement)setup.Content, Path.Combine(output, "setup-150.png"), setup.ActualWidth, setup.ActualHeight, 1.5);
                 setup.Close();
                 string folder = Path.Combine(output, "source"); Directory.CreateDirectory(folder);
                 var start = new ProcessStartInfo(Environment.ProcessPath!) { UseShellExecute = false, CreateNoWindow = true };

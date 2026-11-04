@@ -16,9 +16,9 @@ using System.Windows.Threading;
 
 namespace Framelet;
 
-// Compact floating bar shown while recording: status dot, elapsed time, Pause/Resume, Stop and a two-step Discard.
-// Its owner controls its lifetime. It asks to be excluded from capture, never takes focus when shown, and refuses to close
-// while a recording is active so the recording can't be orphaned.
+// Compact floating bar shown while recording: status dot, elapsed time, Pause/Resume, Stop and a two-step Discard, plus GIF
+// conversion progress. Its owner controls its lifetime. It asks to be excluded from capture, never takes focus when shown, sits
+// just outside the recorded target when there is room, and refuses to close while a recording is active so it can't be orphaned.
 public sealed class RecordingBarWindow : Window
 {
     private const double Unit = 32;
@@ -27,11 +27,14 @@ public sealed class RecordingBarWindow : Window
     private readonly Border bar;
     private readonly Ellipse dot = new() { Width = 10, Height = 10, Margin = new Thickness(4, 0, 8, 0), VerticalAlignment = VerticalAlignment.Center };
     private readonly TextBlock elapsed = new() { FontSize = 13, FontWeight = FontWeights.SemiBold, MinWidth = 44, VerticalAlignment = VerticalAlignment.Center };
-    private readonly TextBlock state = new() { FontSize = 12, Margin = new Thickness(8, 0, 2, 0), VerticalAlignment = VerticalAlignment.Center, MaxWidth = 220, TextTrimming = TextTrimming.CharacterEllipsis };
+    // Sits in the bar's only star column, so a long status trims instead of pushing the buttons past the window's MaxWidth.
+    private readonly TextBlock state = new() { FontSize = 12, Margin = new Thickness(8, 0, 2, 0), VerticalAlignment = VerticalAlignment.Center, MaxWidth = 260, TextTrimming = TextTrimming.CharacterEllipsis };
+    private readonly ProgressBar progress = new() { Width = 72, Height = 4, MinHeight = 0, Minimum = 0, Maximum = 1, Margin = new Thickness(8, 0, 2, 0), VerticalAlignment = VerticalAlignment.Center, Visibility = Visibility.Collapsed, Focusable = false };
     private readonly Button pause, stop, discard;
     private readonly DispatcherTimer disarm = new() { Interval = TimeSpan.FromSeconds(3) };
     private RecordingState shown = (RecordingState)(-1);
-    private bool confirming, busy, moved, paused;
+    // busy: a Stop (which includes GIF conversion) or other bar action is pending. canceling: the confirmed Discard is pending.
+    private bool confirming, busy, canceling, moved, paused;
     private string? error;
 
     // Whether Windows accepted the request to keep this bar out of screen captures (WDA_EXCLUDEFROMCAPTURE).
@@ -49,14 +52,22 @@ public sealed class RecordingBarWindow : Window
         Typography.SetNumeralAlignment(elapsed, FontNumeralAlignment.Tabular);
         AutomationProperties.SetAutomationId(elapsed, "RecordingElapsed"); AutomationProperties.SetName(elapsed, "Elapsed time");
         AutomationProperties.SetAutomationId(state, "RecordingState"); AutomationProperties.SetLiveSetting(state, AutomationLiveSetting.Polite);
+        AutomationProperties.SetAutomationId(progress, "RecordingConversionProgress"); AutomationProperties.SetName(progress, "GIF conversion progress");
 
         pause = Tool("Pause", "Pause recording", "RecordingPause", TogglePause);
         stop = Tool("Stop", "Stop and save", "RecordingStop", async () => await Execute(controller.StopAsync), true);
         discard = Tool("Close", "Discard recording", "RecordingCancel", Discard);
         var divider = new Border { Width = 1, Height = 20, Margin = new Thickness(10, 0, 6, 0), Background = Ui.Line, VerticalAlignment = VerticalAlignment.Center };
         // Discard sits apart from Stop/Pause and needs a second click, so a hurried Stop never throws a recording away.
-        var row = new StackPanel { Orientation = Orientation.Horizontal };
-        foreach (UIElement element in new UIElement[] { dot, elapsed, state, divider, pause, stop, new Border { Width = 10 }, discard }) row.Children.Add(element);
+        // A grid rather than a stack panel: every column is Auto except the status, which takes (and trims to) what is left
+        // within MaxWidth. Child order is unchanged, so the tab order stays Pause, Stop, Discard.
+        var row = new Grid();
+        UIElement[] cells = [dot, elapsed, state, progress, divider, pause, stop, new Border { Width = 10 }, discard];
+        for (int i = 0; i < cells.Length; i++)
+        {
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = cells[i] == state ? new GridLength(1, GridUnitType.Star) : GridLength.Auto });
+            Grid.SetColumn(cells[i], i); row.Children.Add(cells[i]);
+        }
         bar = new Border { Child = row, Background = Ui.Floating, BorderBrush = Ui.Line, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(FloatingVisuals.Radius), Padding = new Thickness(10, 6, 6, 6) };
         AutomationProperties.SetName(bar, "Recording controls"); KeyboardNavigation.SetTabNavigation(bar, KeyboardNavigationMode.Cycle);
         Content = new Grid { Margin = new Thickness(12), Children = { bar } };
@@ -117,7 +128,14 @@ public sealed class RecordingBarWindow : Window
             discard.ToolTip = "Click again to discard this recording"; AutomationProperties.SetName(discard, "Confirm discard recording");
             disarm.Stop(); disarm.Start(); return;
         }
-        Disarm(); await Execute(controller.CancelAsync);
+        Disarm();
+        // Runs alongside a pending Stop: during GIF conversion Stop is still awaiting finalization, and CancelAsync cancels the
+        // conversion and awaits that same finalization rather than starting another. canceling blocks a second request.
+        if (canceling) return;
+        canceling = true; error = null; Refresh();
+        try { await controller.CancelAsync(); }
+        catch (Exception ex) { error = ex.Message; }
+        finally { canceling = false; Refresh(); }
     }
 
     private void Disarm()
@@ -132,8 +150,10 @@ public sealed class RecordingBarWindow : Window
         var current = controller.State;
         elapsed.Text = Clock(controller.Elapsed);
         bool live = current is RecordingState.Recording or RecordingState.Paused;
-        pause.IsEnabled = stop.IsEnabled = live && !busy;
-        discard.IsEnabled = current is RecordingState.Starting or RecordingState.Recording or RecordingState.Paused && !busy;
+        pause.IsEnabled = stop.IsEnabled = live && !busy && !canceling;
+        // Discard also cancels a running GIF conversion, even while the Stop that started it is still pending; it still needs
+        // the second click.
+        discard.IsEnabled = !canceling && (current is RecordingState.Starting or RecordingState.Recording or RecordingState.Paused && !busy || current == RecordingState.Converting);
         if (!discard.IsEnabled) Disarm();
 
         bool isPaused = current == RecordingState.Paused;
@@ -143,17 +163,22 @@ public sealed class RecordingBarWindow : Window
             pause.Content = new UiIcon(paused ? "Play" : "Pause", 15, 2); pause.ToolTip = label; AutomationProperties.SetName(pause, label);
         }
 
-        string text = error ?? current switch
+        double? converted = current == RecordingState.Converting && controller.ConversionProgress is double value && double.IsFinite(value) ? Math.Clamp(value, 0, 1) : null;
+        progress.Visibility = converted is null || error is not null ? Visibility.Collapsed : Visibility.Visible;
+        if (converted is double fraction) progress.Value = fraction;
+        // A failed finalization's controller status carries the MP4 recovery path, so it wins over the bare exception message.
+        string text = current == RecordingState.Failed && !string.IsNullOrWhiteSpace(controller.Status) ? controller.Status : error ?? current switch
         {
             RecordingState.Starting => "Starting…",
             RecordingState.Paused => "Paused",
             RecordingState.Stopping => "Saving…",
-            RecordingState.Converting => "Converting to GIF…",
+            RecordingState.Converting => converted is double done ? $"Creating GIF… {done:P0}" : "Creating GIF…",
             RecordingState.Completed => "Saved",
             RecordingState.Failed => string.IsNullOrWhiteSpace(controller.Status) ? "Recording failed" : controller.Status,
             _ => ""
         };
         state.Text = text; state.Visibility = text.Length == 0 ? Visibility.Collapsed : Visibility.Visible;
+        state.ToolTip = text.Length == 0 ? null : text;
         state.Foreground = error is not null || current == RecordingState.Failed ? (SystemParameters.HighContrast ? Ui.Ink : Live) : Ui.Muted;
 
         bool hc = SystemParameters.HighContrast;
@@ -177,11 +202,13 @@ public sealed class RecordingBarWindow : Window
         shown = (RecordingState)(-1); Refresh();
     }
 
-    // Top centre of the work area holding the recording target (else the pointer's), just below the top edge.
+    // Just outside the recording target when there is room (below, above, then beside); otherwise top centre of the work area
+    // holding the target (else the pointer's), just below the top edge.
     private void Place()
     {
         var handle = new WindowInteropHelper(this).Handle;
         if (handle == IntPtr.Zero) return;
+        if (controller.Target is RecordingTarget anchor && RecordingSetupVisuals.PlaceOutside(this, anchor.Bounds, 12)) return;
         System.Drawing.Rectangle work = Native.MonitorAtCursor(true);
         if (controller.Target is RecordingTarget target && !target.Bounds.IsEmpty)
         {

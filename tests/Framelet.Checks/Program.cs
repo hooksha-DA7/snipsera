@@ -52,6 +52,10 @@ internal static class Program
     [STAThread]
     public static int Main(string[] args)
     {
+        if (args.Length == 2 && args[0] == "--recording-refinement-check") return RecordingRefinementChecks.Run(args[1]);
+        if (args.Length == 2 && args[0] == "--gif-conversion-check") return RecordingRefinementChecks.GifRun(args[1]);
+        if (args.Length == 2 && args[0] == "--recording-setup-visual-check") return RecordingSetupVisualChecks.Run(args[1]);
+        if (args.Length == 2 && args[0] == "--recording-image-crop-check") return RecordingImageCropChecks.Run(args[1]);
         if (args.Length == 2 && args[0] == "--feedback-check") return FeedbackChecks.Run(args[1]);
         if (args.Length == 2 && args[0] == "--feedback-visual-check") return FeedbackVisualChecks.Run(args[1]);
         if (args.Length == 2 && args[0] == "--store-screenshots") return StoreScreenshots.Run(args[1]);

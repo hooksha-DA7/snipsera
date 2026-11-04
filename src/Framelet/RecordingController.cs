@@ -13,6 +13,7 @@ public sealed class RecordingController : IDisposable
     private readonly CaptureApp app;
     private readonly RecordingStore store;
     private readonly Func<IRecordingEngine> createEngine;
+    private readonly Func<RecordingTargetKind, int, int, Task<RecordingTarget?>> selectTarget;
     private readonly Dispatcher dispatcher = Dispatcher.CurrentDispatcher;
     private readonly DispatcherTimer timer;
     private readonly Stopwatch elapsed = new();
@@ -29,6 +30,7 @@ public sealed class RecordingController : IDisposable
     public RecordingResult? LastResult { get; private set; }
     public IReadOnlyList<RecordingResult> RecentRecordings => store.Entries;
     public TimeSpan Elapsed => elapsed.Elapsed;
+    public double? ConversionProgress { get; private set; }
     public string Status { get; private set; } = "Choose what to record.";
     public bool IsActive => State is RecordingState.Starting or RecordingState.Recording or RecordingState.Paused or RecordingState.Stopping or RecordingState.Converting;
     public bool CanStart => Target is not null && !IsActive && State != RecordingState.Selecting;
@@ -36,9 +38,11 @@ public sealed class RecordingController : IDisposable
     public string DoNotDisturbExplanation => "Automatic Do not disturb needs Microsoft approval for its Focus API. Open Windows notification settings to enable it manually.";
     public event Action? Changed;
 
-    internal RecordingController(CaptureApp app, string historyRoot, Func<IRecordingEngine>? createEngine = null)
+    internal RecordingController(CaptureApp app, string historyRoot, Func<IRecordingEngine>? createEngine = null,
+        Func<RecordingTargetKind, int, int, Task<RecordingTarget?>>? selectTarget = null)
     {
         this.app = app; store = new(historyRoot); this.createEngine = createEngine ?? (() => new ScreenRecordingEngine());
+        this.selectTarget = selectTarget ?? app.SelectRecordingTargetAsync;
         options = store.LoadOptions(); LastResult = store.Entries.Count > 0 ? store.Entries[0] : null;
         timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(250) };
         timer.Tick += (_, _) =>
@@ -58,11 +62,18 @@ public sealed class RecordingController : IDisposable
             Target = null;
         store.SaveOptions(options); this.options = options with { }; Notify(Target is null ? RecordingState.Idle : RecordingState.Ready, Target?.Label ?? "Choose what to record.");
     }
-    public async Task SelectTargetAsync(RecordingTargetKind kind)
+    public async Task<bool> SelectTargetAsync(RecordingTargetKind kind)
     {
         CheckDispatcher(); if (IsActive) throw new InvalidOperationException("Stop the current recording first.");
         var previous = Target; Notify(RecordingState.Selecting, "Select the content to record. Esc cancels.");
-        try { Target = await app.SelectRecordingTargetAsync(kind, Options.CustomWidth, Options.CustomHeight) ?? previous; }
+        try
+        {
+            var selected = await selectTarget(kind, Options.CustomWidth, Options.CustomHeight);
+            if (selected is null) return false;
+            _ = Options.OutputSize(selected.Bounds);
+            Target = selected;
+            return true;
+        }
         catch { Target = previous; throw; }
         finally { Notify(Target is null ? RecordingState.Idle : RecordingState.Ready, Target?.Label ?? "Selection canceled."); }
     }
@@ -73,6 +84,7 @@ public sealed class RecordingController : IDisposable
         if (Options.Format == RecordingFormat.Gif) GifConverter.RequireEncoder();
         var size = Options.OutputSize(Target!.Bounds);
         cancelRequested = false; stopping = null; elapsed.Reset();
+        ConversionProgress = null;
         string id = DateTime.Now.ToString("yyyy-MM-dd-HHmmss") + "-" + Guid.NewGuid().ToString("N")[..8];
         temporary = Path.Combine(store.Root, "." + id + ".mp4");
         destination = Path.Combine(store.Root, "Snipsera-" + id + (Options.Format == RecordingFormat.Gif ? ".gif" : ".mp4"));
@@ -135,7 +147,12 @@ public sealed class RecordingController : IDisposable
             {
                 Notify(RecordingState.Converting, "Creating GIF…"); conversion = new();
                 string workingGif = Path.ChangeExtension(temporary, ".gif");
-                try { await GifConverter.ConvertAsync(temporary!, workingGif, Options, conversion.Token); File.Move(workingGif, destination!, false); }
+                var progress = new Progress<double>(value => dispatcher.BeginInvoke(() =>
+                {
+                    if (State != RecordingState.Converting) return;
+                    ConversionProgress = value; Changed?.Invoke();
+                }));
+                try { await GifConverter.ConvertAsync(temporary!, workingGif, Options, conversion.Token, progress, elapsed.Elapsed); File.Move(workingGif, destination!, false); }
                 finally { if (File.Exists(workingGif) && store.Owns(workingGif)) File.Delete(workingGif); }
                 DeleteOwnedTemporary();
             }
