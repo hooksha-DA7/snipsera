@@ -756,7 +756,7 @@
           "Print Screen keeps its modifiers when the keyboard sends both press and release events."
         ]
       },
-      "notice": "**Unsigned GitHub preview.** Windows may warn when downloading or starting it. Live keyboard/global-shortcut testing and final clean Windows 11/installed-MSIX acceptance are pending. The [Microsoft Store download](https://apps.microsoft.com/detail/9NFL9VHL8GKV) is still 1.0.1; these changes have not been submitted to the Store yet. Enable Do not disturb manually in Windows.",
+      "notice": "**Unsigned GitHub preview.** Windows may warn when downloading or starting it. The matching Store 1.0.2 update is in certification and will publish automatically after approval. The [current Store download](https://apps.microsoft.com/detail/9NFL9VHL8GKV) remains 1.0.1 until then. Live keyboard/global-shortcut testing and final clean Windows 11/installed-MSIX acceptance are pending. Enable Do not disturb manually in Windows.",
       "verification": "130 automated/offscreen checks, source/package parity, archive integrity, MSIX block hashes and hosted Windows Server 2025 installer installation, synthetic launch, reinstall, increasing-version fixture upgrade and uninstall passed. Native live-desktop and clean Windows 11 acceptance remain pending.",
       "signing_status": "unsigned-preview",
       "source_commit": "528f6f3851b689e3f158499df277087591e55c35",
@@ -788,6 +788,16 @@
         "name": "Snipsera-1.0.2-preview.2-store-submission-x64.msix",
         "bytes": 151338981,
         "sha256": "df4b030961024d133bd4135e0e39512e3eb356eb4c73fa2e99d32c401c34a209"
+      },
+      "store_submission_status": {
+        "status": "in-certification",
+        "product_id": "9NFL9VHL8GKV",
+        "submission_id": "1152921505702310050",
+        "package_version": "1.0.2.0",
+        "submitted_date": "2026-11-04",
+        "verified_date": "2026-11-04",
+        "publication": "automatic-after-certification",
+        "source_url": "https://partner.microsoft.com/en-us/dashboard/products/9NFL9VHL8GKV/overview"
       }
     }
   ],

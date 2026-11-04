@@ -41,3 +41,7 @@ The workflow uploads reviewable build artifacts but does not create a public Git
 Ordinary Snipsera releases require reviewed signed output. A maintainer-authorized unsigned preview must explicitly set `signing_status: unsigned-preview`, remain a prerelease with `latest: false`, and visibly disclose its unsigned and preview status. The publisher verifies the installer identity/version and requires its actual signature state to be NotSigned; invalid signatures are refused. This path cannot publish an unsigned MSIX or claim a signing certificate. Keep a Store link separate until the app is actually available there. Stable promotion still requires final native acceptance.
 
 References: [GitHub workflow syntax](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax), [SignPath GitHub integration](https://docs.signpath.io/trusted-build-systems/github), [Foundation conditions](https://signpath.org/terms.html).
+
+## Store approval and official GitHub releases
+
+New Snipsera downloads stay as prereleases until Microsoft approves the matching Store update. Promote the same artifacts after checking the product, submission, package version/hash and source commit. Use the [promotion procedure](RELEASING.md#promote-an-approved-build). Unsigned official installers require a matching `store_approval` record and an unsigned notice; signed installers still require real signature verification. Store approval does not sign the EXE or complete pending native tests.

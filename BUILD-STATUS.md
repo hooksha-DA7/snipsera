@@ -8,10 +8,12 @@ Verification: **130 automated and offscreen checks passed** with no compiler war
 
 Live keyboard/global-hotkey behavior, clean Windows 11 and final installed-MSIX capture/recording acceptance remain unverified for this preview. Desktop testing remains paused. EXE/MSIX packaging and archive verification are separate from runtime acceptance.
 
-Partner Center confirmed **In Microsoft Store** on 4 November 2026 for package **1.0.1.0** and supplied the [public download link](https://apps.microsoft.com/detail/9NFL9VHL8GKV). The 1.0.2.0 update has not been submitted. Store certification does not sign the EXE downloaded from GitHub.
+Partner Center confirmed **In Microsoft Store** on 4 November 2026 for package **1.0.1.0** and supplied the [public download link](https://apps.microsoft.com/detail/9NFL9VHL8GKV). The matching 1.0.2.0 package was submitted on 4 November 2026 as submission 1152921505702310050. It is in certification, with automatic Store publication enabled after explicit maintainer approval. GitHub remains a preview until that matching Store update is approved. Store certification does not sign the EXE downloaded from GitHub.
 
 The GitHub preview remains unsigned. SignPath's application was submitted on 2 November; no signing-provider status check or live signing request was performed in this update. Framelet 0.6.0 remains the stable screenshot baseline. Historical downloads are preserved.
 
 See [user guide](docs/USER-GUIDE.md), [distribution setup](docs/DISTRIBUTION.md) and [release history](RELEASES.md).
 
 The published preview files come from [hosted Windows run 41755579172](https://github.com/hooksha-DA7/snipsera/actions/runs/41755579172), which passed the same checks, package verification and installer installation, launch, reinstall, increasing-version fixture upgrade and uninstall on Windows Server 2025. The downloaded artifacts were independently checked against their hashes and tagged source before publication.
+
+The release process now validates the Store product, submission, package version/hash and source commit before official GitHub classification. Its 36 Python workflow checks passed. This process change does not rebuild or replace the existing 1.0.2 preview artifacts.

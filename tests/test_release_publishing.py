@@ -97,6 +97,7 @@ class ReleaseLogChecks(unittest.TestCase):
 
     def test_snipsera_preview_installer_is_visible_without_stable_promotion(self):
         updated = copy.deepcopy(self.catalog)
+        updated["verified_baseline"] = "v0.6.0"
         baseline = next(e for e in updated["releases"] if e["tag"] == updated["verified_baseline"])
         preview = copy.deepcopy(baseline)
         preview.update(tag="v99.0.0-preview.1", version="99.0.0-preview.1", product="Snipsera", release_url="https://example.test/preview", prerelease=True, latest=False)
@@ -132,12 +133,30 @@ class ReleaseLogChecks(unittest.TestCase):
             with self.subTest(preview=preview):
                 self.assertIn(f"[Get Snipsera from Microsoft Store]({updated['store_url']})", LOG.download_block(updated))
 
+    def test_official_snipsera_download_keeps_immutable_asset_urls(self):
+        updated = copy.deepcopy(self.catalog)
+        official = next(e for e in updated["releases"] if e["tag"] == "v1.0.2-preview.2")
+        official.update(prerelease=False, latest=True, display_version="1.0.2", kind="Release")
+        updated.update(verified_baseline=official["tag"], latest_preview=None)
+        block = LOG.download_block(updated)
+        self.assertIn("[Download Snipsera (1.0.2)]", block)
+        self.assertIn("/v1.0.2-preview.2/Snipsera-1.0.2-preview.2-setup-win-x64.exe", block)
+        self.assertNotIn("Try the preview", block)
+        self.assertIn("official Snipsera release", LOG.render(updated))
+        self.assertIn("# Snipsera 1.0.2:", LOG.render_notes(updated, official))
+        preview = copy.deepcopy(official)
+        preview.pop("display_version")
+        preview.update(version="1.0.3", tag="v1.0.3", prerelease=True, latest=False, release_url="https://example.test/next")
+        updated["releases"].append(preview); updated["latest_preview"] = preview["tag"]
+        self.assertIn("[Try the preview (1.0.3)]", LOG.download_block(updated))
+
     def test_readme_does_not_offer_an_old_preview_after_stable_promotion(self):
         updated = copy.deepcopy(self.catalog)
         updated["latest_preview"] = None
         baseline = next(entry for entry in updated["releases"] if entry["tag"] == updated["verified_baseline"])
         block = LOG.download_block(updated)
-        self.assertIn(f"Download for Windows ({baseline['version']})", block)
+        label = f"Download Snipsera ({LOG.version_label(baseline)})" if baseline.get("product") == "Snipsera" else f"Download for Windows ({baseline['version']})"
+        self.assertIn(label, block)
         self.assertNotIn("Try the preview", block)
         self.assertIn("[All releases](RELEASES.md)", block)
 
@@ -196,6 +215,48 @@ class UnsignedPreviewChecks(unittest.TestCase):
     def test_other_snipsera_releases_still_require_signing(self):
         with self.assertRaisesRegex(ValueError, "certificate subject"):
             PUBLISHER.candidate_paths(self.args, self.entry | {"signing_status": "signed"})
+
+    def official_entry(self):
+        entry = copy.deepcopy(self.entry)
+        entry.update(prerelease=False, latest=True, signing_status="unsigned", source_commit="a" * 40, notice="Unsigned GitHub installer; Windows may warn.")
+        entry["store_approval"] = {"status": "approved", "product_id": "9NFL9VHL8GKV", "package_version": "1.0.1.0",
+                                   "package_sha256": entry["store_submission"]["sha256"], "source_commit": entry["source_commit"],
+                                   "submission_id": "123456", "verified_date": "2026-11-04",
+                                   "source_url": "https://partner.microsoft.com/en-us/dashboard/products/9NFL9VHL8GKV/overview"}
+        return entry
+
+    def test_unsigned_official_release_requires_store_approval(self):
+        entry = self.official_entry()
+        entry.pop("store_approval")
+        with self.assertRaisesRegex(ValueError, "matching Store approval"):
+            PUBLISHER.candidate_paths(self.args, entry)
+
+    def test_matching_store_approval_allows_official_unsigned_without_claiming_signing(self):
+        with patch.object(PUBLISHER.subprocess, "run") as verify:
+            self.assertEqual(len(PUBLISHER.candidate_paths(self.args, self.official_entry())), 2)
+            self.assertIn("verify_unsigned_preview.ps1", " ".join(verify.call_args.args[0]))
+
+    def test_store_approval_must_match_status_product_package_and_source(self):
+        mutations = {"status": "in-certification", "product_id": "another-app", "package_version": "1.0.0.0",
+                     "package_sha256": "b" * 64, "source_commit": "b" * 40, "submission_id": "", "verified_date": "pending", "source_url": "https://example.test/approved"}
+        for key, value in mutations.items():
+            entry = self.official_entry(); entry["store_approval"][key] = value
+            with self.subTest(key=key), self.assertRaises(ValueError):
+                PUBLISHER.validate_store_approval(entry)
+        entry = self.official_entry()
+        entry["store_submission_status"] = {"submission_id": "654321"}
+        with self.assertRaisesRegex(ValueError, "recorded submission"):
+            PUBLISHER.validate_store_approval(entry)
+
+    def test_store_approved_unsigned_release_still_needs_notice_and_cannot_publish_msix(self):
+        entry = self.official_entry()
+        with self.assertRaisesRegex(ValueError, "visible unsigned"):
+            PUBLISHER.candidate_paths(self.args, entry | {"notice": "Official release"})
+        with self.assertRaisesRegex(ValueError, "cannot claim a certificate"):
+            PUBLISHER.candidate_paths(self.args, entry | {"certificate_subject": "CN=Claimed"})
+        entry["assets"].append(entry["store_submission"] | {"role": "msix-x64"}); self.args.msix = self.args.store_submission
+        with self.assertRaisesRegex(ValueError, "not public downloads"):
+            PUBLISHER.candidate_paths(self.args, entry)
 
 
 if __name__ == "__main__":

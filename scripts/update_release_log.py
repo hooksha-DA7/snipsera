@@ -7,17 +7,28 @@ START = "<!-- FRAMELET_DOWNLOADS_START -->"
 END = "<!-- FRAMELET_DOWNLOADS_END -->"
 
 
+def version_label(entry):
+    return entry.get("display_version", entry["version"])
+
+
 def download_block(catalog):
     entries = {item["tag"]: item for item in catalog["releases"]}
     baseline = entries[catalog["verified_baseline"]]
     preview = entries.get(catalog.get("latest_preview"))
     store = f"[Get Snipsera from Microsoft Store]({catalog['store_url']}) · " if catalog.get("store_url") else ""
+    if baseline.get("product") == "Snipsera" and not baseline["prerelease"]:
+        assets = {asset["role"]: asset for asset in baseline["assets"]}
+        return (START + "\n" + store
+                + f"[Download Snipsera ({version_label(baseline)})]({assets['installer-x64']['url']}) · "
+                + (f"[Portable ZIP]({assets['windows-x64']['url']}) · " if 'windows-x64' in assets else "")
+                + (f"[Try the preview ({version_label(preview)})]({preview['release_url']}) · " if preview else "")
+                + "[All releases](RELEASES.md)\n" + END)
     if preview and preview.get("product") == "Snipsera":
         assets = {asset["role"]: asset for asset in preview["assets"]}
         return (START + "\n" + store
                 + f"[Download Snipsera preview ({preview['version']})]({assets['installer-x64']['url']}) · "
                 + (f"[Portable ZIP]({assets['windows-x64']['url']}) · " if 'windows-x64' in assets else "")
-                + f"[Stable {baseline['version']}]({baseline['release_url']}) · [All releases](RELEASES.md)\n" + END)
+                + f"[Stable {version_label(baseline)}]({baseline['release_url']}) · [All releases](RELEASES.md)\n" + END)
     windows = next((asset for asset in baseline["assets"] if asset["role"] == "installer-x64"), None) or next(asset for asset in baseline["assets"] if asset["role"] == "windows-x64")
     return (START + "\n" + store
             + f"[Download for Windows ({baseline['version']})]({windows['url']}) · "
@@ -60,7 +71,7 @@ def release_body(catalog, entry):
 
 
 def render_notes(catalog, entry):
-    return "\n".join([f"# {entry.get('product', 'Framelet')} {entry['version']}: {entry['title']}", "",
+    return "\n".join([f"# {entry.get('product', 'Framelet')} {version_label(entry)}: {entry['title']}", "",
                        f"{entry['build_date']} · {entry['kind']}", "",
                        *release_body(catalog, entry)])
 
@@ -72,9 +83,13 @@ def render(catalog):
     intro = (f"The newest Snipsera preview is [{preview['version']}]({preview['release_url']}). For the stable screenshot build, use [Framelet {baseline['version']}]({baseline['release_url']})."
              if preview and preview.get("product") == "Snipsera" else
              f"Download [{baseline['version']}]({baseline['release_url']}) for the latest release. Earlier versions and their changes are listed below.")
+    if baseline.get("product") == "Snipsera" and not baseline["prerelease"]:
+        intro = f"The official Snipsera release is [{version_label(baseline)}]({baseline['release_url']})."
+        if preview:
+            intro += f" The latest preview is [{version_label(preview)}]({preview['release_url']})."
     lines = ["# Releases", "", intro, ""]
     for entry in reversed(catalog["releases"]):
-        lines += [f"## {entry['version']}: {entry['title']}", "",
+        lines += [f"## {version_label(entry)}: {entry['title']}", "",
                   f"{entry['build_date']} · {entry['kind']} · [Release page]({entry['release_url']})", "",
                   *release_body(catalog, entry)]
     return "\n".join(lines)
@@ -85,7 +100,7 @@ def render_changelog(catalog):
     if catalog.get("unreleased"):
         lines += [f"## {catalog['unreleased']['version']} — Unreleased", "", catalog["unreleased"]["intro"], "", *change_sections(catalog["unreleased"])]
     for entry in reversed(catalog["releases"]):
-        lines += [f"## {entry['version']} — {entry['build_date']}", "",
+        lines += [f"## {version_label(entry)} — {entry['build_date']}", "",
                   f"{entry['kind']}. {entry['intro']}", "", *change_sections(entry)]
         if entry.get("notice"):
             lines += [entry["notice"], ""]

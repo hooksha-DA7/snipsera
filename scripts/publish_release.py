@@ -11,10 +11,38 @@ import shutil
 import subprocess
 import time
 import zipfile
+from datetime import date
 from pathlib import Path, PurePosixPath
 from urllib.request import Request, urlopen
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def validate_store_approval(entry):
+    """Check the recorded live approval against this exact reviewed source and MSIX."""
+    approval = entry.get("store_approval", {})
+    if not isinstance(approval, dict):
+        raise ValueError("Store approval must be a recorded approval object")
+    expected = {
+        "status": "approved", "product_id": "9NFL9VHL8GKV",
+        "package_version": entry["version"].split("-")[0] + ".0",
+        "package_sha256": entry.get("store_submission", {}).get("sha256"),
+        "source_commit": entry.get("source_commit"),
+    }
+    if not all(expected.values()) or any(approval.get(key) != value for key, value in expected.items()):
+        raise ValueError("Official Snipsera releases require matching Store approval for the exact package and source")
+    if not re.fullmatch(r"[0-9a-f]{40}", expected["source_commit"]) or not re.fullmatch(r"[0-9a-f]{64}", expected["package_sha256"]):
+        raise ValueError("Store approval needs valid source and package hashes")
+    if not re.fullmatch(r"\d+", str(approval.get("submission_id", ""))) or approval.get("source_url") != "https://partner.microsoft.com/en-us/dashboard/products/9NFL9VHL8GKV/overview":
+        raise ValueError("Store approval needs its actual submission and Partner Center source")
+    submitted = entry.get("store_submission_status", {})
+    if submitted.get("submission_id") and str(approval["submission_id"]) != str(submitted["submission_id"]):
+        raise ValueError("Store approval must match the recorded submission")
+    try:
+        date.fromisoformat(approval.get("verified_date", ""))
+    except (ValueError, TypeError):
+        raise ValueError("Store approval needs the date it was actually verified") from None
+    return approval
 
 
 def digest(data):
@@ -99,6 +127,7 @@ def candidate_paths(args, entry):
         if not {"installer-x64", "source"}.issubset({a["role"] for a in entry["assets"]}):
             raise ValueError("Snipsera releases require an EXE installer and reviewed source")
         unsigned_preview = entry.get("signing_status") == "unsigned-preview"
+        unsigned_official = entry.get("signing_status") == "unsigned"
         subject = entry.get("certificate_subject")
         if unsigned_preview:
             if entry.get("prerelease") is not True or entry.get("latest") is not False or subject:
@@ -107,11 +136,21 @@ def candidate_paths(args, entry):
                 raise ValueError("Unsigned previews require a visible preview and unsigned notice")
             if any(path.suffix.lower() == ".msix" for path in paths):
                 raise ValueError("Unsigned MSIX files are Store submissions, not public downloads")
+        elif unsigned_official:
+            if entry.get("prerelease") is not False or subject:
+                raise ValueError("Unsigned official releases cannot claim a certificate or prerelease status")
+            validate_store_approval(entry)
+            if "unsigned" not in entry.get("notice", "").lower():
+                raise ValueError("Unsigned official releases require a visible unsigned notice")
         elif not subject:
             raise ValueError("Record the approved signing certificate subject")
+        if entry.get("prerelease") is False:
+            validate_store_approval(entry)
+        if (unsigned_preview or unsigned_official) and any(path.suffix.lower() == ".msix" for path in paths):
+            raise ValueError("Unsigned MSIX files are Store submissions, not public downloads")
         for path in paths:
             if path.suffix.lower() not in {".exe", ".msix"}: continue
-            if unsigned_preview:
+            if unsigned_preview or unsigned_official:
                 subprocess.run(["pwsh", "-NoProfile", "-File", str(ROOT / "scripts/verify_unsigned_preview.ps1"), "-File", str(path), "-Version", entry["version"]], check=True)
             else:
                 subprocess.run(["pwsh", "-NoProfile", "-File", str(ROOT / "scripts/verify_signatures.ps1"), "-Files", str(path), "-ExpectedPublisher", subject], check=True)
@@ -187,6 +226,8 @@ def publish(args):
         raise ValueError("Add a valid reviewed version to releases/catalog.json first")
     if entry["latest"] and entry["prerelease"]:
         raise ValueError("A prerelease cannot become the verified baseline")
+    if entry.get("product") == "Snipsera" and entry.get("prerelease") is False:
+        validate_store_approval(entry)
     if not args.verify_only:
         paths = candidate_paths(args, entry)
     else:
