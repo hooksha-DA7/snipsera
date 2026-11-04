@@ -839,7 +839,7 @@
           "Video audio choices survive reopening setup during the current app session."
         ]
       },
-      "notice": "**Unsigned preview.** Windows may warn when downloading or starting the GitHub EXE or portable ZIP. The [Microsoft Store version](https://apps.microsoft.com/detail/9NFL9VHL8GKV) remains 1.0.2; this update has not been submitted. Live WindowsGraphicsCapture area output, mixed-DPI input and final clean Windows 11/installed-MSIX acceptance are pending. Enable Do not disturb manually in Windows.",
+      "notice": "**Unsigned preview.** Windows may warn when downloading or starting the GitHub EXE or portable ZIP. Version 1.0.3 was submitted to Microsoft Store on 5 November 2026 and is awaiting certification, with automatic publication after approval. The [live Store version](https://apps.microsoft.com/detail/9NFL9VHL8GKV) remains 1.0.2. This GitHub build stays a preview until its matching Store update is approved. Live WindowsGraphicsCapture area output, mixed-DPI input and final clean Windows 11/installed-MSIX acceptance are pending. Enable Do not disturb manually in Windows.",
       "verification": "167 no-window checks and separate local native generated-image crop/decoded-pixel verification passed. Exact hosted build passed package/source verification and Windows Server 2025 installer install, launch, reinstall, increasing-version fixture upgrade and uninstall. Live user-desktop and final clean Windows 11/installed-MSIX acceptance remain pending.",
       "signing_status": "unsigned-preview",
       "source_commit": "1c9bdf8d70488bf4199dea2a608b028e2dcac394",
@@ -873,10 +873,14 @@
         "sha256": "aca5595380464b6b8ce8c7cf1210cd5f7087901e68979a2081a7888b1b3fb1a0"
       },
       "store_submission_status": {
-        "status": "not-submitted",
+        "status": "in-certification",
         "product_id": "9NFL9VHL8GKV",
+        "submission_id": "1152921505702318460",
         "package_version": "1.0.3.0",
-        "verified_date": "2026-11-04"
+        "submitted_date": "2026-11-05",
+        "verified_date": "2026-11-05",
+        "publishing": "automatic after certification",
+        "source_url": "https://partner.microsoft.com/en-us/dashboard/products/9NFL9VHL8GKV/overview"
       }
     }
   ],

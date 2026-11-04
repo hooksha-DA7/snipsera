@@ -21,7 +21,7 @@ Preview release. Recording opens in compact floating controls, with separate Rec
 - Controls stay on the selected display and keep Stop and Discard visible through long messages.
 - Video audio choices survive reopening setup during the current app session.
 
-**Unsigned preview.** Windows may warn when downloading or starting the GitHub EXE or portable ZIP. The [Microsoft Store version](https://apps.microsoft.com/detail/9NFL9VHL8GKV) remains 1.0.2; this update has not been submitted. Live WindowsGraphicsCapture area output, mixed-DPI input and final clean Windows 11/installed-MSIX acceptance are pending. Enable Do not disturb manually in Windows.
+**Unsigned preview.** Windows may warn when downloading or starting the GitHub EXE or portable ZIP. Version 1.0.3 was submitted to Microsoft Store on 5 November 2026 and is awaiting certification, with automatic publication after approval. The [live Store version](https://apps.microsoft.com/detail/9NFL9VHL8GKV) remains 1.0.2. This GitHub build stays a preview until its matching Store update is approved. Live WindowsGraphicsCapture area output, mixed-DPI input and final clean Windows 11/installed-MSIX acceptance are pending. Enable Do not disturb manually in Windows.
 
 ## 1.0.2 — 2026-11-04
 
