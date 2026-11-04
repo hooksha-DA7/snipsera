@@ -2,7 +2,7 @@
 
 [Downloads and release notes](RELEASES.md)
 
-## 1.0.2-preview.1 — Unreleased
+## 1.0.2-preview.2 — Unreleased
 
 Compact floating cards, shortcuts recorded from the keyboard, and edits saved automatically in history.
 

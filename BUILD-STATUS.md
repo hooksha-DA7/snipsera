@@ -1,6 +1,6 @@
 # Snipsera preview
 
-Preview: **1.0.2-preview.1**, 4 November 2026.
+Preview: **1.0.2-preview.2**, 4 November 2026.
 
 Docked previews and pins now use matching 200 × 150 thumbnails with an 8-DIP visible gap. The complete image remains available to copy, save, drag and edit. Shortcut fields record the keys pressed, including Print Screen, and temporarily suspend capture bindings while focused. Edits save automatically in local history, with their original pixels and editable layers; closing the editor flushes pending edits without the usual save prompt. A failed save keeps the editor open.
 

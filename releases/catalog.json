@@ -732,7 +732,7 @@
   "product": "Snipsera",
   "store_url": "https://apps.microsoft.com/detail/9NFL9VHL8GKV",
   "unreleased": {
-    "version": "1.0.2-preview.1",
+    "version": "1.0.2-preview.2",
     "intro": "Compact floating cards, shortcuts recorded from the keyboard, and edits saved automatically in history.",
     "changes": {
       "Added": [

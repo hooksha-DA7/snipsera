@@ -16,7 +16,7 @@ The installer includes .NET. Screen recording needs the [Microsoft Visual C++ x6
 
 For the portable version, extract the complete ZIP and open **Snipsera.exe**. Keep its files and `encoder` folder together.
 
-**The GitHub EXE and portable ZIP are unsigned previews.** Windows may show a warning when you download or start them. The Store release is currently 1.0.1; the latest preview changes are in the GitHub download. Installer code signing is pending; see the [release notes](releases/notes/v1.0.1-preview.1.md) for current limits. Snipsera is also available from Microsoft Store. [Code signing policy](docs/CODE-SIGNING.md).
+**The GitHub EXE and portable ZIP are unsigned previews.** Windows may show a warning when you download or start them. The Store release is currently 1.0.1; the latest preview changes are in the GitHub download. Installer code signing is pending; see the [release notes](https://github.com/hooksha-DA7/snipsera/releases) for current limits. Snipsera is also available from Microsoft Store. [Code signing policy](docs/CODE-SIGNING.md).
 
 Snipsera runs locally, without an account or cloud service. Older Framelet downloads remain available in the [release history](RELEASES.md).
 
