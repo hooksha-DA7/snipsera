@@ -1,6 +1,36 @@
 # Releases
 
-The newest Snipsera preview is [1.0.1-preview.1](https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.1-preview.1). For the stable screenshot build, use [Framelet 0.6.0](https://github.com/hooksha-DA7/snipsera/releases/tag/v0.6.0).
+The newest Snipsera preview is [1.0.2-preview.2](https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.2-preview.2). For the stable screenshot build, use [Framelet 0.6.0](https://github.com/hooksha-DA7/snipsera/releases/tag/v0.6.0).
+
+## 1.0.2-preview.2: Compact captures and automatic edit history
+
+2026-11-04 · Preview release · [Release page](https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.2-preview.2)
+
+Floating screenshots now sit closer together, and edits stay in history when you close the editor. Shortcut boxes record the keys you press, including Print Screen.
+
+### Added
+
+- Record capture shortcuts by pressing the keys, including Print Screen on its own.
+- Edits save automatically in local history and reopen with their editable layers.
+
+### Improved
+
+- Docked previews and pins use matching 4:3 cards with a tighter gap.
+- Wide, tall and square captures keep the same card size; copy, save and drag retain the full image.
+
+### Fixed
+
+- Closing an editor keeps its edits without a save-or-discard prompt.
+- Existing capture shortcuts pause while a new shortcut is being recorded.
+- Print Screen keeps its modifiers when the keyboard sends both press and release events.
+
+**Unsigned GitHub preview.** Windows may warn when downloading or starting it. Live keyboard/global-shortcut testing and final clean Windows 11/installed-MSIX acceptance are pending. The [Microsoft Store download](https://apps.microsoft.com/detail/9NFL9VHL8GKV) is still 1.0.1; these changes have not been submitted to the Store yet. Enable Do not disturb manually in Windows.
+
+### Download
+
+[EXE installer](https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.2-preview.2/Snipsera-1.0.2-preview.2-setup-win-x64.exe) · [Portable ZIP](https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.2-preview.2/Snipsera-1.0.2-preview.2-win-x64.zip) · [Source ZIP](https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.2-preview.2/Snipsera-1.0.2-preview.2-source.zip) · [Checksums](https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.2-preview.2/SHA256SUMS.txt)
+
+Run the EXE installer, or extract the portable ZIP and open **Snipsera.exe**. Windows 11 x64 is required; .NET is included. Quit an older copy from its tray menu first. The installer checks the Visual C++ x64 runtime needed for recording.
 
 ## 1.0.1-preview.1: Snipsera with a Windows installer
 

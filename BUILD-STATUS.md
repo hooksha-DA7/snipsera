@@ -13,3 +13,5 @@ Partner Center confirmed **In Microsoft Store** on 4 November 2026 for package *
 The GitHub preview remains unsigned. SignPath's application was submitted on 2 November; no signing-provider status check or live signing request was performed in this update. Framelet 0.6.0 remains the stable screenshot baseline. Historical downloads are preserved.
 
 See [user guide](docs/USER-GUIDE.md), [distribution setup](docs/DISTRIBUTION.md) and [release history](RELEASES.md).
+
+The published preview files come from [hosted Windows run 41755579172](https://github.com/hooksha-DA7/snipsera/actions/runs/41755579172), which passed the same checks, package verification and installer installation, launch, reinstall, increasing-version fixture upgrade and uninstall on Windows Server 2025. The downloaded artifacts were independently checked against their hashes and tagged source before publication.

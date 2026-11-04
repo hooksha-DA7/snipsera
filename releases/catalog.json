@@ -3,7 +3,7 @@
   "repository": "hooksha-DA7/snipsera",
   "imported_on": "2026-11-01",
   "verified_baseline": "v0.6.0",
-  "latest_preview": "v1.0.1-preview.1",
+  "latest_preview": "v1.0.2-preview.2",
   "releases": [
     {
       "version": "0.1.0",
@@ -727,27 +727,70 @@
         "sha256": "f7b845d0fb8043c63b31667a48ee18a46be99de62cef4e64f9430ab331f617ba"
       },
       "store_url": "https://apps.microsoft.com/detail/9NFL9VHL8GKV"
+    },
+    {
+      "version": "1.0.2-preview.2",
+      "tag": "v1.0.2-preview.2",
+      "product": "Snipsera",
+      "build_date": "2026-11-04",
+      "title": "Compact captures and automatic edit history",
+      "status": "preview",
+      "prerelease": true,
+      "latest": false,
+      "notes": "releases/notes/v1.0.2-preview.2.md",
+      "release_url": "https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.2-preview.2",
+      "kind": "Preview release",
+      "intro": "Floating screenshots now sit closer together, and edits stay in history when you close the editor. Shortcut boxes record the keys you press, including Print Screen.",
+      "changes": {
+        "Added": [
+          "Record capture shortcuts by pressing the keys, including Print Screen on its own.",
+          "Edits save automatically in local history and reopen with their editable layers."
+        ],
+        "Improved": [
+          "Docked previews and pins use matching 4:3 cards with a tighter gap.",
+          "Wide, tall and square captures keep the same card size; copy, save and drag retain the full image."
+        ],
+        "Fixed": [
+          "Closing an editor keeps its edits without a save-or-discard prompt.",
+          "Existing capture shortcuts pause while a new shortcut is being recorded.",
+          "Print Screen keeps its modifiers when the keyboard sends both press and release events."
+        ]
+      },
+      "notice": "**Unsigned GitHub preview.** Windows may warn when downloading or starting it. Live keyboard/global-shortcut testing and final clean Windows 11/installed-MSIX acceptance are pending. The [Microsoft Store download](https://apps.microsoft.com/detail/9NFL9VHL8GKV) is still 1.0.1; these changes have not been submitted to the Store yet. Enable Do not disturb manually in Windows.",
+      "verification": "130 automated/offscreen checks, source/package parity, archive integrity, MSIX block hashes and hosted Windows Server 2025 installer installation, synthetic launch, reinstall, increasing-version fixture upgrade and uninstall passed. Native live-desktop and clean Windows 11 acceptance remain pending.",
+      "signing_status": "unsigned-preview",
+      "source_commit": "528f6f3851b689e3f158499df277087591e55c35",
+      "build_workflow": "https://github.com/hooksha-DA7/snipsera/actions/runs/41755579172",
+      "assets": [
+        {
+          "name": "Snipsera-1.0.2-preview.2-setup-win-x64.exe",
+          "bytes": 129083021,
+          "sha256": "9996b644afec0cf20ca0c678d1b60dbae811db809cf0b4c42c3b251e3c27fe69",
+          "role": "installer-x64",
+          "url": "https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.2-preview.2/Snipsera-1.0.2-preview.2-setup-win-x64.exe"
+        },
+        {
+          "name": "Snipsera-1.0.2-preview.2-source.zip",
+          "bytes": 380244,
+          "sha256": "3edf9fe4fbc21945b2e215b8cd3fdfe8aacfee1b77033b31e103f272f3f9276d",
+          "role": "source",
+          "url": "https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.2-preview.2/Snipsera-1.0.2-preview.2-source.zip"
+        },
+        {
+          "name": "Snipsera-1.0.2-preview.2-win-x64.zip",
+          "bytes": 152257605,
+          "sha256": "de41b0d295fc31a79dc42f2cd50398d6ff3aa9ff240a61e5568e1542c5325ee3",
+          "role": "windows-x64",
+          "url": "https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.2-preview.2/Snipsera-1.0.2-preview.2-win-x64.zip"
+        }
+      ],
+      "store_submission": {
+        "name": "Snipsera-1.0.2-preview.2-store-submission-x64.msix",
+        "bytes": 151338981,
+        "sha256": "df4b030961024d133bd4135e0e39512e3eb356eb4c73fa2e99d32c401c34a209"
+      }
     }
   ],
   "product": "Snipsera",
-  "store_url": "https://apps.microsoft.com/detail/9NFL9VHL8GKV",
-  "unreleased": {
-    "version": "1.0.2-preview.2",
-    "intro": "Compact floating cards, shortcuts recorded from the keyboard, and edits saved automatically in history.",
-    "changes": {
-      "Added": [
-        "Record capture shortcuts by pressing the keys, including Print Screen on its own.",
-        "Edits save automatically in local history and reopen with their editable layers."
-      ],
-      "Improved": [
-        "Docked previews and pins use matching 4:3 cards with a tighter gap.",
-        "Wide, tall and square captures keep the same card size; copy, save and drag retain the full image."
-      ],
-      "Fixed": [
-        "Closing an editor keeps its edits without a save-or-discard prompt.",
-        "Existing capture shortcuts pause while a new shortcut is being recorded.",
-        "Print Screen keeps its modifiers when the keyboard sends both press and release events."
-      ]
-    }
-  }
+  "store_url": "https://apps.microsoft.com/detail/9NFL9VHL8GKV"
 }

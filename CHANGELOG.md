@@ -2,9 +2,9 @@
 
 [Downloads and release notes](RELEASES.md)
 
-## 1.0.2-preview.2 — Unreleased
+## 1.0.2-preview.2 — 2026-11-04
 
-Compact floating cards, shortcuts recorded from the keyboard, and edits saved automatically in history.
+Preview release. Floating screenshots now sit closer together, and edits stay in history when you close the editor. Shortcut boxes record the keys you press, including Print Screen.
 
 ### Added
 
@@ -21,6 +21,8 @@ Compact floating cards, shortcuts recorded from the keyboard, and edits saved au
 - Closing an editor keeps its edits without a save-or-discard prompt.
 - Existing capture shortcuts pause while a new shortcut is being recorded.
 - Print Screen keeps its modifiers when the keyboard sends both press and release events.
+
+**Unsigned GitHub preview.** Windows may warn when downloading or starting it. Live keyboard/global-shortcut testing and final clean Windows 11/installed-MSIX acceptance are pending. The [Microsoft Store download](https://apps.microsoft.com/detail/9NFL9VHL8GKV) is still 1.0.1; these changes have not been submitted to the Store yet. Enable Do not disturb manually in Windows.
 
 ## 1.0.1-preview.1 — 2026-11-02
 
