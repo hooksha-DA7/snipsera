@@ -12,8 +12,8 @@ public sealed class HomeWindow : Window
     private readonly CaptureApp app;
     private readonly StackPanel history = new();
     private readonly TextBlock status = Ui.Text("Ready to capture", 12, Ui.Muted);
-    private readonly ShortcutRecorder[] shortcuts = new ShortcutRecorder[4];
-    private readonly TextBlock[] badges = new TextBlock[4];
+    private readonly ShortcutRecorder[] shortcuts = new ShortcutRecorder[5];
+    private readonly TextBlock[] badges = new TextBlock[5];
     public HomeWindow(CaptureApp app)
     {
         this.app = app; Ui.Setup(this);
@@ -37,7 +37,17 @@ public sealed class HomeWindow : Window
         var left = new StackPanel();
         var capturePanel = new StackPanel();
         capturePanel.Children.Add(Ui.Text("Capture", 13, Ui.Ink, true));
-        string[] labels = ["Select an area", "Choose a window", "Capture this display", "Repeat last area"];
+        string[] labels = ["Select an area", "Choose a window", "Capture this display", "Repeat last area", "All-in-one capture"];
+        // Opens the capture bar with every screenshot mode; its shortcut badge is the fifth binding.
+        var barText = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
+        barText.Children.Add(Ui.Text(labels[4], 13, Ui.Ink, true)); barText.Children.Add(Ui.Text("Every screenshot mode in one bar", 11, Ui.Muted));
+        badges[4] = Ui.Text(app.Settings.Bindings[4], 11, Ui.Blue); badges[4].TextWrapping = TextWrapping.NoWrap; badges[4].VerticalAlignment = VerticalAlignment.Center; badges[4].Margin = new Thickness(10, 0, 0, 0);
+        var barItem = new DockPanel(); var barIcon = CaptureBarVisuals.LauncherGlyph(); barIcon.Margin = new Thickness(0, 0, 14, 0); barIcon.VerticalAlignment = VerticalAlignment.Center;
+        DockPanel.SetDock(barIcon, Dock.Left); DockPanel.SetDock(badges[4], Dock.Right); barItem.Children.Add(barIcon); barItem.Children.Add(badges[4]); barItem.Children.Add(barText);
+        var launcher = Ui.Button(labels[4], "ShowCaptureBar", () => app.ShowCaptureBar());
+        launcher.Content = barItem; launcher.HorizontalContentAlignment = HorizontalAlignment.Stretch; launcher.HorizontalAlignment = HorizontalAlignment.Stretch; launcher.MinHeight = 56; launcher.Margin = new Thickness(0, 10, 0, 6);
+        launcher.ToolTip = "Area, window, display, scrolling and last area, in one compact bar";
+        capturePanel.Children.Add(launcher);
         string[] descriptions = ["Drag a rectangle across your screen.", "Bring a visible window forward and capture it.", "Use the display under your pointer.", "Capture the same area again."];
         CaptureKind[] kinds = [CaptureKind.Area, CaptureKind.Window, CaptureKind.Screen, CaptureKind.PreviousArea];
         for (int i = 0; i < kinds.Length; i++)
@@ -51,7 +61,7 @@ public sealed class HomeWindow : Window
             var item = new DockPanel(); var icon = new UiIcon(new[] { "Area", "Window", "Screen", "History" }[i], 22) { Margin = new Thickness(0, 0, 14, 0), VerticalAlignment = VerticalAlignment.Center }; DockPanel.SetDock(icon, Dock.Left); item.Children.Add(icon); item.Children.Add(stack); button.Content = item; button.HorizontalContentAlignment = HorizontalAlignment.Left; button.HorizontalAlignment = HorizontalAlignment.Stretch; button.Background = Brushes.Transparent; button.BorderBrush = Brushes.Transparent; button.MinHeight = 64; button.Margin = new Thickness(0, 4, 0, 0);
             capturePanel.Children.Add(button);
         }
-        // Scrolling capture has no shortcut in this release; it starts here, from the tray or from a capture's right-click menu.
+        // Scrolling capture has no direct shortcut; it starts here, from the capture bar, the tray or a capture's right-click menu.
         var scrollText = new StackPanel(); scrollText.Children.Add(Ui.Text("Scrolling capture", 13, Ui.Ink, true));
         var scrollHint = Ui.Text("Select content, then scroll", 11, Ui.Muted); scrollHint.Margin = new Thickness(0, 8, 0, 0); scrollText.Children.Add(scrollHint);
         var scrollItem = new DockPanel(); var scrollIcon = new UiIcon("Scrolling", 22) { Margin = new Thickness(0, 0, 14, 0), VerticalAlignment = VerticalAlignment.Center };
@@ -107,7 +117,7 @@ public sealed class HomeWindow : Window
             try
             {
                 // Pressing Save moves focus off the recorder first, so the current shortcuts are restored before they are replaced.
-                app.UpdateSettings(new AppSettings(shortcuts[0].Shortcut, shortcuts[1].Shortcut, shortcuts[2].Shortcut, shortcuts[3].Shortcut));
+                app.UpdateSettings(new AppSettings(shortcuts[0].Shortcut, shortcuts[1].Shortcut, shortcuts[2].Shortcut, shortcuts[3].Shortcut, shortcuts[4].Shortcut));
                 for (int i = 0; i < badges.Length; i++) { badges[i].Text = app.Settings.Bindings[i]; shortcuts[i].MarkSaved(app.Settings.Bindings[i]); }
                 SetStatus("Shortcuts saved");
             }

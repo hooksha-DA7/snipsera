@@ -52,6 +52,7 @@ internal static class Program
     [STAThread]
     public static int Main(string[] args)
     {
+        if (args.Length == 2 && args[0] == "--capture-bar-check") return CaptureBarChecks.Run(args[1]);
         if (args.Length == 2 && args[0] == "--recording-refinement-check") return RecordingRefinementChecks.Run(args[1]);
         if (args.Length == 2 && args[0] == "--gif-conversion-check") return RecordingRefinementChecks.GifRun(args[1]);
         if (args.Length == 2 && args[0] == "--recording-setup-visual-check") return RecordingSetupVisualChecks.Run(args[1]);
@@ -85,8 +86,8 @@ internal static class Program
         if (args.Length == 2 && args[0] == "--floating-fixture-light") return UiFixture.Run(args[1], "light", true);
         output = Path.GetFullPath(args.Length > 0 ? args[0] : "check-results"); Directory.CreateDirectory(output);
         var application = new Application { ShutdownMode = ShutdownMode.OnExplicitShutdown }; Ui.Install(application);
-        Test("Default shortcuts map to four distinct native keys", () =>
-        { var keys = new AppSettings().Bindings.Select(Hotkey.Parse).ToArray(); Equal(4, keys.Distinct().Count()); Equal(7u, keys[0].Modifiers); Equal(49u, keys[0].VirtualKey); });
+        Test("Default shortcuts map to five distinct native keys", () =>
+        { var keys = new AppSettings().Bindings.Select(Hotkey.Parse).ToArray(); Equal(5, keys.Distinct().Count()); Equal(7u, keys[0].Modifiers); Equal(49u, keys[0].VirtualKey); });
         foreach (string invalid in new[] { "A", "Shift+2", "Ctrl", "Win+1", "Ctrl+Alt+A+B", "Ctrl+F12", "Ctrl+NotAKey" })
             Test("Reject invalid shortcut " + invalid, () => Throws<FormatException>(() => Hotkey.Parse(invalid)));
         Test("Shortcut parsing accepts spacing and case", () => Equal(Hotkey.Parse("Ctrl+Alt+Shift+1"), Hotkey.Parse(" alt + CTRL + shift + D1 ")));
@@ -162,22 +163,22 @@ internal static class Program
         Test("Native shortcut conflict is reported and prior shortcuts restored", () =>
         {
             var handle = new WindowInteropHelper(fixture).Handle;
-            using var service = new HotkeyService(handle, _ => { });
+            using var service = new HotkeyService(handle, _ => { }, () => { });
             var free = new List<string>();
-            for (char letter = 'A'; letter <= 'Z' && free.Count < 5; letter++)
+            for (char letter = 'A'; letter <= 'Z' && free.Count < 6; letter++)
             {
                 string binding = "Ctrl+Alt+Shift+" + letter; var key = Hotkey.Parse(binding);
                 if (Native.RegisterHotKey(handle, 9902, key.Modifiers, key.VirtualKey)) { Native.UnregisterHotKey(handle, 9902); free.Add(binding); }
             }
-            True(free.Count == 5, "Five unused test shortcuts were not available");
-            var initial = new AppSettings(free[0], free[1], free[2], free[3]); service.Apply(initial);
+            True(free.Count == 6, "Six unused test shortcuts were not available");
+            var initial = new AppSettings(free[0], free[1], free[2], free[3], free[4]); service.Apply(initial);
             using var ready = new ManualResetEventSlim(); using var release = new ManualResetEventSlim();
-            bool reserved = false; var blocked = Hotkey.Parse(free[4]);
+            bool reserved = false; var blocked = Hotkey.Parse(free[5]);
             var blocker = new Thread(() => { reserved = Native.RegisterHotKey(IntPtr.Zero, 9900, blocked.Modifiers, blocked.VirtualKey); ready.Set(); release.Wait(); if (reserved) Native.UnregisterHotKey(IntPtr.Zero, 9900); }) { IsBackground = true };
             blocker.Start(); True(ready.Wait(5000));
             try
             {
-                True(reserved); Throws<InvalidOperationException>(() => service.Apply(initial with { Area = free[4] }));
+                True(reserved); Throws<InvalidOperationException>(() => service.Apply(initial with { Area = free[5] }));
                 bool acquiredOld = false; var old = Hotkey.Parse(initial.Area);
                 var probe = new Thread(() => { acquiredOld = Native.RegisterHotKey(IntPtr.Zero, 9901, old.Modifiers, old.VirtualKey); if (acquiredOld) Native.UnregisterHotKey(IntPtr.Zero, 9901); });
                 probe.Start(); True(probe.Join(5000)); True(!acquiredOld, "Prior shortcut was not restored");

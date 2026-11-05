@@ -28,8 +28,11 @@ Snipsera runs locally, without an account or cloud service. Older Framelet downl
 | Capture a window | Ctrl+Alt+Shift+2 |
 | Capture a display | Ctrl+Alt+Shift+3 |
 | Repeat the last area | Ctrl+Alt+Shift+4 |
+| Open all-in-one capture | Ctrl+Alt+Shift+5 |
 
 You can also capture from the home window or tray menu. In the latest preview, change them under **Keyboard shortcuts**: select a box, press your keys and save. You can use **Print Screen** on its own.
+
+The **All-in-one capture** bar puts Area, Window, Display, Scroll and Last area in one compact floating panel. Assign Print Screen to it under Keyboard shortcuts, then choose the mode you need. Esc dismisses the bar; your capture goes to the usual preview and history.
 
 A compact preview appears at the bottom left. In the latest preview, docked screenshots use matching cards with a tight gap. Hover over it to **Copy**, **Save**, **Pin** or **Annotate**. Take another screenshot whenever you need one; the previous capture stays in history.
 

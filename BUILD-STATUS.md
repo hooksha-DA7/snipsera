@@ -1,5 +1,15 @@
 # Snipsera build status
 
+## All-in-one capture candidate: 1.0.4
+
+The new configurable shortcut opens a compact floating bar with Area, Window, Display, Scroll and Last area. Home and the tray expose the same launcher. Print Screen can be recorded for it in Keyboard shortcuts. The four existing shortcuts are preserved, and old settings choose an unused launcher default when needed.
+
+The bar dismisses before capture, then uses the existing preview/history workflow. Escape, Close, clicking outside or pressing its shortcut again cancels without capture. Display uses the monitor where the bar opened. A narrow work area wraps the same full-size controls. The new tests use detached controls, synthetic key events and fake native registration; actual global activation and mixed-DPI placement remain pending while desktop testing is paused. See [capture bar help](docs/CAPTURE-BAR.md).
+
+Verification: **195 automated/offscreen checks passed**, including 28 capture-bar checks. The Release build has no compiler warnings or errors. The full existing focused screenshot/editor/scrolling/overlay/recording suite remains in the release gate. No visible test window, real global key registration, desktop capture or local installation was used.
+
+## Recording update: 1.0.3
+
 GitHub preview: **1.0.3**, 4 November 2026. The current official Store/GitHub release is **1.0.2**.
 
 Recording setup now uses two compact floating panels with source icons, editable pixel dimensions, capture toggles and separate Record GIF / Record Video actions. Quality, FPS, resolution and notification settings are available under the sliders icon. The bar shows GIF conversion progress and keeps its two-click Discard available while Stop is pending.

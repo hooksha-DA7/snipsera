@@ -23,6 +23,7 @@ public sealed partial class CaptureApp : Application
     private readonly List<ImageWindow> pins = [];
     private HomeWindow home = null!;
     private ImageWindow? preview;
+    private CaptureBarWindow? captureBar;
     private Forms.NotifyIcon? tray;
     private System.Drawing.Icon? trayIcon;
     private HotkeyService? hotkeys;
@@ -70,8 +71,8 @@ public sealed partial class CaptureApp : Application
         home.SourceInitialized += (_, _) =>
         {
             hotkeySink = new HwndSource(new HwndSourceParameters("Snipsera hotkeys") { ParentWindow = new IntPtr(-3), Width = 0, Height = 0, WindowStyle = 0 });
-            hotkeys = new HotkeyService(hotkeySink.Handle, kind => _ = CaptureAsync(kind));
-            try { hotkeys.Apply(Settings); } catch (Exception ex) { home.SetStatus(ex.Message, true); }
+            hotkeys = new HotkeyService(hotkeySink.Handle, kind => _ = CaptureAsync(kind), ShowCaptureBar);
+            try { hotkeys.Apply(Settings, keepDirectOnLauncherFailure: true); } catch (Exception ex) { home.SetStatus(ex.Message, true); }
             HwndSource.FromHwnd(new WindowInteropHelper(home).Handle)?.AddHook((IntPtr hwnd, int msg, IntPtr wp, IntPtr lp, ref bool handled) =>
             { if (msg == 0x8042) { ShowHome(); handled = true; } return IntPtr.Zero; });
         };
@@ -89,6 +90,8 @@ public sealed partial class CaptureApp : Application
         Item("Capture window", "Window", () => _ = CaptureAsync(CaptureKind.Window), Settings.Window);
         Item("Capture display", "Screen", () => _ = CaptureAsync(CaptureKind.Screen), Settings.Screen);
         Item("Repeat last area", "History", () => _ = CaptureAsync(CaptureKind.PreviousArea), Settings.Previous);
+        Item("All-in-one capture", "Area", ShowCaptureBar, Settings.AllInOne);
+        ((MenuItem)trayMenu.Items[4]).Icon = CaptureBarVisuals.LauncherGlyph(16);
         trayMenu.Items.Add(new Separator());
         Item("History and shortcuts", "History", ShowHome); Item("Scrolling capture", "Scrolling", () => _ = CaptureAsync(CaptureKind.Scrolling));
         Item("Record screen", "Record", OpenRecording);
@@ -132,10 +135,27 @@ public sealed partial class CaptureApp : Application
         overlayShelf?.Refresh(); OverlayVisibilityChanged?.Invoke();
     }
 
-    public void ShowHome() { home.RefreshHistory(); home.Show(); if (home.WindowState == WindowState.Minimized) home.WindowState = WindowState.Normal; home.Activate(); }
+    public void ShowHome() { CloseCaptureBar(); home.RefreshHistory(); home.Show(); if (home.WindowState == WindowState.Minimized) home.WindowState = WindowState.Normal; home.Activate(); }
+
+    public void ShowCaptureBar()
+    {
+        if (Quitting || capturing || ComponentDispatcher.IsThreadModal) return;
+        if (Recording.IsActive) { home.SetStatus("Stop the recording before taking another screenshot."); return; }
+        if (captureBar is not null) { CloseCaptureBar(); return; }
+        trayMenu.IsOpen = false;
+        DrawingRect display = Native.MonitorAtCursor();
+        var bar = new CaptureBarWindow(kind => _ = CaptureAsync(kind, display),
+            previousArea is DrawingRect area && Native.Desktop.Contains(area));
+        captureBar = bar;
+        bar.Closed += (_, _) => { if (captureBar == bar) captureBar = null; };
+        bar.Show(); Native.SetForegroundWindow(new WindowInteropHelper(bar).Handle); bar.Activate();
+    }
+
+    private void CloseCaptureBar() { var bar = captureBar; captureBar = null; bar?.Close(); }
 
     public void ShowTrayMenu()
     {
+        CloseCaptureBar();
         foreach (var image in Windows.Cast<Window>().OfType<ImageWindow>()) image.DismissActions();
         // Acquire the native popup focus before WPF enters keyboard menu mode.
         // Otherwise WM_SETFOCUS clears its just-assigned logical focus and closes it.
@@ -151,17 +171,18 @@ public sealed partial class CaptureApp : Application
         if (hotkeys is null) throw new InvalidOperationException("Shortcuts are not ready.");
         var old = Settings;
         hotkeys.Apply(settings);
-        try { History.SaveSettings(settings); Settings = settings; for (int i = 0; i < 4; i++) ((MenuItem)trayMenu.Items[i]).InputGestureText = settings.Bindings[i]; }
+        try { History.SaveSettings(settings); Settings = settings; for (int i = 0; i < settings.Bindings.Length; i++) ((MenuItem)trayMenu.Items[i]).InputGestureText = settings.Bindings[i]; }
         catch { hotkeys.Apply(old); throw; }
     }
 
     public IDisposable SuspendShortcuts() => hotkeys?.Suspend() ?? throw new InvalidOperationException("Shortcuts are not ready.");
 
-    public async Task CaptureAsync(CaptureKind kind)
+    public async Task CaptureAsync(CaptureKind kind, DrawingRect? sourceDisplay = null)
     {
         if (Quitting) return;
         if (Recording.IsActive) { home.SetStatus("Stop the recording before taking another screenshot."); return; }
         if (capturing || ComponentDispatcher.IsThreadModal) { pendingCapture = kind; return; }
+        CloseCaptureBar();
         capturing = true;
         var visible = Windows.Cast<Window>().Where(w => w.IsVisible).ToList();
         IDisposable? suspension = null;
@@ -170,7 +191,7 @@ public sealed partial class CaptureApp : Application
         {
             suspension = overlays.Suspend();
             trayMenu.IsOpen = false; Mouse.Capture(null);
-            DrawingRect display = Native.MonitorAtCursor();
+            DrawingRect display = sourceDisplay ?? Native.MonitorAtCursor();
             foreach (Window window in visible)
             {
                 if (window is ImageWindow imageWindow) imageWindow.PresentOverlay(false, false);

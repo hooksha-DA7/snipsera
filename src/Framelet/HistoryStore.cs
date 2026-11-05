@@ -176,7 +176,16 @@ public sealed class HistoryStore
         if (!File.Exists(path)) return new AppSettings();
         try
         {
-            var settings = JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(path)) ?? new AppSettings();
+            string text = File.ReadAllText(path);
+            var settings = JsonSerializer.Deserialize<AppSettings>(text) ?? new AppSettings();
+            using var document = JsonDocument.Parse(text);
+            if (document.RootElement.ValueKind == JsonValueKind.Object && !document.RootElement.TryGetProperty("AllInOne", out _))
+            {
+                // Older settings have four bindings. Add an unused default without changing any existing shortcut.
+                var used = settings.Bindings.Take(4).Select(Hotkey.Parse).ToHashSet();
+                string available = Enumerable.Range(5, 5).Select(number => $"Ctrl+Alt+Shift+{number}").First(binding => !used.Contains(Hotkey.Parse(binding)));
+                settings = settings with { AllInOne = available };
+            }
             foreach (string binding in settings.Bindings) _ = Hotkey.Parse(binding);
             return settings;
         }

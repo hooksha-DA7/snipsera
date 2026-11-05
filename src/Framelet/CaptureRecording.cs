@@ -20,6 +20,7 @@ public sealed partial class CaptureApp
 
     public void OpenRecording()
     {
+        CloseCaptureBar();
         if (Recording.IsActive) { if (recordingBar?.IsCaptureExcluded == true) { recordingBar.Show(); recordingBar.Activate(); } else ShowTrayMenu(); return; }
         if (recordingWindow is null)
         {

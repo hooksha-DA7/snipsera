@@ -13,7 +13,7 @@ if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 & $dotnet build $project -c Release --no-restore --nologo
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 $checks = Join-Path $root 'tests/Framelet.Checks/bin/Release/net10.0-windows/Framelet.Checks.dll'
-foreach ($mode in @('identity-check','backend-check','overlay-style-check','recording-check','feedback-check','feedback-visual-check','recording-refinement-check','gif-conversion-check','recording-setup-visual-check')) {
+foreach ($mode in @('identity-check','backend-check','overlay-style-check','recording-check','feedback-check','feedback-visual-check','recording-refinement-check','gif-conversion-check','recording-setup-visual-check','capture-bar-check')) {
     & $dotnet $checks ('--' + $mode) (Join-Path $Output $mode)
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 }

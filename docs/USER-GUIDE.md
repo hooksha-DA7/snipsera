@@ -24,6 +24,7 @@ Docked previews and pins use matching 200 × 150 thumbnails with an 8-pixel logi
 | Window | Ctrl+Alt+Shift+2 | Click a visible window. Snipsera brings it forward and captures its on-screen bounds. |
 | Full display | Ctrl+Alt+Shift+3 | Capture the entire monitor under the pointer, including its taskbar. |
 | Repeat area | Ctrl+Alt+Shift+4 | Capture the last selected rectangle again, during the current app session. |
+| All-in-one capture | Ctrl+Alt+Shift+5 | Open the compact bar for Area, Window, Display, Scroll or Last area. |
 | Scrolling capture | Home, tray or image right-click menu | Select scrolling content, Start, scroll down, then Done to create one tall image. |
 
 Press **Esc** or right-click to cancel selection. Snipsera hides its own home, previews and pins before capture, then restores pins after success. Canceling restores the previously visible windows.
@@ -31,6 +32,14 @@ Press **Esc** or right-click to cancel selection. Snipsera hides its own home, p
 You can capture again while the previous preview, pins or editor are open. The new preview replaces the previous preview after a successful capture; each original stays in history. A request received while capture is finishing is queued; multiple waiting requests coalesce to the latest action. If a save/confirmation dialog is open, capture waits for you to dismiss that dialog. Selection itself is asynchronous and does not disable the other app windows.
 
 Use the home buttons or tray menu for the same actions. Expand **Keyboard shortcuts** to customize them, then select **Save shortcuts**. Supported shortcuts include Print Screen on its own or with modifiers, or Ctrl and/or Alt, optional Shift, and one letter, digit or F1–F11. If another application owns a requested shortcut, Snipsera explains the conflict and keeps the previous bindings. A startup conflict leaves the capture buttons usable; change the shortcuts to enable them.
+
+## All-in-one capture bar
+
+Press **Ctrl+Alt+Shift+5**, or choose **All-in-one capture** in Home or the tray. The floating bar offers **Area**, **Window**, **Display**, **Scroll** and **Last area**. Choose a mode to continue through the usual capture, preview and history workflow. Display captures the monitor where the bar opened, including its taskbar. Last area becomes available after selecting an area during the current session.
+
+To use **Print Screen**, expand **Keyboard shortcuts**, select the **All-in-one capture** box, press Print Screen and choose **Save shortcuts**. If it is already assigned to Area or another action, change that action's shortcut too. Existing shortcuts are preserved when upgrading; an unused Ctrl+Alt+Shift+5–9 is chosen for the new bar if necessary.
+
+With the bar open, use **1–5** to choose a mode, or arrow keys/Tab and Enter. **Esc**, Close, clicking outside, or pressing the launcher shortcut again dismisses it without taking a screenshot. Drag its grip to move it. The bar closes before capture and does not appear in the result. It uses the same colors, rounded surfaces and keyboard focus style as the other floating controls.
 
 ## Scrolling capture
 
