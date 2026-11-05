@@ -48,6 +48,8 @@ The Store MSIX declares `Microsoft.VCLibs.140.00.UWPDesktop` version `14.0.33321
 
 ## Current setup status
 
+Snipsera **1.0.4** is the latest GitHub preview, with all-in-one screenshot capture. Its EXE, portable/source ZIPs and checksums use the exact reviewed hosted build. Store MSIX **1.0.4.0** is prepared but not submitted. It remains submission-only; this preview does not replace the separately submitted 1.0.3.0 Store update or promote itself based on that update's approval.
+
 Update on 5 November 2026: **1.0.3.0** was submitted as Submission 3 (`1152921505702318460`) and is in certification. Automatic publication after approval is enabled. The submitted MSIX comes from reviewed source `1c9bdf8d70488bf4199dea2a608b028e2dcac394` and has SHA256 `aca5595380464b6b8ce8c7cf1210cd5f7087901e68979a2081a7888b1b3fb1a0`. GitHub **1.0.3 remains a preview** until Microsoft approves this exact update. The current live Store/GitHub release remains **1.0.2**. Published tags, downloads and hashes are unchanged; live desktop and final clean Windows 11/installed-MSIX acceptance remain pending.
 
 The personal Store app **Snipsera**, product **9NFL9VHL8GKV**, publisher display name **Mo7**, was submitted for certification on 2 November 2026 with package version **1.0.1.0**. The submission includes an English listing, three synthetic-content app screenshots, free pricing, privacy/support links, age ratings and the full-trust capability explanation. Certification passed and the maintainer requested publication on 4 November 2026. Partner Center now shows **In Microsoft Store** and provides the [public download link](https://apps.microsoft.com/detail/9NFL9VHL8GKV).

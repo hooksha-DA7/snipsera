@@ -1,6 +1,32 @@
 # Releases
 
-The official Snipsera release is [1.0.2](https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.2-preview.2). The latest preview is [1.0.3](https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.3).
+The official Snipsera release is [1.0.2](https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.2-preview.2). The latest preview is [1.0.4](https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.4).
+
+## 1.0.4: All-in-one screenshot capture
+
+2026-11-05 · Preview release · [Release page](https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.4)
+
+Open every screenshot mode from one compact floating bar, using a shortcut you choose.
+
+### Added
+
+- An all-in-one capture bar with Area, Window, Display, Scroll and Last area.
+- A separate customizable shortcut for the bar, including Print Screen. The default is Ctrl+Alt+Shift+5.
+- Home and tray launchers, 1–5 mode selection, and Escape or click-outside dismissal.
+
+### Improved
+
+- Existing capture shortcuts survive the upgrade; an unused launcher default is chosen when needed.
+- The bar closes before capture and uses the usual preview, Copy, Save, Pin, Annotate and history workflow.
+- Narrow displays wrap the same full-size controls while keeping the floating style.
+
+**Unsigned preview.** Windows may warn when downloading or starting the GitHub EXE or portable ZIP. This update has not been submitted to Microsoft Store. It remains a preview until Microsoft approves its matching Store build. Physical Print Screen/global activation, live mixed-DPI placement, clean Windows 11 and final installed-MSIX acceptance remain pending. The [Microsoft Store download](https://apps.microsoft.com/detail/9NFL9VHL8GKV) is available separately.
+
+### Download
+
+[EXE installer](https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.4/Snipsera-1.0.4-setup-win-x64.exe) · [Portable ZIP](https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.4/Snipsera-1.0.4-win-x64.zip) · [Source ZIP](https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.4/Snipsera-1.0.4-source.zip) · [Checksums](https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.4/SHA256SUMS.txt)
+
+Run the EXE installer, or extract the portable ZIP and open **Snipsera.exe**. Windows 11 x64 is required; .NET is included. Quit an older copy from its tray menu first. The installer checks the Visual C++ x64 runtime needed for recording.
 
 ## 1.0.3: Compact recording controls and faster GIFs
 

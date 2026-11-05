@@ -2,6 +2,24 @@
 
 [Downloads and release notes](RELEASES.md)
 
+## 1.0.4 — 2026-11-05
+
+Preview release. Open every screenshot mode from one compact floating bar, using a shortcut you choose.
+
+### Added
+
+- An all-in-one capture bar with Area, Window, Display, Scroll and Last area.
+- A separate customizable shortcut for the bar, including Print Screen. The default is Ctrl+Alt+Shift+5.
+- Home and tray launchers, 1–5 mode selection, and Escape or click-outside dismissal.
+
+### Improved
+
+- Existing capture shortcuts survive the upgrade; an unused launcher default is chosen when needed.
+- The bar closes before capture and uses the usual preview, Copy, Save, Pin, Annotate and history workflow.
+- Narrow displays wrap the same full-size controls while keeping the floating style.
+
+**Unsigned preview.** Windows may warn when downloading or starting the GitHub EXE or portable ZIP. This update has not been submitted to Microsoft Store. It remains a preview until Microsoft approves its matching Store build. Physical Print Screen/global activation, live mixed-DPI placement, clean Windows 11 and final installed-MSIX acceptance remain pending. The [Microsoft Store download](https://apps.microsoft.com/detail/9NFL9VHL8GKV) is available separately.
+
 ## 1.0.3 — 2026-11-04
 
 Preview release. Recording opens in compact floating controls, with separate Record GIF and Record Video buttons. Area selection is more precise, and Compact and Balanced GIFs finish faster.

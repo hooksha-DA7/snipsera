@@ -1,12 +1,14 @@
 # Snipsera build status
 
-## All-in-one capture candidate: 1.0.4
+## All-in-one capture preview: 1.0.4
 
 The new configurable shortcut opens a compact floating bar with Area, Window, Display, Scroll and Last area. Home and the tray expose the same launcher. Print Screen can be recorded for it in Keyboard shortcuts. The four existing shortcuts are preserved, and old settings choose an unused launcher default when needed.
 
 The bar dismisses before capture, then uses the existing preview/history workflow. Escape, Close, clicking outside or pressing its shortcut again cancels without capture. Display uses the monitor where the bar opened. A narrow work area wraps the same full-size controls. The new tests use detached controls, synthetic key events and fake native registration; actual global activation and mixed-DPI placement remain pending while desktop testing is paused. See [capture bar help](docs/CAPTURE-BAR.md).
 
 Verification: **195 automated/offscreen checks passed**, including 28 capture-bar checks. The Release build has no compiler warnings or errors. The full existing focused screenshot/editor/scrolling/overlay/recording suite remains in the release gate. No visible test window, real global key registration, desktop capture or local installation was used.
+
+The published preview uses [hosted run 42060962574](https://github.com/hooksha-DA7/snipsera/actions/runs/42060962574), source `ab5fb06abef8ed90aae3c7a00b4c2f70880a5b10`. Exact hosted EXE installation, synthetic launch, reinstall, increasing-version fixture upgrade and uninstall passed on Windows Server 2025. MSIX 1.0.4.0 is prepared for Store submission and is not submitted or offered as a public unsigned MSIX. All previous versions and downloads are preserved.
 
 ## Recording update: 1.0.3
 
