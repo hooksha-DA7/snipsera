@@ -1,5 +1,15 @@
 # Snipsera build status
 
+## Update and startup preview: 1.0.5
+
+Settings adds automatic/manual update checks, an optional GitHub preview channel and Start with Windows. Updates follow the installation source, appear on Home and can trigger a deferred tray alert. Known notices and acknowledgement persist across restarts. GitHub actions open the owned release page; installers are never downloaded or executed automatically. Startup is off by default, opens quietly in the tray and respects Windows user/policy controls.
+
+The app targets Windows 11's WinRT APIs through `net10.0-windows10.0.22000.0`. Store update calls require the assigned package identity and initialized owner window. Packaged startup uses the disabled manifest task; EXE/portable startup uses a quoted per-user Run entry. Isolated test profiles cannot alter real startup settings. See [updates and startup](docs/UPDATES-AND-STARTUP.md) and the updated [privacy policy](PRIVACY.md).
+
+The local release gate passed **268 automated/offscreen checks** (231 C# and 37 Python), with no compiler warnings or errors. Checks use simulated startup storage and Store responses, plus detached UI renders. A separate read-only smoke check of the production GitHub reader returned the current official and preview releases. Real Windows sign-in startup, tray notification delivery and installed Store update/startup acceptance remain pending. Desktop input, capture/audio and local installer tests remain paused. No Windows startup setting was changed on the user's PC.
+
+EXE/MSIX packaging and hosted installer verification are in progress. This candidate is not submitted to Microsoft Store. The separately submitted 1.0.3.0 update's approval cannot promote 1.0.5; exact package/source approval is required. GitHub installers remain unsigned.
+
 ## All-in-one capture preview: 1.0.4
 
 The new configurable shortcut opens a compact floating bar with Area, Window, Display, Scroll and Last area. Home and the tray expose the same launcher. Print Screen can be recorded for it in Keyboard shortcuts. The four existing shortcuts are preserved, and old settings choose an unused launcher default when needed.

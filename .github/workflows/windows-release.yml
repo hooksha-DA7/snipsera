@@ -51,7 +51,7 @@ jobs:
       - name: Verify candidate contents and source parity
         run: python scripts/verify_candidate.py --candidate dist/unsigned
       - name: Test installer on this fresh hosted Windows runner
-        run: ./scripts/test_installer.ps1 -Candidate dist/unsigned -Output verification/runs/hosted-installer -ExerciseUpgrade
+        run: ./scripts/test_installer.ps1 -Candidate dist/unsigned -Output verification/runs/hosted-installer -ExerciseUpgrade -ExerciseStartupCleanup
       - name: Upload unsigned candidates
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:

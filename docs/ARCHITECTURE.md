@@ -1,6 +1,6 @@
 # Architecture
 
-Snipsera is a native WPF application targeting `net10.0-windows`. Windows Forms supplies only the notification-area icon; its menu is WPF Fluent. There are no third-party runtime packages or web views.
+Snipsera is a native WPF application targeting `net10.0-windows10.0.22000.0`. Windows Forms supplies only the notification-area icon; its menu is WPF Fluent. Recording uses ScreenRecorderLib and a separate local FFmpeg converter; Windows SDK projections provide Store update and startup APIs. There are no web views.
 
 | Component | Responsibility |
 | --- | --- |

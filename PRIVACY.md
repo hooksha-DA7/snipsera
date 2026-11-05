@@ -1,6 +1,6 @@
 # Snipsera privacy policy
 
-Effective date: 4 November 2026.
+Effective date: 5 November 2026.
 
 Snipsera captures screenshots and screen recordings on your Windows PC. It does not require an account. The app itself does not upload your captures, send analytics or use a cloud processing service.
 
@@ -23,6 +23,12 @@ Copy places an image on the Windows clipboard. Dragging or saving a capture make
 Screenshot history keeps the latest 100 captures. Removing or pruning an entry also removes its automatic history project. Images and editable projects saved separately, and recordings, may remain after their history entries disappear. Delete files you no longer need. Uninstalling Snipsera preserves your saved capture data; remove its data folder separately if you want to erase it. Windows backups, synchronization services and the Recycle Bin may retain their own copies.
 
 ## External services
+
+From version 1.0.5, optional update checks contact the app's installation source: Microsoft Store for the Store app, or GitHub's public Snipsera release feed for an EXE/portable download. Automatic checks are on by default, run daily while Snipsera is open (retrying failed checks after an hour), and can be turned off in **Settings → Updates**. **Check now** makes a manual request. Checks do not send captures, recordings, microphone audio, file paths or analytics. GitHub receives an ordinary HTTPS request with an app user-agent; service providers can receive connection information such as your IP address. Microsoft Store requests use Windows' Store service and its policies.
+
+The optional Start with Windows setting registers this app with Windows only when you enable it, so it can open quietly in the tray at sign-in. You can turn it off in app Settings or Windows Startup apps.
+
+The app stores the last check time, available release and notification acknowledgement locally so it can avoid repeat alerts. Update buttons open Microsoft Store or the project's GitHub release page. Snipsera does not automatically download or run a GitHub installer; Microsoft Store's own update settings remain separate.
 
 Downloading through GitHub or Microsoft Store is subject to those services' policies. A missing prerequisite may open Microsoft's official runtime download in your browser. These are separate from the app's local capture workflow.
 

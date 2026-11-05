@@ -8,7 +8,13 @@ Install Snipsera from [Microsoft Store](https://apps.microsoft.com/detail/9NFL9V
 
 Historical Framelet downloads use **Framelet.exe** and require the .NET 10 Desktop Runtime x64. Close earlier copies through their tray menu before launching a new build. New projects use `.snipsera`; legacy `.framelet` projects continue to open.
 
-Closing the home window keeps Snipsera running in the notification area. Double-click its tray icon or launch Snipsera again to reopen history. Use **Quit Snipsera** in the tray menu to exit and release the hotkeys. It does not automatically start with Windows.
+Closing the home window keeps Snipsera running in the notification area. Double-click its tray icon or launch Snipsera again to reopen history. Use **Quit Snipsera** in the tray menu to exit and release the hotkeys. Startup with Windows is off by default. In version 1.0.5, open **Settings → General → Start with Windows** to turn it on or off. Startup opens quietly in the tray. If Windows or your administrator has disabled it, Settings explains the restriction and links to Windows Startup apps. Keep a portable copy in the same folder after enabling startup.
+
+## Updates
+
+In version 1.0.5, the Settings button on Home and **Settings and updates** in the tray menu open update preferences. Automatic checks are on by default and run daily while the app is open, with failed checks retried after an hour. Turn them off or use **Check now** whenever you want. A notice stays on Home when an update is available, with a tray alert deferred until capture or recording has finished. Windows notification settings can suppress tray alerts.
+
+Store installations check Microsoft Store and open the Store app to update. EXE and portable installations check this project's GitHub releases and open the release page; download and run the installer yourself. **Include preview releases** is on by default for GitHub downloads. Turn it off to hear only about official releases. A newer installed preview is never replaced by an older official version. Turning off app checks does not change Microsoft Store's own automatic update settings. See [updates and startup](UPDATES-AND-STARTUP.md).
 
 ## Shortcuts and compact cards
 
@@ -88,7 +94,7 @@ Default folder: `%LOCALAPPDATA%\Snipsera`
 - `settings.json`: shortcuts after saving custom settings.
 - `drag-exports\<owned-id>.png`: local PNGs staged for file drag-and-drop. Targets can read them after the gesture ends. Owned files older than seven days are cleaned on a later drag; unrelated files are kept. These are unencrypted local copies, like capture history.
 
-History retains the latest **100 captures**, pruning older owned PNGs and their automatic edit projects after the new history index is committed. Export anything you need to keep permanently. **Remove** asks for confirmation and removes that history image and its automatic edit project; exported copies elsewhere remain. Screenshots are unencrypted local files. Snipsera contains no upload, telemetry or network code.
+History retains the latest **100 captures**, pruning older owned PNGs and their automatic edit projects after the new history index is committed. Export anything you need to keep permanently. **Remove** asks for confirmation and removes that history image and its automatic edit project; exported copies elsewhere remain. Screenshots are unencrypted local files. Snipsera does not upload captures or send telemetry. Optional update checks retrieve version information from GitHub or Microsoft Store; see [privacy](../PRIVACY.md).
 
 Damaged indexes are preserved and recoverable PNGs are rediscovered. Recovered files can lose their original capture mode and are labeled Area. If saving history fails during a capture, the preview still offers Copy and Save and displays a warning.
 

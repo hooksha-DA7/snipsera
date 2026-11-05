@@ -12,13 +12,13 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 FOUNDATION = "http://schemas.microsoft.com/appx/manifest/foundation/windows10"
-for prefix, uri in {"": FOUNDATION, "uap": "http://schemas.microsoft.com/appx/manifest/uap/windows10", "uap10": "http://schemas.microsoft.com/appx/manifest/uap/windows10/10", "rescap": "http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"}.items():
+for prefix, uri in {"": FOUNDATION, "uap": "http://schemas.microsoft.com/appx/manifest/uap/windows10", "uap10": "http://schemas.microsoft.com/appx/manifest/uap/windows10/10", "rescap": "http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities", "desktop": "http://schemas.microsoft.com/appx/manifest/desktop/windows10"}.items():
     ET.register_namespace(prefix, uri)
 
 
 def source_files():
     files = {ROOT / name for name in ("README.md", "CHANGELOG.md", "RELEASES.md", "BUILD-STATUS.md", "LICENSE", "THIRD-PARTY.md", "PRIVACY.md", "SUPPORT.md", "global.json", "recording-dependencies.json", "Directory.Build.props", "NuGet.Config", "build.ps1", "test.ps1", "publish.ps1", ".gitignore", "verification/verify_packages.py")}
-    extensions = {".cs", ".csproj", ".manifest", ".png", ".ico", ".json", ".md", ".txt", ".py", ".ps1", ".xml", ".iss", ".yml", ".yaml"}
+    extensions = {".cs", ".csproj", ".manifest", ".png", ".ico", ".json", ".md", ".txt", ".rtf", ".py", ".ps1", ".xml", ".iss", ".yml", ".yaml"}
     for tree in ("src", "tests", "scripts", "packaging", "docs", "releases", ".github/workflows"):
         files.update(p for p in (ROOT / tree).rglob("*") if p.is_file() and p.suffix in extensions and not {"bin", "obj", "__pycache__"}.intersection(p.relative_to(ROOT).parts))
     return sorted(files)

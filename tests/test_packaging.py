@@ -27,6 +27,16 @@ class PackagingChecks(unittest.TestCase):
         self.assertIsNotNone(dependency, "A clean Store installation must receive the native C++ runtime")
         self.assertEqual(dependency.attrib, {"Name": "Microsoft.VCLibs.140.00.UWPDesktop", "MinVersion": "14.0.33321.0", "Publisher": "CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"})
 
+    def test_store_startup_task_is_opt_in_and_launches_quietly(self):
+        manifest = PACKAGE.package_manifest({"name": "Example.Snipsera", "publisher": "CN=example", "publisher_display_name": "Example"}, "1.0.5.0")
+        desktop = "http://schemas.microsoft.com/appx/manifest/desktop/windows10"
+        extension = manifest.find(f".//{{{desktop}}}Extension")
+        self.assertIsNotNone(extension)
+        self.assertEqual(extension.attrib["Category"], "windows.startupTask")
+        self.assertEqual(extension.attrib["Executable"], "Snipsera.exe")
+        self.assertEqual(extension.attrib["{http://schemas.microsoft.com/appx/manifest/uap/windows10/10}Parameters"], "--startup")
+        self.assertEqual(extension.find(f"{{{desktop}}}StartupTask").attrib, {"TaskId": "SnipseraStartup", "Enabled": "false", "DisplayName": "Snipsera"})
+
     def test_store_version_rules_are_enforced(self):
         identity = {"name": "Example.Snipsera", "publisher": "CN=example", "publisher_display_name": "Example"}
         for version in ("0.7.0.0", "1.0.0.1", "1.0.0-preview.1", "1.65536.0.0"):
@@ -34,7 +44,7 @@ class PackagingChecks(unittest.TestCase):
 
     def test_source_package_includes_build_assets_and_excludes_private_work(self):
         paths = {p.relative_to(PACKAGE.ROOT).as_posix() for p in PACKAGE.source_files()}
-        self.assertTrue({"packaging/Snipsera.iss", "packaging/AppxManifest.xml", "packaging/store-identity.json", "scripts/package_release.py", "src/Framelet/Assets/Snipsera.ico", "LICENSE", "THIRD-PARTY.md"}.issubset(paths))
+        self.assertTrue({"packaging/Snipsera.iss", "packaging/AppxManifest.xml", "packaging/store-identity.json", "scripts/package_release.py", "src/Framelet/Assets/Snipsera.ico", "LICENSE", "THIRD-PARTY.md", "docs/licenses/Windows-SDK-License.rtf", "docs/licenses/CsWinRT-MIT.txt"}.issubset(paths))
         self.assertFalse(any(part in {".tools", ".git", "bin", "obj", "design"} for name in paths for part in Path(name).parts))
         self.assertFalse(any(name.startswith("verification/") and name != "verification/verify_packages.py" for name in paths))
 

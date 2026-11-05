@@ -16,7 +16,7 @@ The installer includes .NET. Screen recording needs the [Microsoft Visual C++ x6
 
 For the portable version, extract the complete ZIP and open **Snipsera.exe**. Keep its files and `encoder` folder together.
 
-**The GitHub EXE and portable ZIP are unsigned.** Windows may show a warning when you download or start them. The official GitHub release is 1.0.2. The 1.0.4 preview adds all-in-one capture and includes the compact recording controls and faster GIF conversion. New GitHub versions stay previews until their matching Store update is approved. Installer code signing is pending; see the [release notes](https://github.com/hooksha-DA7/snipsera/releases) for current limits. [Code signing policy](docs/CODE-SIGNING.md).
+**The GitHub EXE and portable ZIP are unsigned.** Windows may show a warning when you download or start them. The official GitHub release is 1.0.2. The 1.0.5 preview adds update notices and optional startup with Windows, alongside all-in-one capture, compact recording controls and faster GIF conversion. New GitHub versions stay previews until their matching Store update is approved. Installer code signing is pending; see the [release notes](https://github.com/hooksha-DA7/snipsera/releases) for current limits. [Code signing policy](docs/CODE-SIGNING.md).
 
 Snipsera runs locally, without an account or cloud service. Older Framelet downloads remain available in the [release history](RELEASES.md).
 
@@ -54,9 +54,15 @@ Do not disturb must be enabled manually in Windows. [Recording help](docs/RECORD
 
 Closing the home window leaves the app in the tray. Use its **Quit** command to exit. Quit an older copy before starting another version so the capture shortcuts are available.
 
+## Updates and startup
+
+In the latest preview, open **Settings** on Home or **Settings and updates** in the tray menu. **Start with Windows** is off by default; enable it to open quietly in the tray when you sign in.
+
+Automatic update checks are on by default. Store installations check Microsoft Store; GitHub downloads check the project's releases. You can turn checks off, check manually or exclude GitHub previews. An available update appears on Home, with a tray alert when you're not capturing or recording. Store updates open Microsoft Store; GitHub updates open the release page so you can download and install them. [Update and startup help](docs/UPDATES-AND-STARTUP.md).
+
 ## More help
 
-[User guide](docs/USER-GUIDE.md) Ã‚Â· [Release notes and downloads](RELEASES.md) Ã‚Â· [Build from source](docs/DEVELOPMENT.md) Ã‚Â· [Report a problem](https://github.com/hooksha-DA7/snipsera/issues) Ã‚Â· [Privacy](PRIVACY.md) Ã‚Â· [Signing status](docs/CODE-SIGNING.md)
+[User guide](docs/USER-GUIDE.md) · [Release notes and downloads](RELEASES.md) · [Build from source](docs/DEVELOPMENT.md) · [Report a problem](https://github.com/hooksha-DA7/snipsera/issues) · [Privacy](PRIVACY.md) · [Signing status](docs/CODE-SIGNING.md)
 
 Snipsera is an independent Windows app inspired by CleanShot's workflow. It is not affiliated with CleanShot.
 

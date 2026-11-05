@@ -14,7 +14,9 @@ $frameletTestProject = Join-Path $frameletRoot 'tests/Framelet.Checks/Framelet.C
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 & $frameletDotnet build $frameletTestProject -c Release --no-restore --nologo
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-& $frameletDotnet (Join-Path $frameletRoot 'tests/Framelet.Checks/bin/Release/net10.0-windows/Framelet.Checks.dll') $Output
+$frameletTargetFramework = ([xml](Get-Content -LiteralPath $frameletTestProject -Raw)).Project.PropertyGroup.TargetFramework
+$frameletChecks = Join-Path $frameletRoot ('tests/Framelet.Checks/bin/Release/' + $frameletTargetFramework + '/Framelet.Checks.dll')
+& $frameletDotnet $frameletChecks $Output
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-& $frameletDotnet (Join-Path $frameletRoot 'tests/Framelet.Checks/bin/Release/net10.0-windows/Framelet.Checks.dll') --capture-stress (Join-Path $Output 'capture-lifecycle')
+& $frameletDotnet $frameletChecks --capture-stress (Join-Path $Output 'capture-lifecycle')
 exit $LASTEXITCODE

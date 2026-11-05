@@ -30,7 +30,14 @@ public sealed class HomeWindow : Window
         var open = Ui.Button("Open image / project…", "OpenImageProject", app.OpenImageOrProject);
         open.VerticalAlignment = VerticalAlignment.Center; DockPanel.SetDock(open, Dock.Right);
         header.Children.Insert(1, open);
+        // Settings sits just left of the existing actions, so Open and Keep in tray stay where they were.
+        var preferences = Ui.IconButton("Settings", "Settings", "OpenSettings", app.OpenPreferences);
+        preferences.VerticalAlignment = VerticalAlignment.Center; preferences.Margin = new Thickness(0, 0, 6, 0); DockPanel.SetDock(preferences, Dock.Right);
+        header.Children.Insert(2, preferences);
         DockPanel.SetDock(header, Dock.Top); dock.Children.Add(header);
+        // Stays until the update is installed, even if the Windows notification was missed or turned off.
+        var notice = new UpdateNotice(app.Preferences, app.OpenPreferences); DockPanel.SetDock(notice, Dock.Top); dock.Children.Add(notice);
+        app.Preferences.Changed += notice.Refresh; Closed += (_, _) => app.Preferences.Changed -= notice.Refresh;
         status.Margin = new Thickness(0, 16, 0, 0); DockPanel.SetDock(status, Dock.Bottom); dock.Children.Add(status);
         var columns = new Grid(); columns.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(260) });
         columns.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(18) }); columns.ColumnDefinitions.Add(new ColumnDefinition());
@@ -54,7 +61,7 @@ public sealed class HomeWindow : Window
         {
             int index = i;
             var stack = new StackPanel(); stack.Children.Add(Ui.Text(labels[i], 13, Ui.Ink, true));
-            
+
             badges[i] = Ui.Text(app.Settings.Bindings[i], 11, Ui.Blue); badges[i].Margin = new Thickness(0, 8, 0, 0);
             stack.Children.Add(badges[i]);
             var button = Ui.Button(labels[i], "Capture" + kinds[i], async () => await app.CaptureAsync(kinds[index]));

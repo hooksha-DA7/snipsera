@@ -4,7 +4,7 @@ Commands below run from the repository root.
 
 ## Build and verify
 
-Requires a .NET 10 SDK and Python 3.10+ on Windows x64. Scripts prefer a project-local SDK at `.tools/dotnet/dotnet.exe`, otherwise use `dotnet` from PATH. The recorder pins ScreenRecorderLib 7.0.1 from the official NuGet feed, with package-source mapping. `build.ps1` restores it and verifies/prepares the pinned LGPL GIF converter from `recording-dependencies.json`. The first build needs network access; the app itself does not. Install the Visual C++ x64 runtime for native recording.
+Requires a .NET 10 SDK and Python 3.10+ on Windows x64. Scripts prefer a project-local SDK at `.tools/dotnet/dotnet.exe`, otherwise use `dotnet` from PATH. The app targets `net10.0-windows10.0.22000.0` for Windows 11 APIs; the targeting pack is restored through the explicit `Microsoft.Windows.SDK.NET.Ref` package-source mapping. The recorder pins ScreenRecorderLib 7.0.1 from the official NuGet feed. `build.ps1` restores dependencies and verifies/prepares the pinned LGPL GIF converter from `recording-dependencies.json`. The first build needs network access. Capturing and editing work offline; optional update checks contact GitHub or Microsoft Store. Install the Visual C++ x64 runtime for native recording.
 
 ```powershell
 ./build.ps1 -Release

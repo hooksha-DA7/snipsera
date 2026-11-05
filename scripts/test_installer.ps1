@@ -1,4 +1,4 @@
-param([Parameter(Mandatory)][string]$Candidate,[Parameter(Mandatory)][string]$Output,[switch]$ExerciseUpgrade)
+param([Parameter(Mandatory)][string]$Candidate,[Parameter(Mandatory)][string]$Output,[switch]$ExerciseUpgrade,[switch]$ExerciseStartupCleanup)
 $ErrorActionPreference = 'Stop'
 $root = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 $run = [IO.Path]::GetFullPath($Output)
@@ -7,6 +7,9 @@ if (-not $run.StartsWith($root + [IO.Path]::DirectorySeparatorChar,[StringCompar
 if (Test-Path -LiteralPath $run) { throw 'Choose a fresh installer-test folder.' }
 $registration = 'HKCU:/Software/Microsoft/Windows/CurrentVersion/Uninstall/{AE5C6F25-7A71-4A81-AFC2-7442D18AE306}_is1'
 if (Test-Path -LiteralPath $registration) { throw 'Preserve the existing Snipsera installation; use an isolated test profile.' }
+$startupKey = 'HKCU:/Software/Microsoft/Windows/CurrentVersion/Run'
+$startupName = 'SnipseraStartup'
+if ($ExerciseStartupCleanup -and (Get-ItemProperty -LiteralPath $startupKey -Name $startupName -ErrorAction SilentlyContinue)) { throw 'Preserve the existing startup entry; use an isolated test profile.' }
 $Candidate = [IO.Path]::GetFullPath($Candidate)
 $receipt = Get-Content -LiteralPath (Join-Path $Candidate 'package-results.json') -Raw | ConvertFrom-Json
 $payload = Join-Path $Candidate ('Snipsera-' + $receipt.version + '-win-x64')
@@ -24,6 +27,10 @@ Install-Candidate $installer 'install.log'
 $app = Join-Path $installation 'Snipsera.exe'
 if (-not (Test-Path -LiteralPath $app) -or -not (Test-Path -LiteralPath $registration)) { throw 'Expected installation was not created.' }
 $checks.Add('Per-user installation and uninstall registration')
+if ($ExerciseStartupCleanup) {
+    if (Get-ItemProperty -LiteralPath $startupKey -Name $startupName -ErrorAction SilentlyContinue) { throw 'Installation opted into Windows startup.' }
+    $checks.Add('Installation leaves Windows startup off')
+}
 foreach ($file in Get-ChildItem -LiteralPath $payload -Recurse -File) {
     $installed = Join-Path $installation ([IO.Path]::GetRelativePath($payload,$file.FullName))
     if (-not (Test-Path -LiteralPath $installed) -or (Get-FileHash -LiteralPath $installed).Hash -ne (Get-FileHash -LiteralPath $file.FullName).Hash) { throw "Installed payload differs: $($file.Name)" }
@@ -60,8 +67,24 @@ if ($ExerciseUpgrade) {
     $checks.Add('Increasing-version installer fixture upgrades executable and registration')
 }
 $uninstaller = Join-Path $installation 'unins000.exe'
+if ($ExerciseStartupCleanup) {
+    $null = New-Item -Path $startupKey -Force
+    $null = New-ItemProperty -LiteralPath $startupKey -Name $startupName -PropertyType String -Value ('"' + $app + '" --startup') -Force
+}
 $process = Start-Process -FilePath $uninstaller -ArgumentList @('/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART',('/LOG="' + (Join-Path $run 'uninstall.log') + '"')) -WindowStyle Hidden -PassThru -Wait
 if ($process.ExitCode -ne 0 -or (Test-Path -LiteralPath $app) -or (Test-Path -LiteralPath $registration)) { throw 'Uninstall did not remove the test app and registration.' }
+if ($ExerciseStartupCleanup) {
+    if (Get-ItemProperty -LiteralPath $startupKey -Name $startupName -ErrorAction SilentlyContinue) { throw 'Uninstall left the owned startup entry behind.' }
+    $checks.Add('Uninstall removes the exact owned startup command')
+    Install-Candidate $installer 'startup-reinstall.log'
+    $otherCopy = '"C:\Synthetic-other-copy\Snipsera.exe" --startup'
+    $null = New-ItemProperty -LiteralPath $startupKey -Name $startupName -PropertyType String -Value $otherCopy -Force
+    try {
+        $process = Start-Process -FilePath $uninstaller -ArgumentList @('/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART') -WindowStyle Hidden -PassThru -Wait
+        if ($process.ExitCode -ne 0 -or (Get-ItemPropertyValue -LiteralPath $startupKey -Name $startupName) -ne $otherCopy) { throw 'Uninstall changed another copy startup command.' }
+        $checks.Add('Uninstall preserves another copy startup command')
+    } finally { Remove-ItemProperty -LiteralPath $startupKey -Name $startupName -ErrorAction SilentlyContinue }
+}
 if ((Get-FileHash -LiteralPath $marker).Hash -ne $markerHash) { throw 'Saved-data marker changed.' }
 $checks.Add('Uninstall and synthetic saved-data preservation')
 [ordered]@{status='passed'; checks=$checks.ToArray(); platform=[Environment]::OSVersion.VersionString; limits=@('Synthetic fixture tests; not a replacement for interactive capture/recording acceptance','An upgrade fixture uses the same source with an increased version; it is never a published release')} | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath (Join-Path $run 'results.json') -Encoding utf8

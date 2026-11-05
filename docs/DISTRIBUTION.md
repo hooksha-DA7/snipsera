@@ -42,7 +42,7 @@ The build needs the Inno Setup 7.1.1 compiler and Windows SDK BuildTools 10.0.28
 ./publish.ps1 -Output dist/Snipsera-candidate
 ```
 
-The payload includes .NET; the installer checks for the Microsoft Visual C++ x64 runtime and offers its official download if missing. Setup installs per user, creates a Start menu shortcut and offers an optional desktop shortcut. It does not install a startup task or delete screenshot/recording data on uninstall.
+The payload includes .NET; the installer checks for the Microsoft Visual C++ x64 runtime and offers its official download if missing. Setup installs per user, creates a Start menu shortcut and offers an optional desktop shortcut. From 1.0.5, startup is an opt-in app setting: the Store MSIX declares a disabled startup task; EXE/portable installations register a per-user Run entry only when enabled. Uninstall removes only the exact EXE copy's startup entry and preserves screenshot/recording data. Windows user and policy restrictions remain authoritative.
 
 The Store MSIX declares `Microsoft.VCLibs.140.00.UWPDesktop` version `14.0.33321.0` or later so Microsoft Store can install the recorder's C++ runtime dependency. The minimum comes from Microsoft's signed x64 Desktop framework package, whose exports were checked against the native recorder's imported C++ symbols. This dependency declaration does not replace final clean Windows 11 and packaged-recording acceptance. Sideload tests must install the Microsoft framework separately. See [Microsoft's desktop packaging guidance](https://learn.microsoft.com/en-us/windows/msix/desktop/desktop-to-uwp-prepare).
 

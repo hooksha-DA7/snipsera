@@ -9,3 +9,5 @@ GIF conversion uses an unmodified LGPL FFmpeg shared build supplied by BtbN. The
 The exact downloaded archive, component hashes and version are recorded in `recording-dependencies.json`. The build verifies these hashes before copying the converter. Snipsera invokes it as a separate local process to convert a temporary MP4 into GIF; no converter is downloaded or installed at recording time.
 
 Microsoft Media Foundation, Windows Graphics Capture and the Visual C++ runtime are Windows/Microsoft components. The Visual C++ runtime and .NET Desktop Runtime must be installed separately from their official Microsoft downloads.
+
+Windows API projections use Microsoft.Windows.SDK.NET.Ref 10.0.22000.57, whose package links to the [Windows SDK licence terms](docs/licenses/Windows-SDK-License.rtf). The distributed Windows SDK projection assemblies retain Microsoft's terms. The C#/WinRT runtime (`WinRT.Runtime.dll`) is from Microsoft's [C#/WinRT project](https://github.com/microsoft/CsWinRT), with its [MIT notice](docs/licenses/CsWinRT-MIT.txt). These terms apply to those components; Snipsera's MIT licence covers its own code.

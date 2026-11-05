@@ -48,3 +48,17 @@ begin
     if MsgBox('Screen recording needs the Microsoft Visual C++ x64 runtime. Install it, then run this installer again. Open the official download page?', mbInformation, MB_YESNO) = IDYES then
       ShellExec('open', 'https://aka.ms/vs/17/release/vc_redist.x64.exe', '', '', SW_SHOWNORMAL, ewNoWait, ErrorCode);
 end;
+
+procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+var
+  Command: String;
+  Expected: String;
+begin
+  if CurUninstallStep = usUninstall then
+  begin
+    Expected := '"' + ExpandConstant('{app}\Snipsera.exe') + '" --startup';
+    if RegQueryStringValue(HKCU, 'Software\Microsoft\Windows\CurrentVersion\Run', 'SnipseraStartup', Command) then
+      if CompareText(Command, Expected) = 0 then
+        RegDeleteValue(HKCU, 'Software\Microsoft\Windows\CurrentVersion\Run', 'SnipseraStartup');
+  end;
+end;

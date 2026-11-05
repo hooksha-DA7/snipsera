@@ -10,6 +10,8 @@ internal static class AppIdentity
     internal const string Name = "Snipsera";
     internal const string LegacyName = "Framelet";
     internal const string ProjectExtension = ".snipsera";
+    internal const string StoreName = "Mo7.Snipsera";
+    internal const string StorePublisher = "CN=5AC6B32A-5CFE-4025-89C8-0F97FB42324D";
 
     internal static string DataRoot(string localAppData)
     {

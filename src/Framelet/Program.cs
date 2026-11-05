@@ -21,14 +21,16 @@ public static class Program
             root = Path.GetFullPath(args[dataOption + 1]);
         }
         using var mutex = new Mutex(true, AppIdentity.InstanceName(root), out bool first);
+        bool startup = Array.IndexOf(args, "--startup") >= 0;
         if (!first)
         {
+            if (startup) return;
             IntPtr existing = FindWindow(null, AppIdentity.Name);
             if (existing == IntPtr.Zero) existing = FindWindow(null, AppIdentity.LegacyName);
             if (existing != IntPtr.Zero) PostMessage(existing, 0x8042, IntPtr.Zero, IntPtr.Zero);
             return;
         }
-        try { new CaptureApp(root).Run(); }
+        try { new CaptureApp(root, startInTray: startup).Run(); }
         catch (Exception ex) { MessageBox.Show("Snipsera could not start. Check access to its data folder.\n\n" + ex.Message, AppIdentity.Name, MessageBoxButton.OK, MessageBoxImage.Error); }
     }
 

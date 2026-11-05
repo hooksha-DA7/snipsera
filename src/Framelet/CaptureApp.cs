@@ -19,6 +19,7 @@ public sealed partial class CaptureApp : Application
 {
     public HistoryStore History { get; }
     public AppSettings Settings { get; private set; }
+    public AppPreferencesController Preferences { get; }
     public bool Quitting { get; private set; }
     private readonly List<ImageWindow> pins = [];
     private HomeWindow home = null!;
@@ -30,6 +31,7 @@ public sealed partial class CaptureApp : Application
     private bool capturing;
     private CaptureKind? pendingCapture;
     private readonly Func<DrawingRect, BitmapSource> capturePixels;
+    private readonly bool startInTray;
     private HwndSource? hotkeySink;
     private ContextMenu trayMenu = null!;
     internal bool TrayMenuOpen => trayMenu?.IsOpen == true;
@@ -46,10 +48,12 @@ public sealed partial class CaptureApp : Application
     public BitmapSource? OverlayShelfImage { get; private set; }
     public event Action? OverlayVisibilityChanged;
 
-    public CaptureApp(string dataRoot, Func<DrawingRect, BitmapSource>? capturePixels = null)
+    public CaptureApp(string dataRoot, Func<DrawingRect, BitmapSource>? capturePixels = null, bool startInTray = false, AppPreferencesController? preferences = null)
     {
         this.capturePixels = capturePixels ?? CaptureService.Capture;
+        this.startInTray = startInTray;
         History = new HistoryStore(dataRoot); Settings = History.LoadSettings();
+        Preferences = preferences ?? AppPreferencesController.Create(History.Root);
         Recording = new RecordingController(this, History.Root);
         Recording.Changed += RecordingChanged;
         overlays = new OverlayVisibility<ImageWindow>((window, show) =>
@@ -61,7 +65,7 @@ public sealed partial class CaptureApp : Application
         Ui.Install(this);
         Startup += (_, _) => Start();
         ComponentDispatcher.LeaveThreadModal += ResumePendingCapture;
-        Exit += (_, _) => { ComponentDispatcher.LeaveThreadModal -= ResumePendingCapture; hotkeys?.Dispose(); hotkeySink?.Dispose(); tray?.Dispose(); trayIcon?.Dispose(); };
+        Exit += (_, _) => { ComponentDispatcher.LeaveThreadModal -= ResumePendingCapture; DisposePreferences(); hotkeys?.Dispose(); hotkeySink?.Dispose(); tray?.Dispose(); trayIcon?.Dispose(); };
         DispatcherUnhandledException += (_, e) => { e.Handled = true; Report(e.Exception); };
     }
 
@@ -76,7 +80,7 @@ public sealed partial class CaptureApp : Application
             HwndSource.FromHwnd(new WindowInteropHelper(home).Handle)?.AddHook((IntPtr hwnd, int msg, IntPtr wp, IntPtr lp, ref bool handled) =>
             { if (msg == 0x8042) { ShowHome(); handled = true; } return IntPtr.Zero; });
         };
-        home.Show();
+        if (startInTray) new WindowInteropHelper(home).EnsureHandle(); else home.Show();
         if (History.Notice is string notice) home.SetStatus(notice);
         trayIcon = AppIcon.Create();
         home.Icon = Imaging.CreateBitmapSourceFromHIcon(trayIcon.Handle, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
@@ -102,6 +106,7 @@ public sealed partial class CaptureApp : Application
         tray.MouseUp += (_, e) => { if (e.Button == Forms.MouseButtons.Right) Dispatcher.BeginInvoke(ShowTrayMenu); };
         tray.DoubleClick += (_, _) => ShowHome();
         overlayShelf = new OverlayShelfWindow(this); RefreshOverlayVisibility();
+        InitializePreferences();
     }
 
     public void HideOverlays(ImageWindow? initiator = null)
