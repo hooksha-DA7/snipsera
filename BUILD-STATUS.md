@@ -1,6 +1,6 @@
 # Snipsera build status
 
-## Update and startup preview: 1.0.5
+## Update and startup release: 1.0.5
 
 Settings adds automatic/manual update checks, an optional GitHub preview channel and Start with Windows. Updates follow the installation source, appear on Home and can trigger a deferred tray alert. Known notices and acknowledgement persist across restarts. GitHub actions open the owned release page; installers are never downloaded or executed automatically. Startup is off by default, opens quietly in the tray and respects Windows user/policy controls.
 
@@ -8,7 +8,7 @@ The app targets Windows 11's WinRT APIs through `net10.0-windows10.0.22000.0`. S
 
 The local release gate passed **268 automated/offscreen checks** (231 C# and 37 Python), with no compiler warnings or errors. Checks use simulated startup storage and Store responses, plus detached UI renders. A separate read-only smoke check of the production GitHub reader returned the current official and preview releases. Real Windows sign-in startup, tray notification delivery and installed Store update/startup acceptance remain pending. Desktop input, capture/audio and local installer tests remain paused. No Windows startup setting was changed on the user's PC.
 
-The published preview uses [hosted run 42090354285](https://github.com/hooksha-DA7/snipsera/actions/runs/42090354285), source `a69041786461bd13df68223afbc07d50b3a9ca78`. The same 268 checks and exact package/source verification passed on the hosted runner. EXE install, synthetic launch, reinstall, increasing-version fixture upgrade, startup off by default, owned startup cleanup, preservation of another copy startup entry and uninstall passed on Windows Server 2025. MSIX 1.0.5.0 was submitted on 5 November 2026 as Submission 4 (`1152921505702326681`). Certification is pending, with automatic publication after approval. GitHub stays a preview until this exact package/source is approved; an older Store approval cannot promote it. GitHub installers remain unsigned.
+The official release uses [hosted run 42090354285](https://github.com/hooksha-DA7/snipsera/actions/runs/42090354285), source `a69041786461bd13df68223afbc07d50b3a9ca78`. The same 268 checks and exact package/source verification passed on the hosted runner. EXE install, synthetic launch, reinstall, increasing-version fixture upgrade, startup off by default, owned startup cleanup, preservation of another copy startup entry and uninstall passed on Windows Server 2025. MSIX 1.0.5.0 was submitted on 5 November 2026 as Submission 4 (`1152921505702326681`). Microsoft confirmed that this exact submission passed certification on 5 November 2026 and automatic publishing started. GitHub 1.0.5 is promoted to official/Latest with the same source tag and artifact bytes; pending native acceptance is unchanged. GitHub installers remain unsigned.
 
 ## All-in-one capture preview: 1.0.4
 

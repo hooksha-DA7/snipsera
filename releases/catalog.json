@@ -2,8 +2,8 @@
   "schema_version": 1,
   "repository": "hooksha-DA7/snipsera",
   "imported_on": "2026-11-01",
-  "verified_baseline": "v1.0.2-preview.2",
-  "latest_preview": "v1.0.5",
+  "verified_baseline": "v1.0.5",
+  "latest_preview": null,
   "releases": [
     {
       "version": "0.1.0",
@@ -736,7 +736,7 @@
       "title": "Compact captures and automatic edit history",
       "status": "release",
       "prerelease": false,
-      "latest": true,
+      "latest": false,
       "notes": "releases/notes/v1.0.2-preview.2.md",
       "release_url": "https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.2-preview.2",
       "kind": "Release",
@@ -954,12 +954,12 @@
       "product": "Snipsera",
       "build_date": "2026-11-05",
       "title": "Update notices and Windows startup",
-      "status": "preview",
-      "prerelease": true,
-      "latest": false,
+      "status": "release",
+      "prerelease": false,
+      "latest": true,
       "notes": "releases/notes/v1.0.5.md",
       "release_url": "https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.5",
-      "kind": "Preview release",
+      "kind": "Release",
       "intro": "Get notified about new versions and choose whether Snipsera starts with Windows.",
       "changes": {
         "Added": [
@@ -973,9 +973,9 @@
           "Startup follows Windows user and policy settings. Uninstall removes only this copy's startup command."
         ]
       },
-      "notice": "**Unsigned preview.** Windows may warn when downloading or starting the GitHub EXE or portable ZIP. Version 1.0.5 was submitted to Microsoft Store on 5 November 2026 and is awaiting certification, with automatic publication after approval. This GitHub build remains a preview until Microsoft approves its matching Store update. Real sign-in startup, tray notification delivery, Store update/startup calls and final clean Windows 11/installed-MSIX acceptance remain pending. The [Microsoft Store download](https://apps.microsoft.com/detail/9NFL9VHL8GKV) is available separately. Store signing does not sign this GitHub installer.",
+      "notice": "**Unsigned GitHub installer and portable ZIP.** Windows may warn when downloading or starting them. Microsoft approved Store version 1.0.5 on 5 November 2026 and automatic Store publication has started. The [Microsoft Store download](https://apps.microsoft.com/detail/9NFL9VHL8GKV) may take a little time to show the update. Store signing does not sign this GitHub installer. Real sign-in startup, tray notification delivery, Store update/startup calls and final clean Windows 11/installed-MSIX acceptance remain pending.",
       "verification": "268 automated/offscreen checks passed (231 C# and 37 Python), plus a read-only production GitHub update check. Exact hosted source/package verification and installer install, synthetic launch, reinstall, increasing-version fixture upgrade, owned startup cleanup, preservation of another copy startup entry and uninstall passed on Windows Server 2025. Live desktop/input, sign-in startup, notification delivery and installed Store API acceptance remain pending.",
-      "signing_status": "unsigned-preview",
+      "signing_status": "unsigned",
       "source_commit": "a69041786461bd13df68223afbc07d50b3a9ca78",
       "build_workflow": "https://github.com/hooksha-DA7/snipsera/actions/runs/42090354285",
       "assets": [
@@ -1007,14 +1007,26 @@
         "sha256": "12ec5750d976e1628ca4259471177dd9b85f481040135f2413c2487232d42120"
       },
       "store_submission_status": {
-        "status": "in-certification",
+        "status": "publishing",
         "product_id": "9NFL9VHL8GKV",
         "submission_id": "1152921505702326681",
         "package_version": "1.0.5.0",
         "submitted_date": "2026-11-05",
         "verified_date": "2026-11-05",
         "publishing": "automatic after certification",
-        "source_url": "https://partner.microsoft.com/en-us/dashboard/products/9NFL9VHL8GKV/overview"
+        "source_url": "https://partner.microsoft.com/en-us/dashboard/products/9NFL9VHL8GKV/overview",
+        "approved_date": "2026-11-05"
+      },
+      "display_version": "1.0.5",
+      "store_approval": {
+        "product_id": "9NFL9VHL8GKV",
+        "submission_id": "1152921505702326681",
+        "package_version": "1.0.5.0",
+        "package_sha256": "12ec5750d976e1628ca4259471177dd9b85f481040135f2413c2487232d42120",
+        "source_commit": "a69041786461bd13df68223afbc07d50b3a9ca78",
+        "source_url": "https://partner.microsoft.com/en-us/dashboard/products/9NFL9VHL8GKV/overview",
+        "status": "approved",
+        "verified_date": "2026-11-05"
       }
     }
   ],

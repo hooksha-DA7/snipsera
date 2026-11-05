@@ -4,7 +4,7 @@
 
 ## 1.0.5 — 2026-11-05
 
-Preview release. Get notified about new versions and choose whether Snipsera starts with Windows.
+Release. Get notified about new versions and choose whether Snipsera starts with Windows.
 
 ### Added
 
@@ -18,7 +18,7 @@ Preview release. Get notified about new versions and choose whether Snipsera sta
 - Failed update checks retry after an hour, while successful checks wait a day. Capturing and editing still work offline.
 - Startup follows Windows user and policy settings. Uninstall removes only this copy's startup command.
 
-**Unsigned preview.** Windows may warn when downloading or starting the GitHub EXE or portable ZIP. Version 1.0.5 was submitted to Microsoft Store on 5 November 2026 and is awaiting certification, with automatic publication after approval. This GitHub build remains a preview until Microsoft approves its matching Store update. Real sign-in startup, tray notification delivery, Store update/startup calls and final clean Windows 11/installed-MSIX acceptance remain pending. The [Microsoft Store download](https://apps.microsoft.com/detail/9NFL9VHL8GKV) is available separately. Store signing does not sign this GitHub installer.
+**Unsigned GitHub installer and portable ZIP.** Windows may warn when downloading or starting them. Microsoft approved Store version 1.0.5 on 5 November 2026 and automatic Store publication has started. The [Microsoft Store download](https://apps.microsoft.com/detail/9NFL9VHL8GKV) may take a little time to show the update. Store signing does not sign this GitHub installer. Real sign-in startup, tray notification delivery, Store update/startup calls and final clean Windows 11/installed-MSIX acceptance remain pending.
 
 ## 1.0.4 — 2026-11-05
 
