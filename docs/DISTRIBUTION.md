@@ -48,7 +48,9 @@ The Store MSIX declares `Microsoft.VCLibs.140.00.UWPDesktop` version `14.0.33321
 
 ## Current setup status
 
-Snipsera **1.0.4** is the latest GitHub preview, with all-in-one screenshot capture. Its EXE, portable/source ZIPs and checksums use the exact reviewed hosted build. Store MSIX **1.0.4.0** is prepared but not submitted. It remains submission-only; this preview does not replace the separately submitted 1.0.3.0 Store update or promote itself based on that update's approval.
+Snipsera **1.0.5** is the latest GitHub preview, with update notices and optional Windows startup. Its EXE, portable/source ZIPs and checksums use the reviewed hosted build. Store MSIX **1.0.5.0** is prepared but not submitted. GitHub installers remain unsigned. Live sign-in startup, notification delivery, Store API and final Windows 11/installed-MSIX acceptance remain pending.
+
+The earlier **1.0.4** preview adds all-in-one screenshot capture. Its EXE, portable/source ZIPs and checksums use the exact reviewed hosted build. Store MSIX **1.0.4.0** is prepared but not submitted. It remains submission-only; this preview does not replace the separately submitted 1.0.3.0 Store update or promote itself based on that update's approval.
 
 Update on 5 November 2026: **1.0.3.0** was submitted as Submission 3 (`1152921505702318460`) and is in certification. Automatic publication after approval is enabled. The submitted MSIX comes from reviewed source `1c9bdf8d70488bf4199dea2a608b028e2dcac394` and has SHA256 `aca5595380464b6b8ce8c7cf1210cd5f7087901e68979a2081a7888b1b3fb1a0`. GitHub **1.0.3 remains a preview** until Microsoft approves this exact update. The current live Store/GitHub release remains **1.0.2**. Published tags, downloads and hashes are unchanged; live desktop and final clean Windows 11/installed-MSIX acceptance remain pending.
 

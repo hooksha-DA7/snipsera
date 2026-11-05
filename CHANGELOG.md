@@ -2,6 +2,24 @@
 
 [Downloads and release notes](RELEASES.md)
 
+## 1.0.5 — 2026-11-05
+
+Preview release. Get notified about new versions and choose whether Snipsera starts with Windows.
+
+### Added
+
+- Settings for automatic update checks, Check now and including or excluding GitHub previews.
+- Update notices for both Microsoft Store installations and GitHub downloads, with an action to open the right update source.
+- Start with Windows, off by default. Turn it on to open quietly in the tray when you sign in.
+
+### Improved
+
+- Available updates stay visible on Home across restarts. Tray alerts wait until capture or recording has finished.
+- Failed update checks retry after an hour, while successful checks wait a day. Capturing and editing still work offline.
+- Startup follows Windows user and policy settings. Uninstall removes only this copy's startup command.
+
+**Unsigned preview.** Windows may warn when downloading or starting the GitHub EXE or portable ZIP. This version has not been submitted to Microsoft Store. It remains a preview until Microsoft approves its matching Store build. Real sign-in startup, tray notification delivery, Store update/startup calls and final clean Windows 11/installed-MSIX acceptance remain pending. The [Microsoft Store download](https://apps.microsoft.com/detail/9NFL9VHL8GKV) is available separately. Store signing does not sign this GitHub installer.
+
 ## 1.0.4 — 2026-11-05
 
 Preview release. Open every screenshot mode from one compact floating bar, using a shortcut you choose.

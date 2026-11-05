@@ -3,7 +3,7 @@
   "repository": "hooksha-DA7/snipsera",
   "imported_on": "2026-11-01",
   "verified_baseline": "v1.0.2-preview.2",
-  "latest_preview": "v1.0.4",
+  "latest_preview": "v1.0.5",
   "releases": [
     {
       "version": "0.1.0",
@@ -945,6 +945,71 @@
         "status": "not-submitted",
         "product_id": "9NFL9VHL8GKV",
         "package_version": "1.0.4.0",
+        "verified_date": "2026-11-05"
+      }
+    },
+    {
+      "version": "1.0.5",
+      "tag": "v1.0.5",
+      "product": "Snipsera",
+      "build_date": "2026-11-05",
+      "title": "Update notices and Windows startup",
+      "status": "preview",
+      "prerelease": true,
+      "latest": false,
+      "notes": "releases/notes/v1.0.5.md",
+      "release_url": "https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.5",
+      "kind": "Preview release",
+      "intro": "Get notified about new versions and choose whether Snipsera starts with Windows.",
+      "changes": {
+        "Added": [
+          "Settings for automatic update checks, Check now and including or excluding GitHub previews.",
+          "Update notices for both Microsoft Store installations and GitHub downloads, with an action to open the right update source.",
+          "Start with Windows, off by default. Turn it on to open quietly in the tray when you sign in."
+        ],
+        "Improved": [
+          "Available updates stay visible on Home across restarts. Tray alerts wait until capture or recording has finished.",
+          "Failed update checks retry after an hour, while successful checks wait a day. Capturing and editing still work offline.",
+          "Startup follows Windows user and policy settings. Uninstall removes only this copy's startup command."
+        ]
+      },
+      "notice": "**Unsigned preview.** Windows may warn when downloading or starting the GitHub EXE or portable ZIP. This version has not been submitted to Microsoft Store. It remains a preview until Microsoft approves its matching Store build. Real sign-in startup, tray notification delivery, Store update/startup calls and final clean Windows 11/installed-MSIX acceptance remain pending. The [Microsoft Store download](https://apps.microsoft.com/detail/9NFL9VHL8GKV) is available separately. Store signing does not sign this GitHub installer.",
+      "verification": "268 automated/offscreen checks passed (231 C# and 37 Python), plus a read-only production GitHub update check. Exact hosted source/package verification and installer install, synthetic launch, reinstall, increasing-version fixture upgrade, owned startup cleanup, preservation of another copy startup entry and uninstall passed on Windows Server 2025. Live desktop/input, sign-in startup, notification delivery and installed Store API acceptance remain pending.",
+      "signing_status": "unsigned-preview",
+      "source_commit": "a69041786461bd13df68223afbc07d50b3a9ca78",
+      "build_workflow": "https://github.com/hooksha-DA7/snipsera/actions/runs/42090354285",
+      "assets": [
+        {
+          "name": "Snipsera-1.0.5-setup-win-x64.exe",
+          "bytes": 133640437,
+          "sha256": "111dc6335065d8c6b748976f1c4f6b0051e5968bf8d47661c87885f829cdeaa0",
+          "role": "installer-x64",
+          "url": "https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.5/Snipsera-1.0.5-setup-win-x64.exe"
+        },
+        {
+          "name": "Snipsera-1.0.5-source.zip",
+          "bytes": 496992,
+          "sha256": "121b4b252dca8310c77732f28c4aeaa82509534e8ef5baba82a313bfdb61cc89",
+          "role": "source",
+          "url": "https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.5/Snipsera-1.0.5-source.zip"
+        },
+        {
+          "name": "Snipsera-1.0.5-win-x64.zip",
+          "bytes": 159177377,
+          "sha256": "3b3bddd160453680cc957cca428a9b1681820e3107cd954f17f1025ec8c4582f",
+          "role": "windows-x64",
+          "url": "https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.5/Snipsera-1.0.5-win-x64.zip"
+        }
+      ],
+      "store_submission": {
+        "name": "Snipsera-1.0.5-store-submission-x64.msix",
+        "bytes": 158079972,
+        "sha256": "12ec5750d976e1628ca4259471177dd9b85f481040135f2413c2487232d42120"
+      },
+      "store_submission_status": {
+        "status": "not-submitted",
+        "product_id": "9NFL9VHL8GKV",
+        "package_version": "1.0.5.0",
         "verified_date": "2026-11-05"
       }
     }
