@@ -973,7 +973,7 @@
           "Startup follows Windows user and policy settings. Uninstall removes only this copy's startup command."
         ]
       },
-      "notice": "**Unsigned preview.** Windows may warn when downloading or starting the GitHub EXE or portable ZIP. This version has not been submitted to Microsoft Store. It remains a preview until Microsoft approves its matching Store build. Real sign-in startup, tray notification delivery, Store update/startup calls and final clean Windows 11/installed-MSIX acceptance remain pending. The [Microsoft Store download](https://apps.microsoft.com/detail/9NFL9VHL8GKV) is available separately. Store signing does not sign this GitHub installer.",
+      "notice": "**Unsigned preview.** Windows may warn when downloading or starting the GitHub EXE or portable ZIP. Version 1.0.5 was submitted to Microsoft Store on 5 November 2026 and is awaiting certification, with automatic publication after approval. This GitHub build remains a preview until Microsoft approves its matching Store update. Real sign-in startup, tray notification delivery, Store update/startup calls and final clean Windows 11/installed-MSIX acceptance remain pending. The [Microsoft Store download](https://apps.microsoft.com/detail/9NFL9VHL8GKV) is available separately. Store signing does not sign this GitHub installer.",
       "verification": "268 automated/offscreen checks passed (231 C# and 37 Python), plus a read-only production GitHub update check. Exact hosted source/package verification and installer install, synthetic launch, reinstall, increasing-version fixture upgrade, owned startup cleanup, preservation of another copy startup entry and uninstall passed on Windows Server 2025. Live desktop/input, sign-in startup, notification delivery and installed Store API acceptance remain pending.",
       "signing_status": "unsigned-preview",
       "source_commit": "a69041786461bd13df68223afbc07d50b3a9ca78",
@@ -1007,10 +1007,14 @@
         "sha256": "12ec5750d976e1628ca4259471177dd9b85f481040135f2413c2487232d42120"
       },
       "store_submission_status": {
-        "status": "not-submitted",
+        "status": "in-certification",
         "product_id": "9NFL9VHL8GKV",
+        "submission_id": "1152921505702326681",
         "package_version": "1.0.5.0",
-        "verified_date": "2026-11-05"
+        "submitted_date": "2026-11-05",
+        "verified_date": "2026-11-05",
+        "publishing": "automatic after certification",
+        "source_url": "https://partner.microsoft.com/en-us/dashboard/products/9NFL9VHL8GKV/overview"
       }
     }
   ],
