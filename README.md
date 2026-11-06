@@ -1,4 +1,4 @@
-![Snipsera](src/Framelet/Assets/Snipsera-128.png)
+![Snipsera](docs/assets/Snipsera-128.png)
 
 # Snipsera
 

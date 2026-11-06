@@ -57,6 +57,8 @@ class BrandingChecks(unittest.TestCase):
         for name in ("master.png", "tray.json", "tray-16.svg", "tray-20.svg", "tray-24.svg", "tray-32.svg"):
             self.assertIn("src/Framelet/Assets/Brand/" + name, included)
         self.assertFalse(any(name.startswith((".tools/", "design/")) for name in included))
+        self.assertIn("docs/assets/Snipsera-128.png", included)
+        self.assertEqual((ROOT / "docs/assets/Snipsera-128.png").read_bytes(), (ASSETS / "Snipsera-128.png").read_bytes())
 
     def test_approved_native_tray_png_bytes_are_pinned(self):
         approved = json.loads((ASSETS / "Brand/tray.json").read_text(encoding="utf-8"))["approved_png_sha256"]

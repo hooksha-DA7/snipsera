@@ -7,6 +7,7 @@ The Pinned Pair identity uses a teal capture card, a slate rear card and a coral
 - `src/Framelet/Assets/Brand/master.png` is the transparent source for the sculpted app artwork.
 - `Brand/tray.json` and the four matching SVGs define the separately drawn 16, 20, 24 and 32 px tray marks. They remove the tilt, bevel and small corner detail. Larger tray frames use the 32 px geometry.
 - `scripts/generate_app_assets.ps1` generates the PNGs and multi-resolution ICO files. Application frames use the sculpted artwork at every size; the notification area has its own companion drawings.
+- `docs/assets/Snipsera-128.png` mirrors the 128 px application export for the README. It ships with both source and runtime documentation; refresh the copy when regenerating the artwork.
 - `Snipsera.ico` is embedded into the EXE and used for window identity. `Snipsera-Tray.ico` is a separate embedded resource for the notification area. Icons do not depend on loose files beside the executable.
 - MSIX assets include scale variants and exact target-size images, including transparent light/dark unplated variants. MakePri indexes the scale, target-size and theme qualifiers in a single resources.pri before MakeAppx packages them. The package verifier checks the index hash and exact asset inventory.
 
