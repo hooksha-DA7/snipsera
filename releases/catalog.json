@@ -3,7 +3,7 @@
   "repository": "hooksha-DA7/snipsera",
   "imported_on": "2026-11-01",
   "verified_baseline": "v1.0.5",
-  "latest_preview": null,
+  "latest_preview": "v1.0.6-preview.3",
   "releases": [
     {
       "version": "0.1.0",
@@ -1029,6 +1029,84 @@
         "source_url": "https://partner.microsoft.com/en-us/dashboard/products/9NFL9VHL8GKV/overview",
         "status": "approved",
         "verified_date": "2026-11-05"
+      }
+    },
+    {
+      "version": "1.0.6-preview.3",
+      "tag": "v1.0.6-preview.3",
+      "product": "Snipsera",
+      "build_date": "2026-11-06",
+      "title": "Save folders, recording cards and new icons",
+      "status": "preview",
+      "prerelease": true,
+      "latest": false,
+      "notes": "releases/notes/v1.0.6-preview.3.md",
+      "release_url": "https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.6-preview.3",
+      "kind": "Preview",
+      "intro": "Choose where captures are saved, keep recordings beside your screenshots and adjust the capture bars to suit your desktop.",
+      "changes": {
+        "Added": [
+          "Tinted surface and Frosted glass choices under Settings → Appearance, with 70–100% background opacity for screenshot and recording controls.",
+          "Separate screenshot and recording folders under Settings → Save locations, with Change, Open and Reset controls.",
+          "Automatic PNG saving for new screenshots and their edits. It is on by default, using Pictures\\Snipsera, and can be switched off.",
+          "A side card after recording, with a thumbnail, format/duration badge, Play, Copy, Save, Drag and Pin/Unpin. Copy and Drag use the actual MP4 or GIF file."
+        ],
+        "Improved": [
+          "A new Pinned Pair app icon, with separately drawn tray artwork for sharper small-size display.",
+          "Settings has General, Save locations, Keyboard shortcuts, Updates and Appearance sections. The section list adapts to narrower windows.",
+          "Keyboard shortcuts are edited in Settings. Home's shortcut link opens that section directly, and Print Screen still works.",
+          "All-in-one capture opens at the bottom of the current work area, above the taskbar."
+        ],
+        "Fixed": [
+          "Recording setup stays closed after Stop, instead of reopening after the file is saved.",
+          "Repeated Stop actions produce one saved recording and one result card.",
+          "Previously saved recordings remain available in their original folders after the default changes. Save failures keep recovery data where possible and existing recordings are never overwritten."
+        ]
+      },
+      "notice": "**Preview with an unsigned GitHub installer and portable ZIP.** Windows may warn when downloading or starting them. This build stays a preview until Microsoft approves its matching 1.0.6 Store update. The [Microsoft Store listing](https://apps.microsoft.com/detail/9NFL9VHL8GKV) remains the official distribution route; Store signing does not sign the GitHub installer. Desktop capture/input, native frosted-glass and mixed-DPI appearance, real sign-in startup, notification delivery, Store API calls and final clean Windows 11/installed-MSIX acceptance remain pending. The unsigned MSIX is for Store submission only.",
+      "verification": "364 automated/offscreen checks passed (321 C# and 43 Python). Exact hosted source/package verification, resource-index semantic checks and EXE install, synthetic launch, reinstall, increasing-version fixture upgrade, owned startup cleanup, preservation of another copy startup entry and uninstall passed on Windows Server 2025. Native Windows 11 capture/input, backdrop and installed Store acceptance remain pending.",
+      "signing_status": "unsigned-preview",
+      "source_commit": "6faafe57c98d13425f250c1db299974cf8ca8aa5",
+      "build_workflow": "https://github.com/hooksha-DA7/snipsera/actions/runs/42161369171",
+      "assets": [
+        {
+          "name": "Snipsera-1.0.6-preview.3-setup-win-x64.exe",
+          "bytes": 134030121,
+          "sha256": "d2f8c7b57ebe68e1a8ac8dd8a58eff3af68b0eb6e4aa19467a4c6391a994fe98",
+          "role": "installer-x64",
+          "url": "https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.6-preview.3/Snipsera-1.0.6-preview.3-setup-win-x64.exe"
+        },
+        {
+          "name": "Snipsera-1.0.6-preview.3-source.zip",
+          "bytes": 3098678,
+          "sha256": "31931393da8801f1921b75719a36f7552230f366dadb5dc35d98959c75202c13",
+          "role": "source",
+          "url": "https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.6-preview.3/Snipsera-1.0.6-preview.3-source.zip"
+        },
+        {
+          "name": "Snipsera-1.0.6-preview.3-win-x64.zip",
+          "bytes": 159443750,
+          "sha256": "d0ddabdbc20e73b9184aebacaf9bedfc9c5fa077f03c6192dbcf7c71e78a90b1",
+          "role": "windows-x64",
+          "url": "https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.6-preview.3/Snipsera-1.0.6-preview.3-win-x64.zip"
+        }
+      ],
+      "store_submission": {
+        "name": "Snipsera-1.0.6-preview.3-store-submission-x64.msix",
+        "bytes": 158982012,
+        "sha256": "38be9aa52daf26cb9b245d5bcd7d9a63b091374b0ddbe936c93f94d960d04701"
+      },
+      "store_submission_status": {
+        "status": "in-certification",
+        "product_id": "9NFL9VHL8GKV",
+        "submission_id": "1152921505702329781",
+        "package_version": "1.0.6.0",
+        "verified_date": "2026-11-06",
+        "publishing": "automatic after certification",
+        "source_url": "https://partner.microsoft.com/en-us/dashboard/products/9NFL9VHL8GKV/overview",
+        "stage": "pre-processing",
+        "submitted_date": "2026-11-06",
+        "publication": "automatic-after-certification"
       }
     }
   ],

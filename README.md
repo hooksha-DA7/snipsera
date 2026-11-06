@@ -9,7 +9,7 @@ Snipsera is the new name for Framelet. Get it from Microsoft Store or download t
 ## Download and run
 
 <!-- FRAMELET_DOWNLOADS_START -->
-[Get Snipsera from Microsoft Store](https://apps.microsoft.com/detail/9NFL9VHL8GKV) · [Download Snipsera (1.0.5)](https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.5/Snipsera-1.0.5-setup-win-x64.exe) · [Portable ZIP](https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.5/Snipsera-1.0.5-win-x64.zip) · [All releases](RELEASES.md)
+[Get Snipsera from Microsoft Store](https://apps.microsoft.com/detail/9NFL9VHL8GKV) · [Download Snipsera (1.0.5)](https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.5/Snipsera-1.0.5-setup-win-x64.exe) · [Portable ZIP](https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.5/Snipsera-1.0.5-win-x64.zip) · [Try the preview (1.0.6-preview.3)](https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.6-preview.3) · [All releases](RELEASES.md)
 <!-- FRAMELET_DOWNLOADS_END -->
 
 Install Snipsera from **Microsoft Store** above, then open it from the Start menu. If you prefer the GitHub download, run the **EXE installer** and follow the setup steps.

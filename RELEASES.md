@@ -1,6 +1,40 @@
 # Releases
 
-The official Snipsera release is [1.0.5](https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.5).
+The official Snipsera release is [1.0.5](https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.5). The latest preview is [1.0.6-preview.3](https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.6-preview.3).
+
+## 1.0.6-preview.3: Save folders, recording cards and new icons
+
+2026-11-06 · Preview · [Release page](https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.6-preview.3)
+
+Choose where captures are saved, keep recordings beside your screenshots and adjust the capture bars to suit your desktop.
+
+### Added
+
+- Tinted surface and Frosted glass choices under Settings → Appearance, with 70–100% background opacity for screenshot and recording controls.
+- Separate screenshot and recording folders under Settings → Save locations, with Change, Open and Reset controls.
+- Automatic PNG saving for new screenshots and their edits. It is on by default, using Pictures\Snipsera, and can be switched off.
+- A side card after recording, with a thumbnail, format/duration badge, Play, Copy, Save, Drag and Pin/Unpin. Copy and Drag use the actual MP4 or GIF file.
+
+### Improved
+
+- A new Pinned Pair app icon, with separately drawn tray artwork for sharper small-size display.
+- Settings has General, Save locations, Keyboard shortcuts, Updates and Appearance sections. The section list adapts to narrower windows.
+- Keyboard shortcuts are edited in Settings. Home's shortcut link opens that section directly, and Print Screen still works.
+- All-in-one capture opens at the bottom of the current work area, above the taskbar.
+
+### Fixed
+
+- Recording setup stays closed after Stop, instead of reopening after the file is saved.
+- Repeated Stop actions produce one saved recording and one result card.
+- Previously saved recordings remain available in their original folders after the default changes. Save failures keep recovery data where possible and existing recordings are never overwritten.
+
+**Preview with an unsigned GitHub installer and portable ZIP.** Windows may warn when downloading or starting them. This build stays a preview until Microsoft approves its matching 1.0.6 Store update. The [Microsoft Store listing](https://apps.microsoft.com/detail/9NFL9VHL8GKV) remains the official distribution route; Store signing does not sign the GitHub installer. Desktop capture/input, native frosted-glass and mixed-DPI appearance, real sign-in startup, notification delivery, Store API calls and final clean Windows 11/installed-MSIX acceptance remain pending. The unsigned MSIX is for Store submission only.
+
+### Download
+
+[EXE installer](https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.6-preview.3/Snipsera-1.0.6-preview.3-setup-win-x64.exe) · [Portable ZIP](https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.6-preview.3/Snipsera-1.0.6-preview.3-win-x64.zip) · [Source ZIP](https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.6-preview.3/Snipsera-1.0.6-preview.3-source.zip) · [Checksums](https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.6-preview.3/SHA256SUMS.txt)
+
+Run the EXE installer, or extract the portable ZIP and open **Snipsera.exe**. Windows 11 x64 is required; .NET is included. Quit an older copy from its tray menu first. The installer checks the Visual C++ x64 runtime needed for recording.
 
 ## 1.0.5: Update notices and Windows startup
 

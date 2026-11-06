@@ -1,8 +1,10 @@
 # Settings and recording workflow verification: 1.0.6
 
-Local candidate, 6 November 2026. This change adds sectioned Settings, automatic screenshot/edited-PNG saves and configurable folders, recording side cards, a bottom-centred all-in-one bar recording setup dismissal after Stop, and persisted Tinted surface / Frosted glass options with 70–100% background opacity.
+Reviewed release candidate, 6 November 2026. This change adds sectioned Settings, automatic screenshot/edited-PNG saves and configurable folders, recording side cards, a bottom-centred all-in-one bar recording setup dismissal after Stop, and persisted Tinted surface / Frosted glass options with 70â€“100% background opacity.
 
 The release gate passed **364 checks**: 321 C# checks and 43 Python release/packaging checks. The Release build completed without warnings or errors. Subsequent focused checks cover the explicit Fluent style on shortcut recorders, whose derived type otherwise falls back to a classic text-box appearance.
+
+The same 364 checks passed on the hosted Windows Server 2025 runner. Exact package/source and resource-index verification plus installer install, synthetic launch, reinstall, increasing-version fixture upgrade, startup cleanup and uninstall passed there. The immutable build is `v1.0.6-preview.3` at `6faafe57c98d13425f250c1db299974cf8ca8aa5`. Store submission is in certification; approval remains pending.
 
 The approved branding adds embedded application/tray resources and scale/theme-specific Store assets. See [artwork and verification](BRANDING.md). Native Windows tray, taskbar and DPI acceptance remain pending.
 
