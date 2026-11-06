@@ -38,23 +38,38 @@ def resource_config(generated):
     return ET.ElementTree(config)
 
 
-def build_resource_index(makepri, staging, output):
-    def run(*arguments):
-        result = subprocess.run([str(makepri), *map(str, arguments)], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        if result.returncode:
-            encoding = "utf-16-le" if b"\x00" in result.stdout[:80] else "utf-8"
-            raise RuntimeError("MakePri failed: " + result.stdout.decode(encoding, errors="replace")[-3000:])
-    config = output / "priconfig.xml"
-    run("createconfig", "/cf", config, "/dq", "lang-en-US", "/o")
-    resource_config(config.read_bytes()).write(config, encoding="utf-8", xml_declaration=True)
-    index = staging / "resources.pri"
-    run("new", "/pr", staging, "/cf", config, "/mn", staging / "AppxManifest.xml", "/of", index, "/o")
-    dump = output / "resource-index.xml"
-    run("dump", "/if", index, "/of", dump, "/dt", "detailed", "/o")
-    qualifiers = {(node.get("name", "").lower(), node.get("value", "").upper()) for node in ET.parse(dump).iter("Qualifier")}
+def validate_resource_dump(dump, expected_paths):
+    tree = ET.parse(dump)
+    qualifiers = {(node.get("name", "").lower(), node.get("value", "").upper()) for node in tree.iter("Qualifier")}
     required = {("scale", "200"), ("scale", "400"), ("alternateform", "UNPLATED"), ("alternateform", "LIGHTUNPLATED")}
     required.update(("targetsize", str(size)) for size in (16, 20, 24, 32, 256))
     if not required.issubset(qualifiers): raise ValueError("Package resource index omitted icon qualifiers")
+    if any(name == "language" and value != "EN-US" for name, value in qualifiers): raise ValueError("Package resource index contains an unintended language")
+    paths = {node.findtext("Value", "").replace("\\", "/") for node in tree.iter("Candidate") if node.get("type") == "Path"}
+    if paths != set(expected_paths): raise ValueError("Package resource index contains unexpected paths")
+
+
+def run_makepri(makepri, *arguments):
+    result = subprocess.run([str(makepri), *map(str, arguments)], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    if result.returncode:
+        encoding = "utf-16-le" if b"\x00" in result.stdout[:80] else "utf-8"
+        raise RuntimeError("MakePri failed: " + result.stdout.decode(encoding, errors="replace")[-3000:])
+
+
+def build_resource_index(makepri, staging, output):
+    # Index only shell artwork. CLR satellite folders are not Store listing languages.
+    index_root = output / "pri-input"
+    index_root.mkdir()
+    shutil.copytree(staging / "Assets", index_root / "Assets")
+    shutil.copy2(staging / "AppxManifest.xml", index_root / "AppxManifest.xml")
+    config = output / "priconfig.xml"
+    run_makepri(makepri, "createconfig", "/cf", config, "/dq", "lang-en-US", "/o")
+    resource_config(config.read_bytes()).write(config, encoding="utf-8", xml_declaration=True)
+    index = staging / "resources.pri"
+    run_makepri(makepri, "new", "/pr", index_root, "/cf", config, "/mn", index_root / "AppxManifest.xml", "/of", index, "/o")
+    dump = output / "resource-index.xml"
+    run_makepri(makepri, "dump", "/if", index, "/of", dump, "/dt", "detailed", "/o")
+    validate_resource_dump(dump, {"AppxManifest.xml"} | {"Assets/" + image.name for image in store_images()})
     data = index.read_bytes()
     if len(data) < 64 or not data.startswith(b"mrm_pri"): raise ValueError("Invalid package resource index")
     print("Verified package resource index: scale, target-size and light/dark unplated artwork.")

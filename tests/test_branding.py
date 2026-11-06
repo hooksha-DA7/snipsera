@@ -3,7 +3,9 @@ import importlib.util
 import struct
 import hashlib
 import json
+import tempfile
 import unittest
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -66,6 +68,28 @@ class BrandingChecks(unittest.TestCase):
         config = PACKAGE.resource_config(b'<resources><packaging><autoResourcePackage qualifier="Scale"/></packaging><index><default><qualifier name="Language" value="en-US"/></default></index></resources>')
         self.assertIsNone(config.find("packaging"))
         self.assertEqual(config.find("index/default/qualifier").attrib, {"name": "Language", "value": "en-US"})
+
+    def test_resource_index_rejects_satellite_languages_and_unexpected_files(self):
+        root = ET.Element("PriInfo")
+        for name, values in (("Scale", ("200", "400")), ("AlternateForm", ("UNPLATED", "LIGHTUNPLATED")), ("TargetSize", ("16", "20", "24", "32", "256"))):
+            for value in values:
+                ET.SubElement(root, "Qualifier", name=name, value=value)
+        paths = {"AppxManifest.xml", "Assets/Snipsera-44.png"}
+        for path in sorted(paths):
+            ET.SubElement(ET.SubElement(root, "Candidate", type="Path"), "Value").text = path
+        with tempfile.TemporaryDirectory() as temporary:
+            dump = Path(temporary) / "index.xml"
+            ET.ElementTree(root).write(dump)
+            PACKAGE.validate_resource_dump(dump, paths)
+            satellite = ET.SubElement(root, "Qualifier", name="Language", value="FR")
+            ET.ElementTree(root).write(dump)
+            with self.assertRaisesRegex(ValueError, "unintended language"):
+                PACKAGE.validate_resource_dump(dump, paths)
+            root.remove(satellite)
+            ET.SubElement(ET.SubElement(root, "Candidate", type="Path"), "Value").text = "fr/Snipsera.resources.dll"
+            ET.ElementTree(root).write(dump)
+            with self.assertRaisesRegex(ValueError, "unexpected paths"):
+                PACKAGE.validate_resource_dump(dump, paths)
 
 
 if __name__ == "__main__": unittest.main()

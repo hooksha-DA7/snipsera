@@ -6,11 +6,12 @@ import json
 import posixpath
 import re
 import subprocess
+import tempfile
 import xml.etree.ElementTree as ET
 import zipfile
 from pathlib import Path, PurePosixPath
 from urllib.parse import unquote
-from package_release import ROOT, source_files, store_images
+from package_release import ROOT, source_files, store_images, run_makepri, validate_resource_dump
 
 
 def require(condition, message):
@@ -72,6 +73,13 @@ def verify(candidate, require_signed=False, expected_publisher=None):
         require(index and index.get("name") == "resources.pri", "Candidate has no package resource index receipt")
         pri = bundle.read("resources.pri")
         require(pri.startswith(b"mrm_pri") and len(pri) == index["bytes"] and hashlib.sha256(pri).hexdigest() == index["sha256"], "Package resource index differs")
+        makepri = ROOT / ".tools/packaging/windows-sdk-buildtools/bin/10.0.28000.0/x64/makepri.exe"
+        require(makepri.is_file(), "MakePri is required to verify the Store icon resource index")
+        with tempfile.TemporaryDirectory(prefix="snipsera-pri-check-") as temporary:
+            directory = Path(temporary); saved_pri = directory / "resources.pri"; dump = directory / "index.xml"
+            saved_pri.write_bytes(pri)
+            run_makepri(makepri, "dump", "/if", saved_pri, "/of", dump, "/dt", "detailed", "/o")
+            validate_resource_dump(dump, {"AppxManifest.xml"} | {"Assets/" + image.name for image in store_images()})
         expected["resources.pri"] = pri
         require(set(names) == set(expected) | {"AppxManifest.xml", "AppxBlockMap.xml", "[Content_Types].xml"}, "MSIX inventory differs")
         for name, data in expected.items(): require(bundle.read(name) == data, "MSIX payload differs: " + name)

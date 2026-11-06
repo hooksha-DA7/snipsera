@@ -16,7 +16,7 @@ The runtime selects the tray frame for the taskbar's DPI and refreshes it after 
 
 ## Verification
 
-`--branding-check` loads the embedded resources without displaying windows. It checks frame selection, transparent corners, retained colours, closed-stream lifetime, shared small application/tray drawings, window setup and GDI handle disposal. Python packaging checks compare ICO blocks with the exact PNGs, verify Store dimensions/theme variants and include the maintained source assets.
+`--branding-check` loads the embedded resources without displaying windows. It checks frame selection, transparent corners, retained colours, closed-stream lifetime, separate application/tray drawings, window setup and GDI handle disposal. Python packaging checks compare ICO blocks with the exact PNGs, verify Store dimensions/theme variants and include the maintained source assets. MakePri indexes only the manifest and artwork so CLR satellite folders cannot introduce unintended Store languages. Exact-candidate verification dumps the packaged index again to check qualifiers, languages and paths.
 
 These checks do not establish how the Windows notification area, taskbar, Start or ICO frame selection looks on an installed Windows 11 app. Live mixed-DPI, theme and installed-package acceptance remain separate from source/resource verification.
 
