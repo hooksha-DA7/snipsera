@@ -145,12 +145,22 @@ internal static class ToolbarAppearanceChecks
             {
                 var root = (FrameworkElement)(window.Content ?? throw new Exception("Missing bar content")); window.Content = null; root.Measure(new Size(800, 1000)); root.Arrange(new Rect(root.DesiredSize)); root.UpdateLayout();
                 var size = root.RenderSize;
-                var surfaces = WorkflowChecks.Children(root).OfType<Border>().Where(b => b.Background is SolidColorBrush c && c.Color.A == (Appearance.Current.Policy.Frosting ? 179 : 255)).ToArray();
-                Require(surfaces.Length > 0, window.GetType().Name + " has no configured surface");
+                // Opaque Windows configurations also give button template borders alpha 255.
+                // Use the panels' existing accessibility names instead of collecting every opaque border.
+                string[] panelNames = window switch
+                {
+                    CaptureBarWindow => ["Screenshot modes"],
+                    RecordingWindow => ["Recording source and options", "Record"],
+                    RecordingBarWindow => ["Recording controls"],
+                    _ => throw new Exception("Unknown toolbar type")
+                };
+                var surfaces = WorkflowChecks.Children(root).OfType<Border>().Where(b => panelNames.Contains(AutomationProperties.GetName(b))).ToArray();
+                Require(surfaces.Length == panelNames.Length, window.GetType().Name + " has missing or duplicate configured panels");
+                Require(surfaces.All(b => b.Background is SolidColorBrush c && c.Color.A == (Appearance.Current.Policy.Frosting ? 179 : 255)), window.GetType().Name + " has an incorrect initial background alpha");
                 var controlOpacities = WorkflowChecks.Children(root).OfType<Control>().ToDictionary(c => c, c => c.Opacity);
                 app.ToolbarAppearance.Update(ToolbarMaterial.Tinted, 100);
-                Require(surfaces.All(b => ((SolidColorBrush)b.Background).Color.A == 255));
-                Require(window.Opacity == 1 && root.Opacity == 1 && surfaces.All(p => p.Opacity == 1));
+                Require(surfaces.All(b => ((SolidColorBrush)b.Background).Color.A == 255), window.GetType().Name + " did not apply opaque backgrounds");
+                Require(window.Opacity == 1 && root.Opacity == 1 && surfaces.All(p => p.Opacity == 1), window.GetType().Name + " changed element opacity");
                 Require(controlOpacities.All(pair => pair.Key.Opacity == pair.Value), "Material changed foreground opacity");
                 root.UpdateLayout(); Require(root.RenderSize == size, "Material altered layout"); window.Close();
                 app.ToolbarAppearance.Update(ToolbarMaterial.Tinted, 70);
