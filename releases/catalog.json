@@ -2,8 +2,8 @@
   "schema_version": 1,
   "repository": "hooksha-DA7/snipsera",
   "imported_on": "2026-11-01",
-  "verified_baseline": "v1.0.5",
-  "latest_preview": "v1.0.6-preview.3",
+  "verified_baseline": "v1.0.6-preview.3",
+  "latest_preview": null,
   "releases": [
     {
       "version": "0.1.0",
@@ -956,7 +956,7 @@
       "title": "Update notices and Windows startup",
       "status": "release",
       "prerelease": false,
-      "latest": true,
+      "latest": false,
       "notes": "releases/notes/v1.0.5.md",
       "release_url": "https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.5",
       "kind": "Release",
@@ -1037,12 +1037,12 @@
       "product": "Snipsera",
       "build_date": "2026-11-06",
       "title": "Save folders, recording cards and new icons",
-      "status": "preview",
-      "prerelease": true,
-      "latest": false,
+      "status": "release",
+      "prerelease": false,
+      "latest": true,
       "notes": "releases/notes/v1.0.6-preview.3.md",
       "release_url": "https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.6-preview.3",
-      "kind": "Preview",
+      "kind": "Release",
       "intro": "Choose where captures are saved, keep recordings beside your screenshots and adjust the capture bars to suit your desktop.",
       "changes": {
         "Added": [
@@ -1063,9 +1063,9 @@
           "Previously saved recordings remain available in their original folders after the default changes. Save failures keep recovery data where possible and existing recordings are never overwritten."
         ]
       },
-      "notice": "**Preview with an unsigned GitHub installer and portable ZIP.** Windows may warn when downloading or starting them. This build stays a preview until Microsoft approves its matching 1.0.6 Store update. The [Microsoft Store listing](https://apps.microsoft.com/detail/9NFL9VHL8GKV) remains the official distribution route; Store signing does not sign the GitHub installer. Desktop capture/input, native frosted-glass and mixed-DPI appearance, real sign-in startup, notification delivery, Store API calls and final clean Windows 11/installed-MSIX acceptance remain pending. The unsigned MSIX is for Store submission only.",
+      "notice": "**Unsigned GitHub installer and portable ZIP.** Windows may warn when downloading or starting them. Microsoft approved this exact 1.0.6 update; automatic [Microsoft Store publication](https://apps.microsoft.com/detail/9NFL9VHL8GKV) is underway. The downloads keep their original build filenames. Store signing does not sign the GitHub installer. Desktop capture/input, native frosted-glass and mixed-DPI appearance, real sign-in startup, notification delivery, Store API calls and final clean Windows 11/installed-MSIX acceptance remain pending. The unsigned MSIX is for Store submission only.",
       "verification": "364 automated/offscreen checks passed (321 C# and 43 Python). Exact hosted source/package verification, resource-index semantic checks and EXE install, synthetic launch, reinstall, increasing-version fixture upgrade, owned startup cleanup, preservation of another copy startup entry and uninstall passed on Windows Server 2025. Native Windows 11 capture/input, backdrop and installed Store acceptance remain pending.",
-      "signing_status": "unsigned-preview",
+      "signing_status": "unsigned",
       "source_commit": "6faafe57c98d13425f250c1db299974cf8ca8aa5",
       "build_workflow": "https://github.com/hooksha-DA7/snipsera/actions/runs/42161369171",
       "assets": [
@@ -1097,16 +1097,28 @@
         "sha256": "38be9aa52daf26cb9b245d5bcd7d9a63b091374b0ddbe936c93f94d960d04701"
       },
       "store_submission_status": {
-        "status": "in-certification",
+        "status": "publishing",
         "product_id": "9NFL9VHL8GKV",
         "submission_id": "1152921505702329781",
         "package_version": "1.0.6.0",
         "verified_date": "2026-11-06",
         "publishing": "automatic after certification",
         "source_url": "https://partner.microsoft.com/en-us/dashboard/products/9NFL9VHL8GKV/overview",
-        "stage": "pre-processing",
+        "stage": "publishing",
         "submitted_date": "2026-11-06",
-        "publication": "automatic-after-certification"
+        "publication": "automatic-after-certification",
+        "approved_date": "2026-11-06"
+      },
+      "display_version": "1.0.6",
+      "store_approval": {
+        "status": "approved",
+        "product_id": "9NFL9VHL8GKV",
+        "submission_id": "1152921505702329781",
+        "package_version": "1.0.6.0",
+        "package_sha256": "38be9aa52daf26cb9b245d5bcd7d9a63b091374b0ddbe936c93f94d960d04701",
+        "source_commit": "6faafe57c98d13425f250c1db299974cf8ca8aa5",
+        "verified_date": "2026-11-06",
+        "source_url": "https://partner.microsoft.com/en-us/dashboard/products/9NFL9VHL8GKV/overview"
       }
     }
   ],

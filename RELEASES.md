@@ -1,10 +1,10 @@
 # Releases
 
-The official Snipsera release is [1.0.5](https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.5). The latest preview is [1.0.6-preview.3](https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.6-preview.3).
+The official Snipsera release is [1.0.6](https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.6-preview.3).
 
-## 1.0.6-preview.3: Save folders, recording cards and new icons
+## 1.0.6: Save folders, recording cards and new icons
 
-2026-11-06 · Preview · [Release page](https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.6-preview.3)
+2026-11-06 · Release · [Release page](https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.6-preview.3)
 
 Choose where captures are saved, keep recordings beside your screenshots and adjust the capture bars to suit your desktop.
 
@@ -28,7 +28,7 @@ Choose where captures are saved, keep recordings beside your screenshots and adj
 - Repeated Stop actions produce one saved recording and one result card.
 - Previously saved recordings remain available in their original folders after the default changes. Save failures keep recovery data where possible and existing recordings are never overwritten.
 
-**Preview with an unsigned GitHub installer and portable ZIP.** Windows may warn when downloading or starting them. This build stays a preview until Microsoft approves its matching 1.0.6 Store update. The [Microsoft Store listing](https://apps.microsoft.com/detail/9NFL9VHL8GKV) remains the official distribution route; Store signing does not sign the GitHub installer. Desktop capture/input, native frosted-glass and mixed-DPI appearance, real sign-in startup, notification delivery, Store API calls and final clean Windows 11/installed-MSIX acceptance remain pending. The unsigned MSIX is for Store submission only.
+**Unsigned GitHub installer and portable ZIP.** Windows may warn when downloading or starting them. Microsoft approved this exact 1.0.6 update; automatic [Microsoft Store publication](https://apps.microsoft.com/detail/9NFL9VHL8GKV) is underway. The downloads keep their original build filenames. Store signing does not sign the GitHub installer. Desktop capture/input, native frosted-glass and mixed-DPI appearance, real sign-in startup, notification delivery, Store API calls and final clean Windows 11/installed-MSIX acceptance remain pending. The unsigned MSIX is for Store submission only.
 
 ### Download
 

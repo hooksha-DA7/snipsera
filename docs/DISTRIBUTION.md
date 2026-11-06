@@ -30,7 +30,7 @@ These channels have separate approval processes. Neither is enrolled or approved
 
 ## Build candidates
 
-`publish.ps1` prepares an EXE installer, a Store-submission MSIX, portable/source ZIPs and SHA256 checksums in a fresh private folder. It does not upload, sign, submit or install them. The app version comes from the project; the corresponding four-part MSIX version uses a zero final field. The current official build is 1.0.5 / Store MSIX 1.0.5.0. Use a fresh package version when Store validation has already associated an earlier version with different contents.
+`publish.ps1` prepares an EXE installer, a Store-submission MSIX, portable/source ZIPs and SHA256 checksums in a fresh private folder. It does not upload, sign, submit or install them. The app version comes from the project; the corresponding four-part MSIX version uses a zero final field. The current official build is 1.0.6 (immutable tag v1.0.6-preview.3) / Store MSIX 1.0.6.0. Microsoft approved it; automatic Store publication is in progress. Use a fresh package version when Store validation has already associated an earlier version with different contents.
 
 The assigned personal Store identity is in `packaging/store-identity.json`. Do not replace it with a guessed publisher. `-DevelopmentMsix` instead creates an explicitly labelled local-test identity and must never be used for a Store submission.
 
@@ -48,7 +48,7 @@ The Store MSIX declares `Microsoft.VCLibs.140.00.UWPDesktop` version `14.0.33321
 
 ## Current setup status
 
-Snipsera **1.0.5** is the official GitHub release, with update notices and optional Windows startup. Its EXE, portable/source ZIPs and checksums use the reviewed hosted build. Store MSIX **1.0.5.0** was submitted on 5 November 2026 as Submission 4 (`1152921505702326681`), with automatic publication after certification. Microsoft confirmed certification passed for this exact submission and automatic publication completed on 5 November 2026. The same GitHub 1.0.5 artifacts are now official/Latest, with no rebuild or retag. The uploaded MSIX SHA256 is `12ec5750d976e1628ca4259471177dd9b85f481040135f2413c2487232d42120`. GitHub installers remain unsigned. Live sign-in startup, notification delivery, Store API and final Windows 11/installed-MSIX acceptance remain pending.
+Snipsera **1.0.6** is the official GitHub release, with save folders, recording cards, configurable bar materials and the Pinned Pair artwork. Microsoft confirmed that Store Submission 5 (`1152921505702329781`), MSIX **1.0.6.0**, passed certification on 6 November 2026; automatic publication is in progress. The matching GitHub build/tag `v1.0.6-preview.3` becomes official/Latest with its existing source, filenames, bytes and hashes. The uploaded MSIX SHA256 is `38be9aa52daf26cb9b245d5bcd7d9a63b091374b0ddbe936c93f94d960d04701`. GitHub installers remain unsigned. Live desktop/input, native frosted-glass/mixed-DPI appearance, sign-in startup, notification delivery, Store APIs and final Windows 11/installed-MSIX acceptance remain pending.
 
 The earlier **1.0.4** preview adds all-in-one screenshot capture. Its EXE, portable/source ZIPs and checksums use the exact reviewed hosted build. Store MSIX **1.0.4.0** is prepared but not submitted. It remains submission-only; this preview does not replace the separately submitted 1.0.3.0 Store update or promote itself based on that update's approval.
 
