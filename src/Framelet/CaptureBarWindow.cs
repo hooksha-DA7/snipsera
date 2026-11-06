@@ -14,12 +14,13 @@ namespace Framelet;
 
 // One compact floating bar holding every screenshot mode. Choosing a mode closes the bar first, then hands exactly one
 // CaptureKind to the owner; Esc, Close or clicking elsewhere dismisses it without capturing. Number keys 1–5 pick a mode and
-// the arrow keys move between the controls. It opens near the top centre of the pointer's work area and can be dragged; a
-// work area too narrow for the single row gets a wrapped grid of the same full-size controls instead.
+// the arrow keys move between the controls. It opens at the bottom centre of the pointer's work area, just above the taskbar,
+// and can be dragged; a work area too narrow for the single row gets a wrapped grid of the same full-size controls instead.
 public sealed class CaptureBarWindow : Window
 {
-    // Logical gap between the top of the work area and the window (whose transparent margin adds the shadow space).
-    internal const double TopGap = 8;
+    // Logical gap between the bottom of the work area (the top of the taskbar) and the window, whose transparent margin adds
+    // the shadow space.
+    internal const double BottomGap = 12;
     internal static readonly CaptureKind[] Kinds = [CaptureKind.Area, CaptureKind.Window, CaptureKind.Screen, CaptureKind.Scrolling, CaptureKind.PreviousArea];
     private static readonly string[] Symbols = ["Area", "Window", "Screen", "Scrolling", "History"];
     private static readonly string[] Labels = ["Area", "Window", "Display", "Scroll", "Last area"];
@@ -93,6 +94,8 @@ public sealed class CaptureBarWindow : Window
         Loaded += (_, _) => { Place(); modes[0].Focus(); };
         // Moving onto a display with another scale resizes the window; centre it again at the new scale unless it was dragged.
         DpiChanged += (_, _) => Dispatcher.BeginInvoke(DispatcherPriority.Loaded, new Action(Place));
+        // The HWND takes its final size after Place; keep the bottom edge just above the taskbar as it does, unless dragged.
+        SizeChanged += (_, e) => { if (IsLoaded) Position(e.NewSize); };
         Appearance.Current.Changed += Restyle;
         Closing += (_, _) => ended = true;
         Closed += (_, _) => Appearance.Current.Changed -= Restyle;
@@ -151,7 +154,7 @@ public sealed class CaptureBarWindow : Window
     // the widest 3-, 2- or 1-column grid of the same full-size controls that fits. Narrower grids are only taller, so the first
     // to fit the width is also the shortest. If even that exceeds the limit, the panel scrolls. The limit also becomes the
     // window's MaxWidth/MaxHeight, so SizeToContent never grows the HWND beyond it and the scroller receives the clamp; the
-    // HWND itself resizes on the next layout pass while Place keeps its top-left. Detached tests can call it, then detach and
+    // HWND itself resizes on the next layout pass and Position keeps it bottom-centred. Detached tests can call it, then detach and
     // measure Content with the same limit (Content already includes the shadow margin).
     internal Size Layout(Size limit)
     {
@@ -216,20 +219,30 @@ public sealed class CaptureBarWindow : Window
     }
 
     // Fits the layout to the logical size of the work area under the pointer when the bar opened, then places it at that
-    // area's top centre, in physical pixels at this window's scale. Runs again after a DPI change unless the bar was dragged.
+    // area's bottom centre, in physical pixels at this window's scale. Runs again after a DPI change unless the bar was dragged.
     private void Place()
     {
         var handle = new WindowInteropHelper(this).Handle;
         if (moved || handle == IntPtr.Zero || !IsVisible) return;
         if (work.IsEmpty) work = Native.MonitorAtCursor(true);
-        uint dpi = Native.GetDpiForWindow(handle); double scale = dpi > 0 ? dpi / 96d : 1;
-        var size = Layout(new Size(Math.Floor(Math.Max(0, work.Width) / scale), Math.Floor(Math.Max(0, work.Height) / scale)));
-        var bounds = Placement(work, size, scale);
+        double scale = Scale(handle);
+        Position(Layout(new Size(Math.Floor(Math.Max(0, work.Width) / scale), Math.Floor(Math.Max(0, work.Height) / scale))));
+    }
+
+    // Moves the window, without resizing it, to the placement for a logical size. Does nothing once dragged.
+    private void Position(Size size)
+    {
+        var handle = new WindowInteropHelper(this).Handle;
+        if (moved || ended || handle == IntPtr.Zero || !IsVisible || work.IsEmpty) return;
+        var bounds = Placement(work, size, Scale(handle));
         // HWND_TOPMOST, SWP_NOSIZE | SWP_NOACTIVATE.
         Native.SetWindowPos(handle, new IntPtr(-1), bounds.X, bounds.Y, 0, 0, 0x0011);
     }
 
-    // Window bounds for a logical size at a scale, horizontally centred TopGap below the top of the work area and kept inside it.
+    private static double Scale(IntPtr handle) { uint dpi = Native.GetDpiForWindow(handle); return dpi > 0 ? dpi / 96d : 1; }
+
+    // Window bounds for a logical size at a scale, horizontally centred BottomGap above the bottom of the work area (so above
+    // the taskbar, wherever it is docked) and kept inside it.
     // Pure, so it holds for any monitor origin (including negative) and scale. Place passes a size Layout already fitted to the
     // work area, so the clamp here is only a rounding safety net; it never resizes the HWND (SWP_NOSIZE).
     internal static System.Drawing.Rectangle Placement(System.Drawing.Rectangle work, Size logical, double scale)
@@ -239,7 +252,7 @@ public sealed class CaptureBarWindow : Window
         int width = Math.Min(Math.Max(0, work.Width), ScrollCaptureLayout.Px(Valid(logical.Width), scale));
         int height = Math.Min(Math.Max(0, work.Height), ScrollCaptureLayout.Px(Valid(logical.Height), scale));
         int x = work.Left + (Math.Max(0, work.Width) - width) / 2;
-        int y = work.Top + Math.Min(Math.Max(0, work.Height) - height, (int)Math.Round(TopGap * scale));
+        int y = work.Top + Math.Max(0, Math.Max(0, work.Height) - height - (int)Math.Round(BottomGap * scale));
         return new System.Drawing.Rectangle(x, y, width, height);
     }
 

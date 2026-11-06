@@ -1,5 +1,11 @@
 # Snipsera build status
 
+## Settings and recording workflow candidate: 1.0.6
+
+Local candidate, 6 November 2026. Settings now has General, Save locations, Keyboard shortcuts and Updates sections. Screenshots and their edits save automatically to Pictures\Snipsera by default, with configurable screenshot/recording folders and an auto-save switch. History keeps its independent editable originals; changing a destination does not move old files. All-in-one capture opens at the bottom of the current work area. Stopping a recording keeps setup closed and adds a compact media card to the side stack, with play, copy, save, drag and same-window Pin/Unpin.
+
+The release gate passed **330 automated/offscreen checks** (293 C# and 37 Python), with no compiler warnings or errors. New checks include synthetic MP4/GIF thumbnail extraction, repeated-Stop finalization, failure preservation and recording-card layouts. See [Settings help](docs/SETTINGS.md) and [verification scope](docs/WORKFLOW-VERIFICATION.md). Desktop capture, physical input, local installation and clean Windows 11 acceptance remain paused. This candidate is not a Store approval or a signed GitHub installer. The official published baseline below remains 1.0.5.
+
 ## Update and startup release: 1.0.5
 
 Settings adds automatic/manual update checks, an optional GitHub preview channel and Start with Windows. Updates follow the installation source, appear on Home and can trigger a deferred tray alert. Known notices and acknowledgement persist across restarts. GitHub actions open the owned release page; installers are never downloaded or executed automatically. Startup is off by default, opens quietly in the tray and respects Windows user/policy controls.

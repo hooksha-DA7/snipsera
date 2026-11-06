@@ -12,7 +12,6 @@ public sealed class HomeWindow : Window
     private readonly CaptureApp app;
     private readonly StackPanel history = new();
     private readonly TextBlock status = Ui.Text("Ready to capture", 12, Ui.Muted);
-    private readonly ShortcutRecorder[] shortcuts = new ShortcutRecorder[5];
     private readonly TextBlock[] badges = new TextBlock[5];
     public HomeWindow(CaptureApp app)
     {
@@ -105,37 +104,17 @@ public sealed class HomeWindow : Window
         }
         OverlayState(); app.OverlayVisibilityChanged += OverlayState; Closed += (_, _) => app.OverlayVisibilityChanged -= OverlayState;
         left.Children.Add(overlays);
-        var settings = new StackPanel();
-        var help = Ui.Text("Select a box and press the keys you want, then Save shortcuts. Esc cancels a change; Tab moves on.", 11, Ui.Muted);
-        var rule = Ui.Text(ShortcutRecorder.Rule, 11, Ui.Muted); rule.Margin = new Thickness(0, 4, 0, 8);
-        settings.Children.Add(help); settings.Children.Add(rule);
-        for (int i = 0; i < shortcuts.Length; i++)
+        // Shortcuts are edited in Settings; the badges above always show the saved bindings.
+        var shortcutLink = Ui.Button("Change keyboard shortcuts…", "OpenShortcutSettings", app.OpenKeyboardShortcuts);
+        shortcutLink.HorizontalAlignment = HorizontalAlignment.Left; shortcutLink.Margin = new Thickness(0, 12, 0, 0);
+        System.Windows.Automation.AutomationProperties.SetHelpText(shortcutLink, "Opens Settings, where you can change the capture shortcuts.");
+        left.Children.Add(shortcutLink);
+        void Badges()
         {
-            var label = Ui.Text(labels[i], 11); settings.Children.Add(label);
-            shortcuts[i] = new ShortcutRecorder(labels[i], app.Settings.Bindings[i], app.SuspendShortcuts, ex => SetStatus(ex.Message, true)) { FontSize = 12, Padding = new Thickness(7), Margin = new Thickness(0, 3, 0, 8) };
-            System.Windows.Automation.AutomationProperties.SetAutomationId(shortcuts[i], "Shortcut" + i);
-            System.Windows.Automation.AutomationProperties.SetLabeledBy(shortcuts[i], label);
-            shortcuts[i].Changed += recorder => SetStatus(recorder.IsPending ? $"{labels[Array.IndexOf(shortcuts, recorder)]}: {recorder.Shortcut} — select Save shortcuts to apply" : "Shortcut unchanged");
-            shortcuts[i].Rejected += message => SetStatus(message, true);
-            settings.Children.Add(shortcuts[i]);
+            if (!Dispatcher.CheckAccess()) { Dispatcher.BeginInvoke(new Action(Badges)); return; }
+            for (int i = 0; i < badges.Length; i++) badges[i].Text = app.Settings.Bindings[i];
         }
-        settings.Children.Add(Ui.Button("Save shortcuts", "SaveShortcuts", () =>
-        {
-            try
-            {
-                // Pressing Save moves focus off the recorder first, so the current shortcuts are restored before they are replaced.
-                app.UpdateSettings(new AppSettings(shortcuts[0].Shortcut, shortcuts[1].Shortcut, shortcuts[2].Shortcut, shortcuts[3].Shortcut, shortcuts[4].Shortcut));
-                for (int i = 0; i < badges.Length; i++) { badges[i].Text = app.Settings.Bindings[i]; shortcuts[i].MarkSaved(app.Settings.Bindings[i]); }
-                SetStatus("Shortcuts saved");
-            }
-            catch (Exception ex) { SetStatus(ex.Message, true); }
-        }));
-        // A hidden or closed Home window never keeps the capture shortcuts suspended.
-        void Release() { foreach (var recorder in shortcuts) recorder.Release(); }
-        IsVisibleChanged += (_, _) => { if (!IsVisible) Release(); }; Deactivated += (_, _) => Release(); Closed += (_, _) => Release();
-        // WPF restores keyboard focus after Activated and may not raise a new focus event, so check once input has settled.
-        Activated += (_, _) => Dispatcher.InvokeAsync(() => { if (IsActive) foreach (var recorder in shortcuts) recorder.Resume(); }, DispatcherPriority.Input);
-        left.Children.Add(new Expander { Header = "Keyboard shortcuts", Content = settings, Margin = new Thickness(0, 16, 0, 0), Padding = new Thickness(8) });
+        app.SettingsChanged += Badges; Closed += (_, _) => app.SettingsChanged -= Badges;
         var leftScroll = new ScrollViewer { Content = left, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
         columns.Children.Add(leftScroll);
         var recent = new DockPanel();

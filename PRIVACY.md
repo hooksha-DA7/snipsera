@@ -1,6 +1,6 @@
 # Snipsera privacy policy
 
-Effective date: 5 November 2026.
+Effective date: 6 November 2026.
 
 Snipsera captures screenshots and screen recordings on your Windows PC. It does not require an account. The app itself does not upload your captures, send analytics or use a cloud processing service.
 
@@ -10,13 +10,14 @@ Snipsera captures screenshots and screen recordings on your Windows PC. It does 
 - Microphone and computer audio are recorded only when you enable those options for an MP4 recording. They are off by default. GIF output does not include audio.
 - History and preferences are stored in your local Windows profile. New installations use `%LOCALAPPDATA%\Snipsera`. An existing `%LOCALAPPDATA%\Framelet` folder may continue to be used after upgrading. A custom `--data-dir` takes precedence.
 - Editing a capture automatically saves its original pixels, annotations and image settings in a local history project. History thumbnails and copies use the edited result.
+- From version 1.0.6, screenshots and their edits also save automatically as PNGs in Pictures\Snipsera by default. Choose separate screenshot and video/GIF folders under **Settings → Save locations**, or turn off automatic screenshot saving. These exported copies remain when capture history expires. Changing a folder does not move files already saved elsewhere.
 - Editable projects retain the original image and reversible annotations. A masked region can still be recovered from an editable project; share a flattened image when you need to cover sensitive content.
 
 Snipsera does not add its own encryption to these files. Access is governed by Windows file permissions and any encryption you enable separately. Files saved in a folder managed by another sync service may be uploaded by that service.
 
 ## Copying and sharing
 
-Copy places an image on the Windows clipboard. Dragging or saving a capture makes it available to the destination you choose. Other apps, clipboard synchronization and cloud folders follow their own privacy settings and policies.
+Copy places an image on the Windows clipboard, or the actual MP4/GIF file when used on a recording card. Dragging or saving a capture makes it available to the destination you choose. Other apps, clipboard synchronization and cloud folders follow their own privacy settings and policies.
 
 ## Keeping and removing data
 

@@ -20,13 +20,21 @@ public sealed class ImageWindow : Window
 {
     // Logical-pixel metrics for the on-image controls.
     private const double Inset = 6, Unit = 28, Gap = 4, Cluster = 6, PillWidth = 68, Spill = 6;
-    public BitmapSource CaptureImage { get; }
+    public BitmapSource CaptureImage { get; private set; }
+    public RecordingResult? Recording { get; }
     public bool IsPinned { get; private set; }
     public bool IsDocked { get; private set; } = true;
     public DrawingRect DockWorkArea { get; private set; }
     public double DockScale { get; private set; } = 1;
-    public double ImageOpacity { get => thumbnail.Opacity; private set { thumbnail.Opacity = Math.Clamp(value, .2, 1); edge.Opacity = thumbnail.Opacity; } }
+    public double ImageOpacity { get => thumbnail.Opacity; private set { thumbnail.Opacity = Math.Clamp(value, .2, 1); edge.Opacity = thumbnail.Opacity; if (badge is not null) badge.Opacity = thumbnail.Opacity; } }
     private readonly Image thumbnail;
+    // Recordings only: a small format/duration pill so a recording never reads as a screenshot. Not part of the media.
+    private const double BadgeHeight = 20;
+    private readonly Border? badge;
+    private readonly TextBlock? badgeText;
+    private bool cornerLayout;
+    private double clusterBottom;
+    private Size surfaceSize;
     private readonly Border edge = new(), scrim, message;
     private readonly Grid controls;
     private readonly ContextMenu menu, overflow;
@@ -50,9 +58,11 @@ public sealed class ImageWindow : Window
     private int presentation;
     private bool closed, placedOnce;
 
-    public ImageWindow(CaptureApp app, BitmapSource image, CaptureEntry entry, bool pinned, string? warning = null)
+    public ImageWindow(CaptureApp app, BitmapSource image, CaptureEntry? entry, bool pinned, string? warning = null, RecordingResult? recording = null)
     {
         CaptureImage = image;
+        if (entry is null && recording is null) throw new ArgumentException("A screenshot or recording is required.");
+        Recording = recording;
         Ui.Setup(this); Width = FloatingLayout.MaxWidth; Height = FloatingLayout.MaxHeight; MinWidth = 18; MinHeight = 18;
         WindowStyle = WindowStyle.None; AllowsTransparency = true; Background = Brushes.Transparent;
         ResizeMode = ResizeMode.NoResize; ShowInTaskbar = true; Topmost = true; ShowActivated = false;
@@ -72,6 +82,21 @@ public sealed class ImageWindow : Window
         scrim = new Border { Background = shade, Opacity = 0, IsHitTestVisible = false }; surface.Children.Add(scrim);
         edge.BorderBrush = Ui.Line; edge.BorderThickness = new Thickness(.7); edge.CornerRadius = new CornerRadius(FloatingVisuals.Radius); edge.IsHitTestVisible = false; surface.Children.Add(edge);
         card.Child = surface; root.Children.Add(card);
+        // Bottom centre, between the Annotate/Play and Drag corners, in the floating-control material. It is window chrome over the
+        // card, so the placeholder shows it at once and Copy, Save and Drag still hand over the untouched recording file.
+        if (recording is not null)
+        {
+            badgeText = Ui.Text("", 11, Ui.Ink, true); badgeText.TextWrapping = TextWrapping.NoWrap; badgeText.VerticalAlignment = VerticalAlignment.Center; badgeText.Margin = new Thickness(4, 0, 0, 0);
+            var cue = new UiIcon("Play", 10, 2.6) { Ink = Ui.Ink, VerticalAlignment = VerticalAlignment.Center };
+            var content = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Center }; content.Children.Add(cue); content.Children.Add(badgeText);
+            badge = new Border { Name = "RecordingBadge", Height = BadgeHeight, MinWidth = BadgeHeight, CornerRadius = new CornerRadius(BadgeHeight / 2), Padding = new Thickness(6, 0, 8, 0),
+                Background = Ui.Floating, BorderBrush = Ui.Line, BorderThickness = new Thickness(1), Child = content, IsHitTestVisible = false,
+                HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Bottom, Margin = new Thickness(0, 0, 0, Inset) };
+            string format = recording.Format == RecordingFormat.Gif ? "GIF" : "MP4", length = Length(recording.Duration);
+            AutomationProperties.SetAutomationId(badge, "RecordingBadge");
+            AutomationProperties.SetName(badge, length.Length == 0 ? $"{format} recording" : $"{format} recording, {length}");
+            root.Children.Add(badge);
+        }
         message = new Border { Background = Ui.Surface, BorderBrush = Ui.Line, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(4), Padding = new Thickness(8, 4, 8, 4),
             Child = status, IsHitTestVisible = false, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center, Visibility = Visibility.Collapsed };
 
@@ -92,14 +117,16 @@ public sealed class ImageWindow : Window
             host.Children.Add(button); return button;
         }
         void Toggle() { RevealActions(false); app.TogglePin(this); }
-        async void Copy() { try { await CaptureService.Copy(image); Copied(); } catch (Exception ex) { app.Report(ex); } }
-        void Save() { RevealActions(false); app.SaveImage(image, this); }
+        async void Copy() { try { if (recording is null) await CaptureService.Copy(image); else await RecordingPreview.CopyAsync(recording); Copied(); } catch (Exception ex) { app.Report(ex); } }
+        void Save() { RevealActions(false); if (recording is null) app.SaveImage(image, this); else app.SaveRecording(recording, this); }
+        void EditOrPlay() { RevealActions(false); if (recording is null) app.EditImage(image, entry); else { try { RecordingPreview.Open(recording); } catch (Exception ex) { app.Report(ex); } } }
         pinButton = AddControl(layer, "Pin", "Pin", "PinCapture", Toggle, "Pin");
-        editButton = AddControl(layer, "Pen", "Annotate", "EditCapture", () => { RevealActions(false); app.EditImage(image, entry); }, "Annotate");
+        editButton = AddControl(layer, recording is null ? "Pen" : "Play", recording is null ? "Annotate" : "Play recording", "EditCapture", EditOrPlay, recording is null ? "Annotate" : "Play recording");
         copyButton = AddControl(layer, "Copy", "Copy", "CopyCapture", Copy, "Copy · Ctrl+C");
         saveButton = AddControl(layer, "Save", "Save…", "SaveCapture", Save, "Save… · Ctrl+S");
-        dragButton = AddControl(layer, "Drag", "Drag image to another app", "DragCapture", () => Notice("Drag this button into another app"), "Drag to another app");
-        DragExport.Attach(dragButton, app.History.Root, () => image, app.Report);
+        dragButton = AddControl(layer, "Drag", recording is null ? "Drag image to another app" : "Drag recording to another app", "DragCapture", () => Notice("Drag this button into another app"), "Drag to another app");
+        if (recording is null) DragExport.Attach(dragButton, app.History.Root, () => image, app.Report);
+        else DragExport.AttachFile(dragButton, recording.FilePath, app.Report);
         closeButton = AddControl(layer, "Close", "Close", "CloseCapture", Close, "Close · Esc");
         foreach (var pill in new[] { copyButton, saveButton }) { pill.FontSize = 12; pill.FontWeight = FontWeights.SemiBold; }
         overflow = new ContextMenu { Placement = PlacementMode.Bottom };
@@ -124,7 +151,8 @@ public sealed class ImageWindow : Window
         MenuItem Menu(string label, Action action) { var item = new MenuItem { Header = label }; item.Click += (_, _) => { menu.IsOpen = false; RevealActions(false); Dispatcher.BeginInvoke(action); }; menu.Items.Add(item); return item; }
         Menu("Capture area", () => _ = app.CaptureAsync(CaptureKind.Area)); Menu("Capture window", () => _ = app.CaptureAsync(CaptureKind.Window)); Menu("Capture display", () => _ = app.CaptureAsync(CaptureKind.Screen));
         Menu("Scrolling capture", () => _ = app.CaptureAsync(CaptureKind.Scrolling)); menu.Items.Add(new Separator());
-        pinMenu = Menu("Pin", Toggle); Menu("Copy", Copy).InputGestureText = "Ctrl+C"; Menu("Save…", Save).InputGestureText = "Ctrl+S"; Menu("History", app.ShowHome); Menu("Annotate", () => app.EditImage(image, entry));
+        pinMenu = Menu("Pin", Toggle); Menu("Copy", Copy).InputGestureText = "Ctrl+C"; Menu("Save…", Save).InputGestureText = "Ctrl+S"; Menu("History", app.ShowHome); Menu(recording is null ? "Annotate" : "Play recording", EditOrPlay);
+        if (recording is not null) Menu("Show in folder", () => app.ShowRecordingFolder(recording));
         // Keyboard-discoverable alternative to the wheel-down gesture.
         Menu("Temporarily hide overlays", () => app.HideOverlays(this)).InputGestureText = "Scroll down";
         opacity = new Slider { Minimum = .2, Maximum = 1, Value = 1, Width = 150, TickFrequency = .05, Margin = new Thickness(8, 5, 8, 8), ToolTip = "Pinned image opacity" };
@@ -147,11 +175,12 @@ public sealed class ImageWindow : Window
         // Any hide (ours, capture's or the editor's) cancels a pending presentation and leaves a fully opaque, unshifted card for the next show.
         IsVisibleChanged += (_, _) => { if (!IsVisible) { menu.IsOpen = false; RevealActions(false); presentation++; StopPresentation(true); } };
         LocationChanged += (_, _) => RevealActions(false); Deactivated += (_, _) => { keyboardActions = false; ScheduleDismiss(); };
-        DragExport.Attach(surface, app.History.Root, () => image, app.Report, true, () => !IsPinned);
+        if (recording is null) DragExport.Attach(surface, app.History.Root, () => image, app.Report, true, () => !IsPinned);
+        else DragExport.AttachFile(surface, recording.FilePath, app.Report, true, () => !IsPinned);
         surface.MouseLeftButtonDown += (_, e) =>
         {
             if (DragExport.IsControl(e.OriginalSource as DependencyObject)) return;
-            if (e.ClickCount == 2) { if (IsPinned) ResizeCard(Width < 350 ? Math.Max(360, Math.Min(600, image.PixelWidth / DockScale + 16)) : FloatingLayout.Preview(DockWorkArea, new Size(image.PixelWidth, image.PixelHeight), DockScale).Width / DockScale); else app.EditImage(image, entry); e.Handled = true; return; }
+            if (e.ClickCount == 2) { if (recording is not null) EditOrPlay(); else if (IsPinned) ResizeCard(Width < 350 ? Math.Max(360, Math.Min(600, image.PixelWidth / DockScale + 16)) : FloatingLayout.Preview(DockWorkArea, new Size(image.PixelWidth, image.PixelHeight), DockScale).Width / DockScale); else EditOrPlay(); e.Handled = true; return; }
             if (IsPinned && e.LeftButton == MouseButtonState.Pressed)
             {
                 RevealActions(false); var handle = new WindowInteropHelper(this).Handle; Native.GetWindowRect(handle, out var before);
@@ -190,12 +219,22 @@ public sealed class ImageWindow : Window
         };
         toast.Tick += (_, _) => { toast.Stop(); message.Visibility = Visibility.Collapsed; };
         // High contrast switches the floating template; theme colours already follow the bound tokens.
-        void Restyle() { foreach (var button in Actions.Append(moreButton)) FloatingButtons.Apply(button, button == pinButton && IsPinned); }
-        Appearance.Current.Changed += Restyle;
+        void Restyle()
+        {
+            foreach (var button in Actions.Append(moreButton)) FloatingButtons.Apply(button, button == pinButton && IsPinned);
+            // The badge sits on arbitrary pixels at rest, so it keeps a faint lift; high contrast uses its solid outline instead.
+            if (badge is not null) badge.Effect = SystemParameters.HighContrast ? null : new DropShadowEffect { BlurRadius = 6, ShadowDepth = 1, Opacity = .25 };
+        }
+        Restyle(); Appearance.Current.Changed += Restyle;
         Closed += (_, _) => { closed = true; presentation++; StopPresentation(true); toast.Stop(); dismiss.Stop(); copied.Stop(); overflow.IsOpen = false; menu.IsOpen = false; Appearance.Current.Changed -= Restyle; };
     }
 
     private void Notice(string value) { status.Text = value; message.Visibility = Visibility.Visible; toast.Stop(); toast.Start(); }
+    internal void UpdateRecordingThumbnail(BitmapSource image)
+    {
+        if (Recording is null || closed) return;
+        CaptureImage = image; thumbnail.Source = image;
+    }
     private void Copied()
     {
         if (!revealed || copyButton.Visibility != Visibility.Visible) { Notice("Copied"); return; }
@@ -204,13 +243,13 @@ public sealed class ImageWindow : Window
 
     internal void SetPinned(bool pinned)
     {
-        IsPinned = pinned; Title = pinned ? "Snipsera — pinned capture" : "Snipsera — preview";
+        IsPinned = pinned; Title = Recording is null ? pinned ? "Snipsera — pinned capture" : "Snipsera — preview" : pinned ? "Snipsera — pinned recording" : "Snipsera — recording preview";
         // Pin is a direct toggle: the accent fill shows the pinned state; it never opens a menu.
         string label = pinned ? "Unpin" : "Pin"; pinMenu.Header = label; AutomationProperties.SetName(pinButton, label);
         pinButton.ToolTip = pinned ? "Unpin · return to preview" : "Pin · keep on screen"; AutomationProperties.SetItemStatus(pinButton, pinned ? "Pinned" : "Not pinned");
         FloatingButtons.Apply(pinButton, pinned);
         opacityLabel.Visibility = opacityItem.Visibility = grip.Visibility = pinned ? Visibility.Visible : Visibility.Collapsed;
-        AutomationProperties.SetHelpText(thumbnail, pinned ? "Drag to move · double-click to enlarge · Ctrl+wheel for opacity · scroll down to hide temporarily" : "Drag the image to another app · double-click to annotate · scroll down to hide temporarily");
+        AutomationProperties.SetHelpText(thumbnail, Recording is not null ? "Double-click to play · drag a pin to move · scroll down to hide temporarily" : pinned ? "Drag to move · double-click to enlarge · Ctrl+wheel for opacity · scroll down to hide temporarily" : "Drag the image to another app · double-click to annotate · scroll down to hide temporarily");
         if (!pinned)
         {
             opacity.Value = 1;
@@ -265,7 +304,7 @@ public sealed class ImageWindow : Window
     public void RevealActions(bool reveal)
     {
         if (!reveal) { keyboardActions = false; overflow.IsOpen = false; }
-        dismiss.Stop(); revealed = reveal && IsVisible;
+        dismiss.Stop(); revealed = reveal && IsVisible; FitBadge();
         double shade = revealed && !SystemParameters.HighContrast ? ImageOpacity : 0;
         var duration = Appearance.Current.Policy.Animate ? TimeSpan.FromMilliseconds(revealed ? 120 : 90) : TimeSpan.Zero;
         if (revealed) { controls.Visibility = Visibility.Visible; controls.Effect = SystemParameters.HighContrast ? null : new DropShadowEffect { BlurRadius = 10, ShadowDepth = 1, Opacity = .22 }; }
@@ -292,7 +331,34 @@ public sealed class ImageWindow : Window
         if (area.Width <= 0 || area.Height <= 0) return;
         folded.Clear(); moreButton.Visibility = Visibility.Collapsed; overflow.IsOpen = false;
         foreach (var button in Actions) button.Visibility = Visibility.Visible;
-        if (!LayoutCorners(area.Width, area.Height)) LayoutStrip(area.Width, area.Height);
+        cornerLayout = LayoutCorners(area.Width, area.Height);
+        if (!cornerLayout) LayoutStrip(area.Width, area.Height);
+        surfaceSize = area; FitBadge();
+    }
+    // Full label, then the format alone, then just the play cue. At rest the badge has the bottom edge to itself; with the controls
+    // shown it must fit between the bottom corners and below the centred pills, otherwise it steps aside so nothing overlaps.
+    private void FitBadge()
+    {
+        if (badge is null || badgeText is null || Recording is null) return;
+        double w = surfaceSize.Width, h = surfaceSize.Height;
+        double room = !revealed ? w - 2 * Inset : cornerLayout ? w - 2 * (Inset + Unit + Gap) : 0;
+        bool fits = h >= BadgeHeight + 2 * Inset && (!revealed || h - Inset - BadgeHeight >= clusterBottom + Gap);
+        string format = Recording.Format == RecordingFormat.Gif ? "GIF" : "MP4", length = Length(Recording.Duration);
+        badge.Visibility = Visibility.Visible;
+        foreach (string text in new[] { length.Length == 0 ? format : $"{format} · {length}", format, "" })
+        {
+            badgeText.Text = text; badgeText.Visibility = text.Length == 0 ? Visibility.Collapsed : Visibility.Visible;
+            badge.Padding = text.Length == 0 ? new Thickness(0) : new Thickness(6, 0, 8, 0);
+            badge.Measure(new Size(double.PositiveInfinity, BadgeHeight));
+            if (badge.DesiredSize.Width <= room) { badge.Visibility = fits ? Visibility.Visible : Visibility.Collapsed; return; }
+        }
+        badge.Visibility = Visibility.Collapsed;
+    }
+    private static string Length(TimeSpan value)
+    {
+        if (value <= TimeSpan.Zero) return "";
+        var rounded = TimeSpan.FromSeconds(Math.Max(1, Math.Round(value.TotalSeconds)));
+        return rounded.ToString(rounded.TotalHours >= 1 ? @"h\:mm\:ss" : @"m\:ss");
     }
     // CleanShot arrangement: Pin/Close/Annotate/Drag in the corners, Copy and Save centred. Labeled pills first, icon pills when narrower.
     private bool LayoutCorners(double w, double h)
@@ -309,7 +375,7 @@ public sealed class ImageWindow : Window
                 Put(pinButton, Inset, Inset); Put(closeButton, w - Inset - Unit, Inset);
                 Put(editButton, Inset, h - Inset - Unit); Put(dragButton, w - Inset - Unit, h - Inset - Unit);
                 double x = (w - cw) / 2, y = (h - ch) / 2;
-                Put(copyButton, x, y, pill); Put(saveButton, stacked ? x : x + pill + Cluster, stacked ? y + Unit + Cluster : y, pill);
+                Put(copyButton, x, y, pill); Put(saveButton, stacked ? x : x + pill + Cluster, stacked ? y + Unit + Cluster : y, pill); clusterBottom = Math.Round(y) + ch;
                 Order(pinButton, closeButton, copyButton, saveButton, editButton, dragButton);
                 return true;
             }

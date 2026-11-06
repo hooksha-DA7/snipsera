@@ -23,6 +23,8 @@ public sealed class ShortcutRecorder : TextBox
     {
         this.suspend = suspend; this.report = report; Saved = shortcut = saved;
         IsReadOnly = true; IsReadOnlyCaretVisible = false; IsUndoEnabled = false; AllowDrop = false; ContextMenu = null; Cursor = Cursors.Arrow;
+        // Implicit Fluent styles match exact types; this derived text box explicitly follows the system TextBox style.
+        SetResourceReference(StyleProperty, typeof(TextBox));
         InputMethod.SetIsInputMethodEnabled(this, false);
         AutomationProperties.SetName(this, name + " shortcut");
         AutomationProperties.SetHelpText(this, "Press the keys for this shortcut, then select Save shortcuts. Escape cancels a change.");

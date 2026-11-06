@@ -12,7 +12,7 @@ public sealed partial class CaptureApp
     private void InitializePreferences()
     {
         Preferences.SetOwnerWindow(new System.Windows.Interop.WindowInteropHelper(home).Handle);
-        var item = new MenuItem { Header = "Settings and updates", Icon = new UiIcon("Settings", 16) { Ink = Ui.Ink } };
+        var item = new MenuItem { Header = "Settings", Icon = new UiIcon("Settings", 16) { Ink = Ui.Ink } };
         item.Click += (_, _) => { trayMenu.IsOpen = false; Dispatcher.BeginInvoke(OpenPreferences); };
         trayMenu.Items.Insert(trayMenu.Items.Count - 1, item);
         tray!.BalloonTipClicked += (_, _) => Dispatcher.BeginInvoke(OpenPreferences);
@@ -32,12 +32,17 @@ public sealed partial class CaptureApp
         CloseCaptureBar();
         if (preferencesWindow is null)
         {
-            var window = new PreferencesWindow(Preferences) { Owner = home };
+            var window = new PreferencesWindow(Preferences, this) { Owner = home };
             preferencesWindow = window;
             window.Closed += (_, _) => { if (preferencesWindow == window) preferencesWindow = null; };
         }
         preferencesWindow.Show(); preferencesWindow.Activate();
         await Preferences.RefreshStartupAsync();
+    }
+    public void OpenKeyboardShortcuts()
+    {
+        OpenPreferences();
+        preferencesWindow?.ShowPage(SettingsPage.KeyboardShortcuts);
     }
     private void NotifyUpdateWhenIdle()
     {

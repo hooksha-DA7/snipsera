@@ -1,5 +1,7 @@
 using System;
 using System.Drawing;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -7,6 +9,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Interop;
 using System.Windows.Input;
+using Microsoft.Win32;
 
 namespace Framelet;
 
@@ -65,6 +68,53 @@ public sealed partial class CaptureApp
     {
         var bar = recordingBar; recordingBar = null; bar?.Close();
     }
+    private async void ShowRecordingResult(RecordingResult result)
+    {
+        if (Quitting) return;
+        var image = RecordingPreview.Placeholder();
+        bool pinned = pins.Count < 8;
+        var window = FloatingWindow(image, null, pinned, recording: result);
+        if (pinned) pins.Add(window);
+        else { preview?.Close(); preview = window; }
+        if (OverlaysHidden) OverlayShelfImage = image;
+        overlays.Track(window);
+        try
+        {
+            var thumbnail = await RecordingPreview.ThumbnailAsync(result.FilePath, History.Root);
+            if (Quitting || !Windows.Cast<Window>().Contains(window)) return;
+            window.UpdateRecordingThumbnail(thumbnail);
+            if (OverlaysHidden) { OverlayShelfImage = thumbnail; RefreshOverlayVisibility(); }
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException or OperationCanceledException or System.ComponentModel.Win32Exception)
+        { /* The file actions remain usable even if Windows cannot decode a thumbnail. */ }
+    }
+    public void SaveRecording(RecordingResult result, Window owner)
+    {
+        string extension = result.Format == RecordingFormat.Gif ? ".gif" : ".mp4";
+        var dialog = new SaveFileDialog { Title = "Save recording copy", Filter = result.Format == RecordingFormat.Gif ? "GIF animation (*.gif)|*.gif" : "MP4 video (*.mp4)|*.mp4",
+            DefaultExt = extension, AddExtension = true, InitialDirectory = Storage.VideoFolder, FileName = Path.GetFileName(result.FilePath) };
+        if (dialog.ShowDialog(owner) != true) return;
+        try
+        {
+            if (!Path.GetFullPath(dialog.FileName).Equals(Path.GetFullPath(result.FilePath), StringComparison.OrdinalIgnoreCase))
+            {
+                string staging = dialog.FileName + "." + Guid.NewGuid().ToString("N") + ".tmp";
+                try { File.Copy(result.FilePath, staging, false); File.Move(staging, dialog.FileName, true); }
+                finally { if (File.Exists(staging)) File.Delete(staging); }
+            }
+            home.SetStatus("Recording copy saved");
+        }
+        catch (Exception ex) { Report(ex); }
+    }
+    public void ShowRecordingFolder(RecordingResult result)
+    {
+        try
+        {
+            var start = new ProcessStartInfo("explorer.exe") { UseShellExecute = true };
+            start.ArgumentList.Add("/select,"); start.ArgumentList.Add(result.FilePath); Process.Start(start);
+        }
+        catch (Exception ex) { Report(ex); }
+    }
     internal async Task<RecordingTarget?> SelectRecordingTargetAsync(RecordingTargetKind kind, int width, int height)
     {
         if (capturing || Recording.IsActive || ComponentDispatcher.IsThreadModal) throw new InvalidOperationException("Finish the current capture or dialog before selecting a recording area.");
@@ -108,10 +158,11 @@ public sealed partial class CaptureApp
         foreach (var window in visible) window.Hide();
         return new RecordingPresentation(() =>
         {
-            foreach (var window in visible) if (Windows.Cast<Window>().Contains(window)) window.Show();
+            foreach (var window in visible) if (RestoreAfterRecording(window) && Windows.Cast<Window>().Contains(window)) window.Show();
             suspended.Dispose();
         });
     }
+    internal static bool RestoreAfterRecording(Window window) => window is not RecordingWindow;
     private sealed class RecordingPresentation(Action restore) : IDisposable
     {
         private Action? remaining = restore;

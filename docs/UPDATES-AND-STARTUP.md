@@ -1,6 +1,6 @@
 # Updates and Windows startup
 
-Available from Snipsera 1.0.5. Open the Settings button on Home or **Settings and updates** in the tray menu. Capture shortcuts and on-image controls keep their existing behavior.
+Available from Snipsera 1.0.5. In 1.0.6, open **Settings** on Home or in the tray menu, then **General** for startup or **Updates** for update preferences. [Save locations and keyboard shortcuts](SETTINGS.md) have their own sections.
 
 ## Update checks
 

@@ -34,15 +34,17 @@ public sealed class EditorWindow : Window
     private readonly Button undo, redo, remove;
     private bool updating;
     private readonly Action<EditDocument>? saveHistory;
+    private readonly Func<string> imageFolder;
     private readonly DispatcherTimer historySave = new() { Interval = TimeSpan.FromMilliseconds(600) };
     private EditState historyState = null!;
     private bool savingHistory;
     private double resizeRatio;
     private sealed record Swatch(string Name, string Value);
 
-    public EditorWindow(EditDocument document, Action<System.Windows.Media.Imaging.BitmapSource> pin, Action open, string name = "Capture", string? projectPath = null, Action<EditDocument>? saveHistory = null)
+    public EditorWindow(EditDocument document, Action<System.Windows.Media.Imaging.BitmapSource> pin, Action open, string name = "Capture", string? projectPath = null, Action<EditDocument>? saveHistory = null, Func<string>? imageFolder = null)
     {
         Document = document; this.name = name; this.projectPath = projectPath; this.saveHistory = saveHistory; historyState = document.State;
+        this.imageFolder = imageFolder ?? (() => Environment.GetFolderPath(Environment.SpecialFolder.MyPictures));
         Ui.Setup(this); Ui.UseSystemChrome(this); Width = 1120; Height = 780; MinWidth = 900; MinHeight = 560; WindowStartupLocation = WindowStartupLocation.CenterScreen;
         Canvas = new EditCanvas(document) { Report = ex => SetStatus(ex.Message, true) };
         Canvas.MakeMark = (kind, points) => new Mark(kind, points, SelectedColor(colors), Number(strokes, 4), text.Text, Number(fonts, 24),
@@ -231,7 +233,7 @@ public sealed class EditorWindow : Window
     {
         bool legacyProject = projectPath is not null && Path.GetExtension(projectPath).Equals(".framelet", StringComparison.OrdinalIgnoreCase);
         var dialog = new SaveFileDialog { Title = "Save editable project — includes original image", Filter = "Snipsera project (*.snipsera)|*.snipsera|Legacy Framelet project (*.framelet)|*.framelet", FilterIndex = legacyProject ? 2 : 1, DefaultExt = legacyProject ? ".framelet" : AppIdentity.ProjectExtension, AddExtension = true,
-            FileName = projectPath is null ? name + AppIdentity.ProjectExtension : Path.GetFileName(projectPath), InitialDirectory = projectPath is null ? Environment.GetFolderPath(Environment.SpecialFolder.MyPictures) : Path.GetDirectoryName(projectPath) };
+            FileName = projectPath is null ? name + AppIdentity.ProjectExtension : Path.GetFileName(projectPath), InitialDirectory = projectPath is null ? imageFolder() : Path.GetDirectoryName(projectPath) };
         if (dialog.ShowDialog(this) != true) return false;
         try { EditFiles.SaveProject(Document, dialog.FileName); projectPath = dialog.FileName; SetStatus("Editable project saved, including the original image"); return true; }
         catch (Exception ex) { SetStatus(ex.Message, true); return false; }
@@ -239,7 +241,7 @@ public sealed class EditorWindow : Window
     private void Export(bool jpeg)
     {
         var dialog = new SaveFileDialog { Title = jpeg ? "Export JPEG" : "Export PNG", Filter = jpeg ? "JPEG image (*.jpg)|*.jpg" : "PNG image (*.png)|*.png", DefaultExt = jpeg ? ".jpg" : ".png", AddExtension = true,
-            FileName = name + "-edited" + (jpeg ? ".jpg" : ".png"), InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures) };
+            FileName = name + "-edited" + (jpeg ? ".jpg" : ".png"), InitialDirectory = imageFolder() };
         if (dialog.ShowDialog(this) != true) return;
         try { EditFiles.Export(Document, dialog.FileName, jpeg); SetStatus("Flattened " + (jpeg ? "JPEG" : "PNG") + " exported"); }
         catch (Exception ex) { SetStatus(ex.Message, true); }

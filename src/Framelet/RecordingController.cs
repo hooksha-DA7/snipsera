@@ -39,6 +39,7 @@ public sealed class RecordingController : IDisposable
     public bool DoNotDisturbAvailable => false;
     public string DoNotDisturbExplanation => "Automatic Do not disturb needs Microsoft approval for its Focus API. Open Windows notification settings to enable it manually.";
     public event Action? Changed;
+    internal event Action<RecordingResult>? Completed;
 
     internal RecordingController(CaptureApp app, string historyRoot, Func<IRecordingEngine>? createEngine = null,
         Func<RecordingTargetKind, int, int, Task<RecordingTarget?>>? selectTarget = null)
@@ -98,7 +99,7 @@ public sealed class RecordingController : IDisposable
         ConversionProgress = null;
         string id = DateTime.Now.ToString("yyyy-MM-dd-HHmmss") + "-" + Guid.NewGuid().ToString("N")[..8];
         temporary = Path.Combine(store.Root, "." + id + ".mp4");
-        destination = Path.Combine(store.Root, "Snipsera-" + id + (Options.Format == RecordingFormat.Gif ? ".gif" : ".mp4"));
+        destination = app.Storage.NewRecordingPath(id, Options.Format);
         Notify(RecordingState.Starting, "Preparing recording…");
         try
         {
@@ -165,15 +166,19 @@ public sealed class RecordingController : IDisposable
                     if (State != RecordingState.Converting) return;
                     ConversionProgress = value; Changed?.Invoke();
                 }));
-                try { await GifConverter.ConvertAsync(temporary!, workingGif, Options, conversion.Token, progress, elapsed.Elapsed); File.Move(workingGif, destination!, false); }
+                try { await GifConverter.ConvertAsync(temporary!, workingGif, Options, conversion.Token, progress, elapsed.Elapsed); RecordingStore.Publish(workingGif, destination!); }
                 finally { if (File.Exists(workingGif) && store.Owns(workingGif)) File.Delete(workingGif); }
                 DeleteOwnedTemporary();
             }
-            else File.Move(temporary!, destination!, false);
+            else RecordingStore.Publish(temporary!, destination!);
             var size = Options.OutputSize(Target!.Bounds);
             LastResult = new(destination!, Options.Format, size.Width, size.Height, elapsed.Elapsed, DateTimeOffset.UtcNow);
-            try { store.Add(LastResult); Notify(RecordingState.Completed, "Recording saved."); }
+            try { store.Add(LastResult, Path.GetDirectoryName(destination!)); Notify(RecordingState.Completed, "Recording saved."); }
             catch (IOException) { Notify(RecordingState.Completed, "Recording saved, but recent-recording history could not be updated."); }
+            catch (UnauthorizedAccessException) { Notify(RecordingState.Completed, "Recording saved, but recent-recording history could not be updated."); }
+            // Queue after presentation cleanup; saved-recording cards must not be restored/hidden with the old setup panel.
+            var completed = LastResult;
+            _ = dispatcher.BeginInvoke(() => { if (!disposed) Completed?.Invoke(completed); });
         }
         catch (OperationCanceledException) when (cancelRequested) { DeleteOwnedTemporary(); Notify(RecordingState.Idle, "Recording discarded."); }
         catch (Exception ex) { Notify(RecordingState.Failed, ex.Message + (File.Exists(temporary) ? " Recovery file: " + temporary : "")); throw; }
@@ -204,7 +209,8 @@ public sealed class RecordingController : IDisposable
     {
         if (LastResult is not null && store.IsRecording(LastResult) && File.Exists(LastResult.FilePath)) Open(LastResult.FilePath);
     }
-    public void OpenOutputFolder() => Open(store.Root);
+    public void OpenOutputFolder() => Open(LastResult is not null && File.Exists(LastResult.FilePath)
+        ? Path.GetDirectoryName(LastResult.FilePath)! : app.Storage.VideoFolder);
     public void OpenNotificationSettings() => Open("ms-settings:notifications");
     private static void Open(string path) => Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
     public void Dispose() { if (disposed) return; disposed = true; State = RecordingState.Idle; Cleanup(); }

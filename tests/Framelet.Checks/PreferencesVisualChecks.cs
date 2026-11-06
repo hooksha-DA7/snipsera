@@ -32,8 +32,10 @@ internal static class PreferencesVisualChecks
     { root.Measure(new Size(544, double.PositiveInfinity)); root.Arrange(new Rect(0, 0, 544, root.DesiredSize.Height)); root.UpdateLayout(); }
     private static void Render(FrameworkElement root, double width, double scale, string path)
     {
-        root.Measure(new Size(width, double.PositiveInfinity)); double height = root.DesiredSize.Height;
-        root.Arrange(new Rect(0, 0, width, height)); root.UpdateLayout();
+        double height = 0;
+        // The navigation moves above the page at compact widths; let its SizeChanged layout settle before checking bounds.
+        for (int pass = 0; pass < 3; pass++)
+        { root.Measure(new Size(width, double.PositiveInfinity)); height = root.DesiredSize.Height; root.Arrange(new Rect(0, 0, width, height)); root.UpdateLayout(); }
         var controls = Children(root).OfType<Control>().Where(c => c is Button or CheckBox && Visible(c, root)).ToArray();
         var bounds = controls.Select(c => c.TransformToAncestor(root).TransformBounds(new Rect(0, 0, c.ActualWidth, c.ActualHeight))).ToArray();
         for (int i = 0; i < controls.Length; i++)
@@ -50,9 +52,8 @@ internal static class PreferencesVisualChecks
         using (var drawing = scene.RenderOpen())
         {
             drawing.DrawRectangle(Ui.Paper, null, new Rect(0, 0, width, height));
-            drawing.DrawRectangle(new VisualBrush(root), null, new Rect(0, 0, width, height));
         }
-        bitmap.Render(scene); CaptureService.Save(bitmap, path);
+        bitmap.Render(scene); bitmap.Render(root); CaptureService.Save(bitmap, path);
     }
     internal static int Run(string output)
     {
@@ -146,7 +147,7 @@ internal static class PreferencesVisualChecks
                 if (error) updates.Error = new HttpRequestException();
                 var startup = new StartupFake { Status = error ? new(false, false, "Startup is disabled in Windows. Enable Snipsera in Startup apps to turn it back on.", true) : new(true, true, "Snipsera will start quietly in the tray when you sign in.", true) };
                 using var controller = new AppPreferencesController(Store(), updates, startup, "1.0.5", store); Wait(controller.RefreshStartupAsync()); Wait(controller.CheckUpdatesAsync());
-                var window = new PreferencesWindow(controller);
+                var window = new PreferencesWindow(controller); window.ShowPage(SettingsPage.Updates);
                 try
                 {
                     var root = (FrameworkElement)window.Content; window.Content = null;

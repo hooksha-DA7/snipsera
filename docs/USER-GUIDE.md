@@ -18,7 +18,7 @@ Store installations check Microsoft Store and open the Store app to update. EXE 
 
 ## Shortcuts and compact cards
 
-Under **Keyboard shortcuts**, select an action box and press the actual keys you want, then choose **Save shortcuts**. **Print Screen** works by itself or with Ctrl, Alt or Shift. Escape cancels a pending change; Tab moves to the next box. Existing capture shortcuts pause while you record a new chord. If Windows reserves Print Screen for Snipping Tool, turn off **Use the Print Screen key to open screen capture** under Windows **Settings > Accessibility > Keyboard**, then save the shortcut again. Snipsera does not change that Windows setting.
+In 1.0.6, open **Settings → Keyboard shortcuts**, select an action box and press the actual keys you want, then choose **Save shortcuts**. Earlier releases put this panel in Home. **Print Screen** works by itself or with Ctrl, Alt or Shift. Escape cancels a pending change; Tab moves to the next box. Existing capture shortcuts pause while you record a new chord. If Windows reserves Print Screen for Snipping Tool, turn off **Use the Print Screen key to open screen capture** under Windows **Settings > Accessibility > Keyboard**, then save the shortcut again. Snipsera does not change that Windows setting.
 
 Docked previews and pins use matching 200 × 150 thumbnails with an 8-pixel logical gap between visible cards. Wide, tall and square captures fill the same card; only the thumbnail is cropped. Copy, save, drag and editing retain the complete image. Pins flow into additional columns when needed and scale down on small work areas. Manually moved or resized pins remain under your control.
 
@@ -37,13 +37,13 @@ Press **Esc** or right-click to cancel selection. Snipsera hides its own home, p
 
 You can capture again while the previous preview, pins or editor are open. The new preview replaces the previous preview after a successful capture; each original stays in history. A request received while capture is finishing is queued; multiple waiting requests coalesce to the latest action. If a save/confirmation dialog is open, capture waits for you to dismiss that dialog. Selection itself is asynchronous and does not disable the other app windows.
 
-Use the home buttons or tray menu for the same actions. Expand **Keyboard shortcuts** to customize them, then select **Save shortcuts**. Supported shortcuts include Print Screen on its own or with modifiers, or Ctrl and/or Alt, optional Shift, and one letter, digit or F1–F11. If another application owns a requested shortcut, Snipsera explains the conflict and keeps the previous bindings. A startup conflict leaves the capture buttons usable; change the shortcuts to enable them.
+Use the home buttons or tray menu for the same actions. Open **Settings → Keyboard shortcuts** to customize them, then select **Save shortcuts**. Supported shortcuts include Print Screen on its own or with modifiers, or Ctrl and/or Alt, optional Shift, and one letter, digit or F1–F11. If another application owns a requested shortcut, Snipsera explains the conflict and keeps the previous bindings. A startup conflict leaves the capture buttons usable; change the shortcuts to enable them.
 
 ## All-in-one capture bar
 
 Press **Ctrl+Alt+Shift+5**, or choose **All-in-one capture** in Home or the tray. The floating bar offers **Area**, **Window**, **Display**, **Scroll** and **Last area**. Choose a mode to continue through the usual capture, preview and history workflow. Display captures the monitor where the bar opened, including its taskbar. Last area becomes available after selecting an area during the current session.
 
-To use **Print Screen**, expand **Keyboard shortcuts**, select the **All-in-one capture** box, press Print Screen and choose **Save shortcuts**. If it is already assigned to Area or another action, change that action's shortcut too. Existing shortcuts are preserved when upgrading; an unused Ctrl+Alt+Shift+5–9 is chosen for the new bar if necessary.
+To use **Print Screen**, open **Settings → Keyboard shortcuts**, select the **All-in-one capture** box, press Print Screen and choose **Save shortcuts**. If it is already assigned to Area or another action, change that action's shortcut too. Existing shortcuts are preserved when upgrading; an unused Ctrl+Alt+Shift+5–9 is chosen for the new bar if necessary.
 
 With the bar open, use **1–5** to choose a mode, or arrow keys/Tab and Enter. **Esc**, Close, clicking outside, or pressing the launcher shortcut again dismisses it without taking a screenshot. Drag its grip to move it. The bar closes before capture and does not appear in the result. It uses the same colors, rounded surfaces and keyboard focus style as the other floating controls.
 
@@ -85,6 +85,8 @@ Cards use a short slide/fade within their existing frames; Windows reduced-motio
 The app follows Windows app light/dark mode and accent colors. Editor/history use the real Windows title bar, resize border, system menu and maximize/Snap behavior. Main-window Mica is supplied by WPF on supported Windows versions. On-image controls have rounded themed surfaces; previews and pins remain sharp while using them. Pin opacity blends the reference image with the desktop and is not desktop Acrylic. Windows contrast, transparency and motion preferences retain their effect fallbacks. Presentation never changes source pixels.
 
 ## Local storage
+
+In 1.0.6, **Settings → Save locations** chooses separate screenshot and recording folders. Screenshots and edits automatically save as PNGs to Pictures\Snipsera by default; video/GIF saving is automatic on Stop. Changing folders leaves old files in place. The auto-save switch can be turned off. These saved copies stay separate from editable capture history and are not pruned with it. Recording results appear as side cards with Play, Copy, Save, Drag and Pin controls. [Settings and recording result help](SETTINGS.md).
 
 Default folder: `%LOCALAPPDATA%\Snipsera`
 

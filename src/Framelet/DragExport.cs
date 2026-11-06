@@ -22,6 +22,18 @@ public static class DragExport
         var data = new DataObject(); data.SetFileDropList(new StringCollection { path }); data.SetImage(image); return data;
     }
     public static void Attach(FrameworkElement source, string root, Func<BitmapSource> image, Action<Exception> report, bool ignoreControls = false, Func<bool>? enabled = null)
+        => AttachData(source, () => CreateData(root, image()), report, ignoreControls, enabled);
+
+    public static DataObject CreateFileData(string path)
+    {
+        if (!File.Exists(path)) throw new FileNotFoundException("This recording has been moved or removed.", path);
+        var data = new DataObject(); data.SetFileDropList(new StringCollection { Path.GetFullPath(path) }); return data;
+    }
+
+    public static void AttachFile(FrameworkElement source, string path, Action<Exception> report, bool ignoreControls = false, Func<bool>? enabled = null)
+        => AttachData(source, () => CreateFileData(path), report, ignoreControls, enabled);
+
+    private static void AttachData(FrameworkElement source, Func<DataObject> createData, Action<Exception> report, bool ignoreControls, Func<bool>? enabled)
     {
         Point? origin = null;
         source.PreviewMouseLeftButtonDown += (_, e) =>
@@ -37,7 +49,7 @@ public static class DragExport
             var delta = e.GetPosition(source) - start;
             if (Math.Abs(delta.X) < SystemParameters.MinimumHorizontalDragDistance && Math.Abs(delta.Y) < SystemParameters.MinimumVerticalDragDistance) return;
             origin = null; source.ReleaseMouseCapture();
-            try { DragDrop.DoDragDrop(source, CreateData(root, image()), DragDropEffects.Copy); }
+            try { DragDrop.DoDragDrop(source, createData(), DragDropEffects.Copy); }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.Runtime.InteropServices.ExternalException) { report(ex); }
             e.Handled = true;
         };

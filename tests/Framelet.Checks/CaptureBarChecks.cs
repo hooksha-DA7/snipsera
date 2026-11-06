@@ -180,24 +180,27 @@ internal static class CaptureBarChecks
                 Require(closed && captured == 0 && !bar.Choose(CaptureKind.Area), "Dismissed bar captured an image");
             }
         });
-        Test("Home exposes the fifth key recorder and preserves all direct capture controls", () =>
+        Test("Settings owns all five key recorders and Home preserves its direct capture controls", () =>
         {
             var home = new HomeWindow(app);
+            var settings = new PreferencesWindow(app.Preferences, app); settings.ShowPage(SettingsPage.KeyboardShortcuts);
             try
             {
                 var root = (FrameworkElement)home.Content; home.Content = null;
                 root.Measure(new Size(880, 670)); root.Arrange(new Rect(0, 0, 880, 670)); root.UpdateLayout();
                 var controls = Children(root).OfType<Control>().ToArray();
-                // Unmeasured templates are not materialized; the recorder fields are direct logical content.
-                var recorders = (ShortcutRecorder[])typeof(HomeWindow).GetField("shortcuts", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(home)!;
+                var settingsRoot = (FrameworkElement)settings.Content;
+                settingsRoot.Measure(new Size(780, 640)); settingsRoot.Arrange(new Rect(0, 0, 780, 640)); settingsRoot.UpdateLayout();
+                var recorders = Children(settingsRoot).OfType<ShortcutRecorder>().OrderBy(r => AutomationProperties.GetAutomationId(r)).ToArray();
                 Require(recorders.Length == 5 && recorders[4].Saved == app.Settings.AllInOne, "Fifth key recorder missing or incorrectly initialized");
                 recorders[4].Press(Key.PrintScreen, ModifierKeys.None, true);
                 Require(recorders[4].Shortcut == "PrintScreen" && recorders.Take(4).Select(r => r.Shortcut).SequenceEqual(app.Settings.Bindings.Take(4)), "Changing launcher altered direct shortcuts");
                 Require(controls.OfType<Button>().Any(b => AutomationProperties.GetAutomationId(b) == "ShowCaptureBar"), "Home launcher missing");
+                Require(!controls.OfType<ShortcutRecorder>().Any() && controls.OfType<Button>().Any(b => AutomationProperties.GetAutomationId(b) == "OpenShortcutSettings"), "Home still owns shortcut editing");
                 foreach (string id in new[] { "CaptureArea", "CaptureWindow", "CaptureScreen", "CapturePreviousArea", "CaptureScrolling", "CaptureRecording" })
                     Require(controls.OfType<Button>().Any(b => AutomationProperties.GetAutomationId(b) == id), "Removed existing action: " + id);
             }
-            finally { home.Close(); }
+            finally { home.Close(); settings.Close(); }
         });
         Test("Placement stays in the source work area at negative origins and varied DPI", () =>
         {
@@ -207,6 +210,7 @@ internal static class CaptureBarChecks
                 var box = CaptureBarWindow.Placement(work, new Size(468, 100), scale);
                 Require(work.Contains(box), "Bar escaped its work area");
                 Require(Math.Abs(box.Left - work.Left - (work.Width - box.Width) / 2d) <= 1, "Bar is not centered");
+                Require(Math.Abs(work.Bottom - box.Bottom - CaptureBarWindow.BottomGap * scale) <= 1, "Bar is not at the bottom above the taskbar");
             }
         });
         foreach (var limit in new[] { new Size(360, 260), new Size(210, 400), new Size(150, 500), new Size(200, 180) })
