@@ -21,6 +21,7 @@ public sealed partial class CaptureApp : Application
     public AppSettings Settings { get; private set; }
     public AppPreferencesController Preferences { get; }
     public StorageLocations Storage { get; }
+    public ToolbarAppearanceSettings ToolbarAppearance { get; }
     public event Action? SettingsChanged;
     public bool Quitting { get; private set; }
     private readonly List<ImageWindow> pins = [];
@@ -56,6 +57,7 @@ public sealed partial class CaptureApp : Application
         this.startInTray = startInTray;
         History = new HistoryStore(dataRoot); Settings = History.LoadSettings();
         Storage = new StorageLocations(History.Root);
+        ToolbarAppearance = new ToolbarAppearanceSettings(History.Root);
         Preferences = preferences ?? AppPreferencesController.Create(History.Root);
         Recording = new RecordingController(this, History.Root);
         Recording.Changed += RecordingChanged;
@@ -154,7 +156,7 @@ public sealed partial class CaptureApp : Application
         trayMenu.IsOpen = false;
         DrawingRect display = Native.MonitorAtCursor();
         var bar = new CaptureBarWindow(kind => _ = CaptureAsync(kind, display),
-            previousArea is DrawingRect area && Native.Desktop.Contains(area));
+            previousArea is DrawingRect area && Native.Desktop.Contains(area), ToolbarAppearance);
         captureBar = bar;
         bar.Closed += (_, _) => { if (captureBar == bar) captureBar = null; };
         bar.Show(); Native.SetForegroundWindow(new WindowInteropHelper(bar).Handle); bar.Activate();

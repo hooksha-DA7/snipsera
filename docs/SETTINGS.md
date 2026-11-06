@@ -1,6 +1,14 @@
 # Settings and save locations
 
-In version 1.0.6, open **Settings** on Home or in the tray menu. The sections are **General**, **Save locations**, **Keyboard shortcuts** and **Updates**. The section list moves above the page in a narrow window.
+In version 1.0.6, open **Settings** on Home or in the tray menu. The sections are **General**, **Save locations**, **Keyboard shortcuts**, **Updates** and **Appearance**. The section list moves above the page in a narrow window.
+
+## Appearance
+
+Open **Settings → Appearance** to choose **Tinted surface** or **Frosted glass** for the all-in-one screenshot bar, recording setup and the controls shown during recording. The setting applies immediately and is kept between sessions. The default is Tinted surface at 80% background opacity.
+
+The opacity slider runs from 70% to 100%, with quick buttons for 70%, 80%, 90% and 100%. Higher opacity hides more of the background. Only the background changes; text, icons, button layout and the separate pin-opacity control stay as they are. With Frosted glass, this controls the tint over Windows Acrylic, rather than the blur strength.
+
+Frosted glass requires Windows 11 version 22H2 or later. A solid surface is used when transparency is off, a contrast theme is active, Acrylic is unsupported or its native setup fails. Windows can also reduce the effect for graphics or power settings. The saved choice is retained; Snipsera does not change Windows settings. An unreadable appearance file uses the defaults and shows a recovery notice. A failed save keeps the previous preference.
 
 ## Save locations
 

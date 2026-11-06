@@ -9,7 +9,7 @@ using static Framelet.SettingsUi;
 
 namespace Framelet;
 
-public enum SettingsPage { General, SaveLocations, KeyboardShortcuts, Updates }
+public enum SettingsPage { General, SaveLocations, KeyboardShortcuts, Updates, Appearance }
 
 // Settings, in separate sections like Windows Settings: a section list beside the selected page, or above it in a narrow
 // window. Changes apply at once, except shortcuts, which are saved together. Building the window only reads state; Windows
@@ -19,18 +19,20 @@ public sealed class PreferencesWindow : Window
 {
     // Below this content width the section list moves above the page.
     private const double CompactBelow = 640;
-    private static readonly string[] PageNames = ["General", "Save locations", "Keyboard shortcuts", "Updates"];
-    private static readonly string[] PageIds = ["SettingsGeneral", "SettingsSaveLocations", "SettingsKeyboardShortcuts", "SettingsUpdates"];
+    private static readonly string[] PageNames = ["General", "Save locations", "Keyboard shortcuts", "Updates", "Appearance"];
+    private static readonly string[] PageIds = ["SettingsGeneral", "SettingsSaveLocations", "SettingsKeyboardShortcuts", "SettingsUpdates", "SettingsAppearance"];
     private static readonly string[] PageGlyphs =
     [
         "M4 6 L20 6 M4 12 L20 12 M4 18 L20 18 M8 3 L8 9 M16 9 L16 15 M10 15 L10 21",
         "M3 7 L3 20 L19 20 L22 10 L8 10 L5 20 M3 7 L9 7 L11 4 L20 4 L20 8",
         "M3 6 L21 6 L21 18 L3 18 Z M7 10 L7.1 10 M11 10 L11.1 10 M15 10 L15.1 10 M7 14 L17 14",
-        "M20 12 A8 8 0 1 1 17.7 6.3 M20 3 L20 8 L15 8"
+        "M20 12 A8 8 0 1 1 17.7 6.3 M20 3 L20 8 L15 8",
+        "M12 3 A9 9 0 1 0 12.01 3 M12 3 L12 21 M12 7 L16 7 M12 11 L18 11 M12 15 L17 15"
     ];
     private readonly AppPreferencesController controller;
     private readonly ShortcutSettingsPanel? shortcutPanel;
     private readonly StorageSettingsPanel? storagePanel;
+    private readonly AppearanceSettingsPanel? appearancePanel;
     private readonly CheckBox startup, automatic;
     private readonly CheckBox? previews;
     private readonly TextBlock startupStatus = Ui.Text("", 12, Ui.Muted), startupError = Ui.Text("", 12),
@@ -104,6 +106,11 @@ public sealed class PreferencesWindow : Window
         privacy.Margin = new Thickness(2, 10, 0, 0);
         pages[3] = Page(SettingsPage.Updates, "Keep Snipsera up to date.", Group("Update checks", updates), privacy);
 
+        // Appearance belongs to the running app, which redraws its capture and recording controls.
+        if (app is not null) appearancePanel = new AppearanceSettingsPanel(app.ToolbarAppearance);
+        pages[4] = Page(SettingsPage.Appearance, "Choose how Snipsera's capture and recording controls look.",
+            appearancePanel ?? Unavailable("Appearance can be changed from Settings in the running Snipsera app."));
+
         // Every page stays in the tree and only the selected one is shown, so each keeps its state while another is open.
         var stack = new Grid { Margin = new Thickness(24, 20, 24, 24) };
         foreach (var page in pages) stack.Children.Add(page);
@@ -144,7 +151,7 @@ public sealed class PreferencesWindow : Window
         // High contrast swaps the section-list template; theme colors already follow the bound tokens.
         void Restyle() { foreach (ListBoxItem item in navigation.Items) item.Style = SectionEntry(); }
         controller.Changed += Sync; Appearance.Current.Changed += Sync; Appearance.Current.Changed += Restyle;
-        Closed += (_, _) => { controller.Changed -= Sync; Appearance.Current.Changed -= Sync; Appearance.Current.Changed -= Restyle; shortcutPanel?.Detach(); storagePanel?.Detach(); };
+        Closed += (_, _) => { controller.Changed -= Sync; Appearance.Current.Changed -= Sync; Appearance.Current.Changed -= Restyle; shortcutPanel?.Detach(); storagePanel?.Detach(); appearancePanel?.Detach(); };
         Sync();
     }
 

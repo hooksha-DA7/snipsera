@@ -40,7 +40,7 @@ public sealed class RecordingBarWindow : Window
     // Whether Windows accepted the request to keep this bar out of screen captures (WDA_EXCLUDEFROMCAPTURE).
     internal bool IsCaptureExcluded { get; private set; }
 
-    public RecordingBarWindow(RecordingController controller)
+    public RecordingBarWindow(RecordingController controller, ToolbarAppearanceSettings? appearance = null)
     {
         this.controller = controller; Ui.Setup(this);
         Title = "Snipsera — recording";
@@ -90,6 +90,7 @@ public sealed class RecordingBarWindow : Window
         Closing += (_, e) => { if (controller.IsActive) e.Cancel = true; };
         Closed += (_, _) => { controller.Changed -= Refresh; Appearance.Current.Changed -= Restyle; disarm.Stop(); dot.BeginAnimation(OpacityProperty, null); };
         Refresh();
+        if (appearance is not null) _ = new ToolbarSurface(this, appearance, bar);
     }
 
     private static Button Tool(string symbol, string label, string id, Action action, bool accent = false)

@@ -52,6 +52,7 @@ internal static class Program
     [STAThread]
     public static int Main(string[] args)
     {
+        if (args.Length == 2 && args[0] == "--toolbar-appearance-check") return ToolbarAppearanceChecks.Run(args[1]);
         if (args.Length == 2 && args[0] == "--workflow-check") return WorkflowChecks.Run(args[1]);
         if (args.Length == 2 && args[0] == "--workflow-visual-check") return WorkflowVisualChecks.Run(args[1]);
         if (args.Length == 2 && args[0] == "--update-network-check") return PreferencesChecks.Network(args[1]);

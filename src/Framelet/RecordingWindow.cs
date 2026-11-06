@@ -176,6 +176,7 @@ public sealed class RecordingWindow : Window
         controller.Changed += Refresh;
         Appearance.Current.Changed += Restyle;
         Closed += (_, _) => { controller.Changed -= Refresh; Appearance.Current.Changed -= Restyle; };
+        _ = new ToolbarSurface(this, app.ToolbarAppearance, top, actions);
         Refresh();
     }
 

@@ -46,7 +46,7 @@ public sealed class CaptureBarWindow : Window
     internal int Columns { get; private set; }
     internal bool Scrolls { get; private set; }
 
-    public CaptureBarWindow(Action<CaptureKind> capture, bool canRepeat)
+    public CaptureBarWindow(Action<CaptureKind> capture, bool canRepeat, ToolbarAppearanceSettings? appearance = null)
     {
         this.capture = capture ?? throw new ArgumentNullException(nameof(capture)); this.canRepeat = canRepeat; Ui.Setup(this);
         Title = "Snipsera — capture";
@@ -99,6 +99,7 @@ public sealed class CaptureBarWindow : Window
         Appearance.Current.Changed += Restyle;
         Closing += (_, _) => ended = true;
         Closed += (_, _) => Appearance.Current.Changed -= Restyle;
+        if (appearance is not null) _ = new ToolbarSurface(this, appearance, panel);
     }
 
     // Closes the bar, then dispatches the mode once. False for an unknown mode, an unavailable Last area, or a bar that has

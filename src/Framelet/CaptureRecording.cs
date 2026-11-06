@@ -56,7 +56,7 @@ public sealed partial class CaptureApp
     }
     internal void ShowRecordingBar()
     {
-        recordingBar = new RecordingBarWindow(Recording);
+        recordingBar = new RecordingBarWindow(Recording, ToolbarAppearance);
         recordingBar.Show();
         if (!recordingBar.IsCaptureExcluded)
         {
