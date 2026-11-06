@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" role="img" aria-labelledby="title">
+  <title id="title">Snipsera tray icon, 16 px</title>
+  <rect x="5" y="2" width="10" height="8" rx="2" fill="#64809F"/>
+  <rect x="2" y="5" width="10" height="9" rx="2" fill="#13A6B8"/>
+  <circle cx="3" cy="5" r="2" fill="#FF6A55"/>
+</svg>

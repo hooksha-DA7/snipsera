@@ -1,0 +1,111 @@
+{
+  "name": "Snipsera Pinned Pair",
+  "sizes": [
+    {
+      "size": 16,
+      "back": {
+        "x": 5,
+        "y": 2,
+        "width": 10,
+        "height": 8,
+        "radius": 2,
+        "fill": "#64809F"
+      },
+      "front": {
+        "x": 2,
+        "y": 5,
+        "width": 10,
+        "height": 9,
+        "radius": 2,
+        "fill": "#13A6B8"
+      },
+      "pin": {
+        "cx": 3,
+        "cy": 5,
+        "radius": 2,
+        "fill": "#FF6A55"
+      }
+    },
+    {
+      "size": 20,
+      "back": {
+        "x": 6,
+        "y": 3,
+        "width": 13,
+        "height": 10,
+        "radius": 3,
+        "fill": "#64809F"
+      },
+      "front": {
+        "x": 2,
+        "y": 7,
+        "width": 13,
+        "height": 11,
+        "radius": 3,
+        "fill": "#13A6B8"
+      },
+      "pin": {
+        "cx": 3.5,
+        "cy": 7.5,
+        "radius": 2.5,
+        "fill": "#FF6A55"
+      }
+    },
+    {
+      "size": 24,
+      "back": {
+        "x": 7,
+        "y": 3,
+        "width": 15,
+        "height": 12,
+        "radius": 3,
+        "fill": "#64809F"
+      },
+      "front": {
+        "x": 2,
+        "y": 8,
+        "width": 15,
+        "height": 13,
+        "radius": 3,
+        "fill": "#13A6B8"
+      },
+      "pin": {
+        "cx": 4,
+        "cy": 8,
+        "radius": 3,
+        "fill": "#FF6A55"
+      }
+    },
+    {
+      "size": 32,
+      "back": {
+        "x": 10,
+        "y": 4,
+        "width": 20,
+        "height": 16,
+        "radius": 4,
+        "fill": "#64809F"
+      },
+      "front": {
+        "x": 3,
+        "y": 10,
+        "width": 21,
+        "height": 18,
+        "radius": 4,
+        "fill": "#13A6B8"
+      },
+      "pin": {
+        "cx": 6,
+        "cy": 10,
+        "radius": 4,
+        "fill": "#FF6A55"
+      }
+    }
+  ],
+  "approved_png_sha256": {
+    "16": "f022f190251a5e5fce320283a9018caad4e6ea17c5f87c6bc40ffab77c7e9b96",
+    "20": "7b292379ce164703b217163b5202274ff8da5407896015d1cfff251a8da53fb1",
+    "24": "b1f7d903c0351d712e56ba19eb395c4af527b6f8112365cd19c809d1e870c45c",
+    "32": "860440d1e6039f2c89bc177aec413f51a099b169dba5a113e07f57534cae861a"
+  }
+}

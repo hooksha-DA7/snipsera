@@ -10,7 +10,7 @@ import xml.etree.ElementTree as ET
 import zipfile
 from pathlib import Path, PurePosixPath
 from urllib.parse import unquote
-from package_release import ROOT, source_files
+from package_release import ROOT, source_files, store_images
 
 
 def require(condition, message):
@@ -67,7 +67,12 @@ def verify(candidate, require_signed=False, expected_publisher=None):
         identity = manifest.find("{http://schemas.microsoft.com/appx/manifest/foundation/windows10}Identity").attrib
         require(identity == {"Name": receipt["identity"]["name"], "Publisher": receipt["identity"]["publisher"], "Version": receipt["msix_version"], "ProcessorArchitecture": "x64"}, "MSIX identity differs")
         expected = {p.relative_to(runtime).as_posix(): p.read_bytes() for p in runtime.rglob("*") if p.is_file()}
-        for size in (44, 50, 150): expected[f"Assets/Snipsera-{size}.png"] = (ROOT / f"src/Framelet/Assets/Snipsera-{size}.png").read_bytes()
+        for image in store_images(): expected["Assets/" + image.name] = image.read_bytes()
+        index = receipt.get("resource_index")
+        require(index and index.get("name") == "resources.pri", "Candidate has no package resource index receipt")
+        pri = bundle.read("resources.pri")
+        require(pri.startswith(b"mrm_pri") and len(pri) == index["bytes"] and hashlib.sha256(pri).hexdigest() == index["sha256"], "Package resource index differs")
+        expected["resources.pri"] = pri
         require(set(names) == set(expected) | {"AppxManifest.xml", "AppxBlockMap.xml", "[Content_Types].xml"}, "MSIX inventory differs")
         for name, data in expected.items(): require(bundle.read(name) == data, "MSIX payload differs: " + name)
         for file in ET.fromstring(bundle.read("AppxBlockMap.xml")):

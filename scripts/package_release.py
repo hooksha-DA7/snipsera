@@ -18,10 +18,47 @@ for prefix, uri in {"": FOUNDATION, "uap": "http://schemas.microsoft.com/appx/ma
 
 def source_files():
     files = {ROOT / name for name in ("README.md", "CHANGELOG.md", "RELEASES.md", "BUILD-STATUS.md", "LICENSE", "THIRD-PARTY.md", "PRIVACY.md", "SUPPORT.md", "global.json", "recording-dependencies.json", "Directory.Build.props", "NuGet.Config", "build.ps1", "test.ps1", "publish.ps1", ".gitignore", "verification/verify_packages.py")}
-    extensions = {".cs", ".csproj", ".manifest", ".png", ".ico", ".json", ".md", ".txt", ".rtf", ".py", ".ps1", ".xml", ".iss", ".yml", ".yaml"}
+    extensions = {".cs", ".csproj", ".manifest", ".png", ".ico", ".json", ".md", ".txt", ".rtf", ".py", ".ps1", ".xml", ".iss", ".yml", ".yaml", ".svg"}
     for tree in ("src", "tests", "scripts", "packaging", "docs", "releases", ".github/workflows"):
         files.update(p for p in (ROOT / tree).rglob("*") if p.is_file() and p.suffix in extensions and not {"bin", "obj", "__pycache__"}.intersection(p.relative_to(ROOT).parts))
     return sorted(files)
+
+
+def store_images():
+    return sorted(p for p in (ROOT / "src/Framelet/Assets").glob("Snipsera-*.png")
+                  if p.name in {"Snipsera-44.png", "Snipsera-50.png", "Snipsera-150.png"}
+                  or any(p.name.startswith(f"Snipsera-{base}.") for base in (44, 50, 150)))
+
+
+def resource_config(generated):
+    """Keep all qualifiers in one main PRI rather than generating resource packs."""
+    config = ET.fromstring(generated)
+    packaging = config.find("packaging")
+    if packaging is not None: config.remove(packaging)
+    return ET.ElementTree(config)
+
+
+def build_resource_index(makepri, staging, output):
+    def run(*arguments):
+        result = subprocess.run([str(makepri), *map(str, arguments)], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        if result.returncode:
+            encoding = "utf-16-le" if b"\x00" in result.stdout[:80] else "utf-8"
+            raise RuntimeError("MakePri failed: " + result.stdout.decode(encoding, errors="replace")[-3000:])
+    config = output / "priconfig.xml"
+    run("createconfig", "/cf", config, "/dq", "lang-en-US", "/o")
+    resource_config(config.read_bytes()).write(config, encoding="utf-8", xml_declaration=True)
+    index = staging / "resources.pri"
+    run("new", "/pr", staging, "/cf", config, "/mn", staging / "AppxManifest.xml", "/of", index, "/o")
+    dump = output / "resource-index.xml"
+    run("dump", "/if", index, "/of", dump, "/dt", "detailed", "/o")
+    qualifiers = {(node.get("name", "").lower(), node.get("value", "").upper()) for node in ET.parse(dump).iter("Qualifier")}
+    required = {("scale", "200"), ("scale", "400"), ("alternateform", "UNPLATED"), ("alternateform", "LIGHTUNPLATED")}
+    required.update(("targetsize", str(size)) for size in (16, 20, 24, 32, 256))
+    if not required.issubset(qualifiers): raise ValueError("Package resource index omitted icon qualifiers")
+    data = index.read_bytes()
+    if len(data) < 64 or not data.startswith(b"mrm_pri"): raise ValueError("Invalid package resource index")
+    print("Verified package resource index: scale, target-size and light/dark unplated artwork.")
+    return {"name": "resources.pri", "bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()}
 
 
 def archive(folder, destination):
@@ -56,7 +93,8 @@ def main():
     parser.add_argument("--makeappx", type=Path, default=ROOT / ".tools/packaging/windows-sdk-buildtools/bin/10.0.28000.0/x64/makeappx.exe")
     args = parser.parse_args()
     if bool(args.signed_apps) != bool(args.expected_publisher): parser.error("Signed applications require the expected certificate subject")
-    for tool in (args.inno, args.makeappx):
+    makepri = args.makeappx.resolve().with_name("makepri.exe")
+    for tool in (args.inno, args.makeappx, makepri):
         if not tool.is_file(): parser.error("Packaging tool missing: " + str(tool))
     project = ET.parse(ROOT / "src/Framelet/Framelet.csproj")
     version = project.findtext("PropertyGroup/InformationalVersion")
@@ -87,8 +125,9 @@ def main():
     msix_root = output / "msix-staging"
     shutil.copytree(runtime, msix_root)
     (msix_root / "Assets").mkdir()
-    for size in (44, 50, 150): shutil.copy2(ROOT / f"src/Framelet/Assets/Snipsera-{size}.png", msix_root / f"Assets/Snipsera-{size}.png")
+    for image in store_images(): shutil.copy2(image, msix_root / "Assets" / image.name)
     manifest.write(msix_root / "AppxManifest.xml", encoding="utf-8", xml_declaration=True)
+    resource_index = build_resource_index(makepri, msix_root, output)
     suffix = "development" if args.development_msix else "store-submission"
     msix = output / f"Snipsera-{version}-{suffix}-x64.msix"
     subprocess.run([str(args.makeappx.resolve()), "pack", "/d", str(msix_root), "/p", str(msix), "/h", "SHA256"], check=True)
@@ -97,6 +136,7 @@ def main():
     (output / "SHA256SUMS.txt").write_text("".join(a["sha256"] + "  " + a["name"] + "\n" for a in artifacts), encoding="utf-8")
     commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip() if (ROOT / ".git").exists() else None
     receipt = {"version": version, "msix_version": msix_version, "source_commit": commit, "source_ref": os.environ.get("GITHUB_REF"), "identity_kind": suffix, "identity": details, "signing": "Application files signed; installer and MSIX not yet signed." if args.signed_apps else "Unsigned candidates; SignPath and Store certification pending.", "acceptance": "Package creation only; installation, upgrade, uninstall and packaged runtime acceptance pending.", "artifacts": artifacts}
+    receipt["resource_index"] = resource_index
     (output / "package-results.json").write_text(json.dumps(receipt, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(receipt, indent=2))
 

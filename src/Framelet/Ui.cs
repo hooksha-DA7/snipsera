@@ -46,7 +46,7 @@ public static class Ui
     {
         window.FontFamily = Font; window.FontSize = 14; window.UseLayoutRounding = true; window.SnapsToDevicePixels = true;
         TextOptions.SetTextFormattingMode(window, TextFormattingMode.Display); window.Foreground = Ink; window.Background = Paper;
-        if (Application.Current?.MainWindow?.Icon is ImageSource icon) window.Icon = icon;
+        window.Icon = Application.Current?.MainWindow?.Icon ?? AppIcon.WindowImage;
     }
     public static Button IconButton(string symbol, string label, string id, Action action, bool accent = false)
     {

@@ -71,7 +71,7 @@ public sealed partial class CaptureApp : Application
         Ui.Install(this);
         Startup += (_, _) => Start();
         ComponentDispatcher.LeaveThreadModal += ResumePendingCapture;
-        Exit += (_, _) => { ComponentDispatcher.LeaveThreadModal -= ResumePendingCapture; DisposePreferences(); hotkeys?.Dispose(); hotkeySink?.Dispose(); tray?.Dispose(); trayIcon?.Dispose(); };
+        Exit += (_, _) => { SystemEvents.DisplaySettingsChanged -= RefreshTrayIcon; SystemEvents.UserPreferenceChanged -= RefreshTrayIcon; ComponentDispatcher.LeaveThreadModal -= ResumePendingCapture; DisposePreferences(); hotkeys?.Dispose(); hotkeySink?.Dispose(); tray?.Dispose(); trayIcon?.Dispose(); };
         DispatcherUnhandledException += (_, e) => { e.Handled = true; Report(e.Exception); };
     }
 
@@ -88,8 +88,7 @@ public sealed partial class CaptureApp : Application
         };
         if (startInTray) new WindowInteropHelper(home).EnsureHandle(); else home.Show();
         if (History.Notice is string notice) home.SetStatus(notice);
-        trayIcon = AppIcon.Create();
-        home.Icon = Imaging.CreateBitmapSourceFromHIcon(trayIcon.Handle, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+        trayIcon = AppIcon.CreateTray(AppIcon.CurrentTrayDpi());
         trayMenu = new ContextMenu { Placement = PlacementMode.MousePoint, MinWidth = 250, HasDropShadow = true };
         void Item(string label, string symbol, Action action, string? shortcut = null)
         {
@@ -113,6 +112,22 @@ public sealed partial class CaptureApp : Application
         tray.DoubleClick += (_, _) => ShowHome();
         overlayShelf = new OverlayShelfWindow(this); RefreshOverlayVisibility();
         InitializePreferences();
+        SystemEvents.DisplaySettingsChanged += RefreshTrayIcon;
+        SystemEvents.UserPreferenceChanged += RefreshTrayIcon;
+    }
+
+    private void RefreshTrayIcon(object? sender, EventArgs e)
+    {
+        if (Dispatcher.HasShutdownStarted || Dispatcher.HasShutdownFinished) return;
+        Dispatcher.BeginInvoke(() =>
+        {
+            if (Quitting || tray is null) return;
+            uint dpi = AppIcon.CurrentTrayDpi();
+            int size = AppIcon.TrayPixels(dpi);
+            if (trayIcon?.Width == size) return;
+            var next = AppIcon.CreateTray(dpi);
+            var previous = trayIcon; tray.Icon = next; trayIcon = next; previous?.Dispose();
+        });
     }
 
     public void HideOverlays(ImageWindow? initiator = null)

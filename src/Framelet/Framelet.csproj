@@ -19,5 +19,9 @@
   </PropertyGroup>
   <ItemGroup><PackageReference Include="ScreenRecorderLib" Version="7.0.1" /></ItemGroup>
   <ItemGroup><Content Include="../../.tools/recording-encoder/runtime/**/*" Link="encoder/%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" /></ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Assets/Snipsera.ico" LogicalName="Snipsera.Icon.App" />
+    <EmbeddedResource Include="Assets/Snipsera-Tray.ico" LogicalName="Snipsera.Icon.Tray" />
+  </ItemGroup>
   <ItemGroup><InternalsVisibleTo Include="Framelet.Checks" /></ItemGroup>
 </Project>

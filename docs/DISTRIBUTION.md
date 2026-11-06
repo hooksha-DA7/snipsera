@@ -30,7 +30,7 @@ These channels have separate approval processes. Neither is enrolled or approved
 
 ## Build candidates
 
-`publish.ps1` prepares an EXE installer, a Store-submission MSIX, portable/source ZIPs and SHA256 checksums in a fresh private folder. It does not upload, sign, submit or install them. The app version comes from the project; the corresponding four-part MSIX version uses a zero final field. The current official build is 1.0.2-preview.2 (display version 1.0.2) / Store MSIX 1.0.2.0. Use a fresh package version when Store validation has already associated an earlier version with different contents.
+`publish.ps1` prepares an EXE installer, a Store-submission MSIX, portable/source ZIPs and SHA256 checksums in a fresh private folder. It does not upload, sign, submit or install them. The app version comes from the project; the corresponding four-part MSIX version uses a zero final field. The current official build is 1.0.5 / Store MSIX 1.0.5.0. Use a fresh package version when Store validation has already associated an earlier version with different contents.
 
 The assigned personal Store identity is in `packaging/store-identity.json`. Do not replace it with a guessed publisher. `-DevelopmentMsix` instead creates an explicitly labelled local-test identity and must never be used for a Store submission.
 

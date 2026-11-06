@@ -2,12 +2,15 @@
 
 Local candidate, 6 November 2026. This change adds sectioned Settings, automatic screenshot/edited-PNG saves and configurable folders, recording side cards, a bottom-centred all-in-one bar recording setup dismissal after Stop, and persisted Tinted surface / Frosted glass options with 70–100% background opacity.
 
-The release gate passed **349 checks**: 312 C# checks and 37 Python release/packaging checks. The Release build completed without warnings or errors. Subsequent focused checks cover the explicit Fluent style on shortcut recorders, whose derived type otherwise falls back to a classic text-box appearance.
+The release gate passed **363 checks**: 321 C# checks and 42 Python release/packaging checks. The Release build completed without warnings or errors. Subsequent focused checks cover the explicit Fluent style on shortcut recorders, whose derived type otherwise falls back to a classic text-box appearance.
+
+The approved branding adds embedded application/tray resources and scale/theme-specific Store assets. See [artwork and verification](BRANDING.md). Native Windows tray, taskbar and DPI acceptance remain pending.
 
 ## Safe checks
 
 Use the pinned local .NET SDK and dependency cache to build `tests/Framelet.Checks`. The ordinary full test runner opens windows and must not run while desktop testing is paused.
 
+- `--branding-check`: embedded app/tray frame loading, DPI selection, transparent corners, colour retention, resource lifetime, GDI disposal, separate app/tray frames and window identity.
 - `--toolbar-appearance-check`: default/read/recovery behavior, invalid-value rejection, restart persistence, locked-file rollback and temporary-file cleanup; radio/preset controls, pending keyboard changes on close, failed-save UI recovery, stable Settings identities, background-only opacity on all three bar types and the solid fallback policy. It also checks inset bounds against the existing rounded corners, suppresses unnecessary backplates at 100% opacity and checks runtime-failure feedback without rewriting preferences. It creates no native backdrop windows.
 - `--workflow-check`: isolated save preferences, failure rollback, corrupt-config preservation, stable screenshot export paths/edits, video/GIF destinations, history across changed recording folders, collision-safe finalization, real-media drag data, restoration policy, card controls and Settings ownership of shortcut recorders.
 - `--workflow-visual-check`: detached Settings pages at 400/544/780 logical pixels, light/dark themes and 100/150/200% rendering, plus MP4/GIF cards with controls hidden/shown at three sizes. Checks action labels, horizontal reachability and nonoverlapping media badges; long pages use their scroll viewer.

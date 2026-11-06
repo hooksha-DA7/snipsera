@@ -1,3 +1,5 @@
+![Snipsera](src/Framelet/Assets/Snipsera-128.png)
+
 # Snipsera
 
 Screenshots and screen recording for Windows 11. Capture part of your screen, mark it up, and copy or save it. Pin references beside your work, or record a window, display or area as MP4 or GIF.
