@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Automation;
@@ -28,6 +29,14 @@ public sealed class ImageWindow : Window
     public double DockScale { get; private set; } = 1;
     public double ImageOpacity { get => thumbnail.Opacity; private set { thumbnail.Opacity = Math.Clamp(value, .2, 1); edge.Opacity = thumbnail.Opacity; if (badge is not null) badge.Opacity = thumbnail.Opacity; } }
     private readonly Image thumbnail;
+    private readonly Border card, deckShade;
+    private readonly DropShadowEffect cardShadow = new() { BlurRadius = 18, ShadowDepth = 2, Opacity = .18 };
+    private readonly Button deckSelector;
+    private readonly TextBlock deckTime;
+    private Action? bringDeckForward;
+    internal int DeckDepth { get; private set; }
+    internal bool IsDeckBack => DeckDepth > 0;
+    internal Action<int>? SelectDeckLayer { get; set; }
     // Recordings only: a small format/duration pill so a recording never reads as a screenshot. Not part of the media.
     private const double BadgeHeight = 20;
     private readonly Border? badge;
@@ -57,9 +66,15 @@ public sealed class ImageWindow : Window
     private readonly TranslateTransform drift = new();
     private int presentation;
     private bool closed, placedOnce;
+    private readonly CaptureApp app;
+    private readonly CaptureEntry? entry;
+    internal CaptureEntry? Entry => entry;
+    internal PendingScreenshot? PendingOwner { get; set; }
+    private DrawingRect? dockBounds;
 
     public ImageWindow(CaptureApp app, BitmapSource image, CaptureEntry? entry, bool pinned, string? warning = null, RecordingResult? recording = null)
     {
+        this.app = app; this.entry = entry;
         CaptureImage = image;
         if (entry is null && recording is null) throw new ArgumentException("A screenshot or recording is required.");
         Recording = recording;
@@ -67,8 +82,7 @@ public sealed class ImageWindow : Window
         WindowStyle = WindowStyle.None; AllowsTransparency = true; Background = Brushes.Transparent;
         ResizeMode = ResizeMode.NoResize; ShowInTaskbar = true; Topmost = true; ShowActivated = false;
         var root = new Grid { Margin = new Thickness(FloatingLayout.Margin), RenderTransform = drift }; presented = root;
-        var card = new Border { Background = Brushes.Transparent, CornerRadius = new CornerRadius(FloatingVisuals.Radius),
-            Effect = new DropShadowEffect { BlurRadius = 18, ShadowDepth = 2, Opacity = .18 } };
+        card = new Border { Background = Brushes.Transparent, CornerRadius = new CornerRadius(FloatingVisuals.Radius), Effect = cardShadow };
         var surface = new Grid { Background = Brushes.Transparent };
         surface.SizeChanged += (_, e) => { FloatingVisuals.Round(surface, e.NewSize); LayoutControls(e.NewSize); };
         // Docked cards share one size, so the thumbnail fills the card and crops evenly around the centre. A resized pin follows the
@@ -80,6 +94,7 @@ public sealed class ImageWindow : Window
         var shade = new LinearGradientBrush { StartPoint = new Point(0, 0), EndPoint = new Point(0, 1) };
         shade.GradientStops.Add(new GradientStop(Color.FromArgb(0x42, 0, 0, 0), 0)); shade.GradientStops.Add(new GradientStop(Color.FromArgb(0x14, 0, 0, 0), .5)); shade.GradientStops.Add(new GradientStop(Color.FromArgb(0x42, 0, 0, 0), 1)); shade.Freeze();
         scrim = new Border { Background = shade, Opacity = 0, IsHitTestVisible = false }; surface.Children.Add(scrim);
+        deckShade = new Border { IsHitTestVisible = false, Visibility = Visibility.Collapsed }; surface.Children.Add(deckShade);
         edge.BorderBrush = Ui.Line; edge.BorderThickness = new Thickness(.7); edge.CornerRadius = new CornerRadius(FloatingVisuals.Radius); edge.IsHitTestVisible = false; surface.Children.Add(edge);
         card.Child = surface; root.Children.Add(card);
         // Bottom centre, between the Annotate/Play and Drag corners, in the floating-control material. It is window chrome over the
@@ -117,15 +132,15 @@ public sealed class ImageWindow : Window
             host.Children.Add(button); return button;
         }
         void Toggle() { RevealActions(false); app.TogglePin(this); }
-        async void Copy() { try { if (recording is null) await CaptureService.Copy(image); else await RecordingPreview.CopyAsync(recording); Copied(); } catch (Exception ex) { app.Report(ex); } }
-        void Save() { RevealActions(false); if (recording is null) app.SaveImage(image, this); else app.SaveRecording(recording, this); }
+        async void Copy() { try { if (recording is null) await CaptureService.Copy(image); else await RecordingPreview.CopyAsync(recording); Copied(); CompleteTransfer(true); } catch (Exception ex) { app.Report(ex); } }
+        void Save() { RevealActions(false); if (recording is null) CompleteTransfer(app.SaveImage(image, this)); else app.SaveRecording(recording, this); }
         void EditOrPlay() { RevealActions(false); if (recording is null) app.EditImage(image, entry); else { try { RecordingPreview.Open(recording); } catch (Exception ex) { app.Report(ex); } } }
         pinButton = AddControl(layer, "Pin", "Pin", "PinCapture", Toggle, "Pin");
         editButton = AddControl(layer, recording is null ? "Pen" : "Play", recording is null ? "Annotate" : "Play recording", "EditCapture", EditOrPlay, recording is null ? "Annotate" : "Play recording");
         copyButton = AddControl(layer, "Copy", "Copy", "CopyCapture", Copy, "Copy · Ctrl+C");
         saveButton = AddControl(layer, "Save", "Save…", "SaveCapture", Save, "Save… · Ctrl+S");
         dragButton = AddControl(layer, "Drag", recording is null ? "Drag image to another app" : "Drag recording to another app", "DragCapture", () => Notice("Drag this button into another app"), "Drag to another app");
-        if (recording is null) DragExport.Attach(dragButton, app.History.Root, () => image, app.Report);
+        if (recording is null) DragExport.Attach(dragButton, app.History.Root, () => image, app.Report, completed: () => CompleteTransfer(true));
         else DragExport.AttachFile(dragButton, recording.FilePath, app.Report);
         closeButton = AddControl(layer, "Close", "Close", "CloseCapture", Close, "Close · Esc");
         foreach (var pill in new[] { copyButton, saveButton }) { pill.FontSize = 12; pill.FontWeight = FontWeights.SemiBold; }
@@ -146,8 +161,33 @@ public sealed class ImageWindow : Window
         }
         copied.Tick += (_, _) => { copied.Stop(); copyButton.Content = labels ? "Copy" : ActionIcon("Copy"); };
         root.Children.Add(message);
+        deckTime = Ui.Text(entry?.Created.LocalDateTime.ToString("h:mm tt") ?? "Earlier capture", 10, Ui.Ink);
+        deckTime.TextWrapping = TextWrapping.NoWrap; deckTime.TextTrimming = TextTrimming.CharacterEllipsis;
+        deckSelector = new Button { Content = deckTime, Height = FloatingLayout.DeckPeek, MinHeight = 0, MinWidth = 0,
+            VerticalAlignment = VerticalAlignment.Top, HorizontalAlignment = HorizontalAlignment.Stretch,
+            HorizontalContentAlignment = HorizontalAlignment.Right, VerticalContentAlignment = VerticalAlignment.Center,
+            Padding = new Thickness(8, 0, 8, 0), Margin = new Thickness(0), Background = Brushes.Transparent,
+            BorderBrush = Ui.Blue, BorderThickness = new Thickness(0), Foreground = Ui.Ink,
+            Visibility = Visibility.Collapsed, ToolTip = "Bring to front", Cursor = Cursors.Hand };
+        deckSelector.Template = (ControlTemplate)System.Windows.Markup.XamlReader.Parse(@"<ControlTemplate xmlns='http://schemas.microsoft.com/winfx/2006/xaml/presentation' xmlns:x='http://schemas.microsoft.com/winfx/2006/xaml' TargetType='Button'>
+          <Grid><Border x:Name='Veil' Background='{TemplateBinding Foreground}' Opacity='0' CornerRadius='12,12,0,0'/>
+          <Border x:Name='Ring' BorderBrush='{TemplateBinding BorderBrush}' BorderThickness='0' CornerRadius='12,12,0,0'/>
+          <ContentPresenter Margin='{TemplateBinding Padding}' HorizontalAlignment='{TemplateBinding HorizontalContentAlignment}' VerticalAlignment='{TemplateBinding VerticalContentAlignment}'/></Grid>
+          <ControlTemplate.Triggers><Trigger Property='IsMouseOver' Value='True'><Setter TargetName='Veil' Property='Opacity' Value='0.10'/></Trigger>
+          <Trigger Property='IsKeyboardFocused' Value='True'><Setter TargetName='Ring' Property='BorderThickness' Value='2'/></Trigger>
+          <Trigger Property='IsPressed' Value='True'><Setter TargetName='Veil' Property='Opacity' Value='0.18'/></Trigger></ControlTemplate.Triggers></ControlTemplate>");
+        AutomationProperties.SetAutomationId(deckSelector, "BringDeckCaptureForward");
+        AutomationProperties.SetHelpText(deckSelector, "Press Enter or Space to bring this screenshot to the front.");
+        deckSelector.Click += (_, _) => { if (IsDeckBack) bringDeckForward?.Invoke(); };
+        root.Children.Add(deckSelector);
+        root.PreviewMouseLeftButtonDown += (_, e) =>
+        {
+            // Rear image bodies have no drag/edit action. Only the exposed edge is an interactive target.
+            if (IsDeckBack && e.OriginalSource is DependencyObject source && source != deckSelector && !deckSelector.IsAncestorOf(source)) e.Handled = true;
+        };
 
         menu = new ContextMenu(); root.ContextMenu = menu;
+        root.ContextMenuOpening += (_, e) => { if (IsDeckBack) e.Handled = true; };
         MenuItem Menu(string label, Action action) { var item = new MenuItem { Header = label }; item.Click += (_, _) => { menu.IsOpen = false; RevealActions(false); Dispatcher.BeginInvoke(action); }; menu.Items.Add(item); return item; }
         Menu("Capture area", () => _ = app.CaptureAsync(CaptureKind.Area)); Menu("Capture window", () => _ = app.CaptureAsync(CaptureKind.Window)); Menu("Capture display", () => _ = app.CaptureAsync(CaptureKind.Screen));
         Menu("Scrolling capture", () => _ = app.CaptureAsync(CaptureKind.Scrolling)); menu.Items.Add(new Separator());
@@ -167,7 +207,7 @@ public sealed class ImageWindow : Window
         grip.Template = (ControlTemplate)System.Windows.Markup.XamlReader.Parse("<ControlTemplate xmlns='http://schemas.microsoft.com/winfx/2006/xaml/presentation' TargetType='Thumb'><Border Background='Transparent'><Path Stroke='Gray' StrokeThickness='1.5' Data='M 4,12 L 12,4 M 9,12 L 12,9' /></Border></ControlTemplate>");
         grip.DragStarted += (_, _) => RevealActions(false); grip.DragDelta += (_, e) => ResizeCard(Math.Max(32, Width + e.HorizontalChange)); root.Children.Add(grip);
         Content = root; SetPinned(pinned);
-        void Hover() { dismiss.Stop(); if (!menu.IsOpen && !app.TrayMenuOpen) RevealActions(true); }
+        void Hover() { dismiss.Stop(); if (!IsDeckBack && !menu.IsOpen && !app.TrayMenuOpen) RevealActions(true); }
         root.MouseEnter += (_, _) => { Hover(); grip.Opacity = 1; }; root.MouseLeave += (_, _) => { grip.Opacity = 0; ScheduleDismiss(); };
         dismiss.Tick += (_, _) => { dismiss.Stop(); if (Mouse.LeftButton == MouseButtonState.Pressed) { dismiss.Start(); return; } if (!root.IsMouseOver && !overflow.IsOpen && !(keyboardActions && controls.IsKeyboardFocusWithin)) RevealActions(false); };
         controls.PreviewMouseDown += (_, _) => keyboardActions = false;
@@ -175,10 +215,11 @@ public sealed class ImageWindow : Window
         // Any hide (ours, capture's or the editor's) cancels a pending presentation and leaves a fully opaque, unshifted card for the next show.
         IsVisibleChanged += (_, _) => { if (!IsVisible) { menu.IsOpen = false; RevealActions(false); presentation++; StopPresentation(true); } };
         LocationChanged += (_, _) => RevealActions(false); Deactivated += (_, _) => { keyboardActions = false; ScheduleDismiss(); };
-        if (recording is null) DragExport.Attach(surface, app.History.Root, () => image, app.Report, true, () => !IsPinned);
+        if (recording is null) DragExport.Attach(surface, app.History.Root, () => image, app.Report, true, () => !IsPinned && !IsDeckBack, () => CompleteTransfer(true));
         else DragExport.AttachFile(surface, recording.FilePath, app.Report, true, () => !IsPinned);
         surface.MouseLeftButtonDown += (_, e) =>
         {
+            if (IsDeckBack) { e.Handled = true; return; }
             if (DragExport.IsControl(e.OriginalSource as DependencyObject)) return;
             if (e.ClickCount == 2) { if (recording is not null) EditOrPlay(); else if (IsPinned) ResizeCard(Width < 350 ? Math.Max(360, Math.Min(600, image.PixelWidth / DockScale + 16)) : FloatingLayout.Preview(DockWorkArea, new Size(image.PixelWidth, image.PixelHeight), DockScale).Width / DockScale); else EditOrPlay(); e.Handled = true; return; }
             if (IsPinned && e.LeftButton == MouseButtonState.Pressed)
@@ -190,6 +231,7 @@ public sealed class ImageWindow : Window
         };
         KeyDown += (_, e) =>
         {
+            if (HandleDeckKey(e.Key == Key.System ? e.SystemKey : e.Key, Keyboard.Modifiers)) { e.Handled = true; return; }
             if (e.Key == Key.Tab) { keyboardActions = true; if (!revealed) { RevealActions(true); controls.MoveFocus(new TraversalRequest(FocusNavigationDirection.First)); e.Handled = true; } }
             else if (e.Key == Key.Escape) { if (revealed) { bool focused = controls.IsKeyboardFocusWithin; RevealActions(false); if (focused) Focus(); } else Close(); e.Handled = true; }
             else if (Keyboard.Modifiers == ModifierKeys.Control && e.Key == Key.C) { Copy(); e.Handled = true; }
@@ -212,11 +254,14 @@ public sealed class ImageWindow : Window
         {
             // Place once. A later Loaded (re-show, theme or visual-tree changes) must not move a pin the user moved or resized.
             if (placedOnce) return; placedOnce = true;
-            DockWorkArea = Native.MonitorAtCursor(true); var handle = new WindowInteropHelper(this).Handle;
-            Native.SetWindowPos(handle, new IntPtr(-1), DockWorkArea.Left + 12, DockWorkArea.Top + 12, 0, 0, 0x0011); DockScale = Native.GetDpiForWindow(handle) / 96d;
-            if (IsPinned) app.ReflowPins(); else Place(FloatingLayout.Preview(DockWorkArea, new Size(image.PixelWidth, image.PixelHeight), DockScale), DockScale);
+            if (DockWorkArea.IsEmpty) DockWorkArea = Native.MonitorAtCursor(true); var handle = new WindowInteropHelper(this).Handle;
+            Native.SetWindowPos(handle, new IntPtr(-1), DockWorkArea.Left + 12, DockWorkArea.Top + 12, 0, 0, 0x0011);
+            uint dpi = Native.GetDpiForWindow(handle); if (dpi > 0) DockScale = dpi / 96d;
+            if (dockBounds is { } bounds) Place(bounds, DockScale);
+            app.ReflowPins();
             if (warning is not null) Notice(warning);
         };
+        SourceInitialized += (_, _) => HwndSource.FromHwnd(new WindowInteropHelper(this).Handle)?.AddHook(DeckWindowMessage);
         toast.Tick += (_, _) => { toast.Stop(); message.Visibility = Visibility.Collapsed; };
         // High contrast switches the floating template; theme colours already follow the bound tokens.
         void Restyle()
@@ -224,6 +269,7 @@ public sealed class ImageWindow : Window
             foreach (var button in Actions.Append(moreButton)) FloatingButtons.Apply(button, button == pinButton && IsPinned);
             // The badge sits on arbitrary pixels at rest, so it keeps a faint lift; high contrast uses its solid outline instead.
             if (badge is not null) badge.Effect = SystemParameters.HighContrast ? null : new DropShadowEffect { BlurRadius = 6, ShadowDepth = 1, Opacity = .25 };
+            RestyleDeck();
         }
         Restyle(); Appearance.Current.Changed += Restyle;
         Closed += (_, _) => { closed = true; presentation++; StopPresentation(true); toast.Stop(); dismiss.Stop(); copied.Stop(); overflow.IsOpen = false; menu.IsOpen = false; Appearance.Current.Changed -= Restyle; };
@@ -237,13 +283,27 @@ public sealed class ImageWindow : Window
     }
     private void Copied()
     {
+        if (closed) return;
         if (!revealed || copyButton.Visibility != Visibility.Visible) { Notice("Copied"); return; }
         copied.Stop(); copyButton.Content = labels ? "Copied" : ActionIcon("Check"); copied.Start();
+    }
+
+    // Only the source preview is dismissed. Pins remain references, and history/export files are untouched.
+    internal void CompleteTransfer(bool succeeded)
+    {
+        if (!succeeded || IsPinned || Recording is not null || !app.PreviewPreferences.DismissAfterSharing) return;
+        if (closed && (PendingOwner is null || !app.OwnsPending(PendingOwner))) return;
+        if (entry is null || !app.History.Entries.Any(saved => saved.Id == entry.Id) || !File.Exists(app.History.ImagePath(entry)))
+        {
+            if (!closed) Notice("Capture is not in history. Preview kept open."); return;
+        }
+        app.DismissSharedPreview(this);
     }
 
     internal void SetPinned(bool pinned)
     {
         IsPinned = pinned; Title = Recording is null ? pinned ? "Snipsera — pinned capture" : "Snipsera — preview" : pinned ? "Snipsera — pinned recording" : "Snipsera — recording preview";
+        if (pinned) ConfigureDeck(0);
         // Pin is a direct toggle: the accent fill shows the pinned state; it never opens a menu.
         string label = pinned ? "Unpin" : "Pin"; pinMenu.Header = label; AutomationProperties.SetName(pinButton, label);
         pinButton.ToolTip = pinned ? "Unpin · return to preview" : "Pin · keep on screen"; AutomationProperties.SetItemStatus(pinButton, pinned ? "Pinned" : "Not pinned");
@@ -252,6 +312,7 @@ public sealed class ImageWindow : Window
         AutomationProperties.SetHelpText(thumbnail, Recording is not null ? "Double-click to play · drag a pin to move · scroll down to hide temporarily" : pinned ? "Drag to move · double-click to enlarge · Ctrl+wheel for opacity · scroll down to hide temporarily" : "Drag the image to another app · double-click to annotate · scroll down to hide temporarily");
         if (!pinned)
         {
+            IsDocked = true;
             opacity.Value = 1;
             if (IsLoaded)
             {
@@ -262,6 +323,60 @@ public sealed class ImageWindow : Window
     }
     private void ScheduleDismiss() { dismiss.Stop(); dismiss.Start(); }
     internal void DismissActions() { menu.IsOpen = false; RevealActions(false); }
+
+    internal void ConfigureDeck(int depth, Action? bringForward = null, string? accessibleName = null)
+    {
+        if (depth is < 0 or > 2) throw new ArgumentOutOfRangeException(nameof(depth));
+        DeckDepth = IsPinned || Recording is not null ? 0 : depth;
+        bringDeckForward = IsDeckBack ? bringForward : null;
+        ShowInTaskbar = !IsDeckBack;
+        controls.IsEnabled = controls.IsHitTestVisible = !IsDeckBack;
+        deckSelector.Visibility = IsDeckBack ? Visibility.Visible : Visibility.Collapsed;
+        deckSelector.IsEnabled = IsDeckBack && bringDeckForward is not null;
+        deckSelector.Focusable = IsDeckBack;
+        deckShade.Visibility = IsDeckBack ? Visibility.Visible : Visibility.Collapsed;
+        AutomationProperties.SetName(deckSelector, accessibleName ?? $"Screenshot from {entry?.Created.LocalDateTime:h:mm tt}, behind. Bring to front.");
+        if (IsDeckBack) { menu.IsOpen = false; overflow.IsOpen = false; RevealActions(false); message.Visibility = Visibility.Collapsed; }
+        RestyleDeck();
+    }
+
+    private void RestyleDeck()
+    {
+        bool contrast = SystemParameters.HighContrast;
+        deckShade.Background = contrast ? SystemColors.WindowBrush : Ui.Brush(Appearance.Current.Dark ? "#73000000" : "#59FFFFFF");
+        deckTime.Foreground = contrast ? SystemColors.WindowTextBrush : Ui.Ink;
+        deckSelector.Foreground = contrast ? SystemColors.WindowTextBrush : Ui.Ink;
+        deckSelector.BorderBrush = contrast ? SystemColors.HighlightBrush : Ui.Blue;
+        cardShadow.BlurRadius = IsDeckBack ? 4 : 18;
+        cardShadow.ShadowDepth = IsDeckBack ? 1 : 2;
+        cardShadow.Opacity = IsDeckBack ? .08 : .18;
+        card.Effect = contrast ? null : cardShadow;
+    }
+
+    // These keys operate on the deck only; a hidden rear toolbar can never receive Copy, Save or close commands.
+    internal bool HandleDeckKey(Key key, ModifierKeys modifiers)
+    {
+        if (!IsPinned && SelectDeckLayer is not null && modifiers == ModifierKeys.Alt && key is Key.D2 or Key.NumPad2 or Key.D3 or Key.NumPad3)
+        {
+            SelectDeckLayer(key is Key.D2 or Key.NumPad2 ? 1 : 2); return true;
+        }
+        if (!IsDeckBack) return false;
+        if (modifiers == ModifierKeys.None && key is Key.Enter or Key.Space) bringDeckForward?.Invoke();
+        else if (key == Key.Tab) deckSelector.Focus();
+        return true;
+    }
+
+    private IntPtr DeckWindowMessage(IntPtr hwnd, int message, IntPtr wParam, IntPtr lParam, ref bool handled)
+    {
+        if (IsDeckBack && message == 0x0021) { handled = true; return new IntPtr(3); } // MA_NOACTIVATE; edge click performs the promotion.
+        return IntPtr.Zero;
+    }
+
+    internal void RaiseInDeck()
+    {
+        var handle = new WindowInteropHelper(this).Handle;
+        if (!closed && IsVisible && handle != IntPtr.Zero) Native.SetWindowPos(handle, new IntPtr(-1), 0, 0, 0, 0, 0x0013);
+    }
 
     // Temporary hide/restore presentation, called by CaptureApp's visibility controller. Hide drifts the card down and fades it,
     // then hides the window; show reverses it. animate=false (captures) cancels everything and hides/shows synchronously.
@@ -303,6 +418,7 @@ public sealed class ImageWindow : Window
     }
     public void RevealActions(bool reveal)
     {
+        reveal &= !IsDeckBack;
         if (!reveal) { keyboardActions = false; overflow.IsOpen = false; }
         dismiss.Stop(); revealed = reveal && IsVisible; FitBadge();
         double shade = revealed && !SystemParameters.HighContrast ? ImageOpacity : 0;
@@ -319,9 +435,12 @@ public sealed class ImageWindow : Window
     }
     public void Place(DrawingRect bounds, double scale)
     {
+        dockBounds = bounds;
         RevealActions(false); Width = bounds.Width / scale; Height = bounds.Height / scale;
-        Native.SetWindowPos(new WindowInteropHelper(this).Handle, new IntPtr(-1), bounds.X, bounds.Y, bounds.Width, bounds.Height, 0x0010);
+        var handle = new WindowInteropHelper(this).Handle;
+        if (handle != IntPtr.Zero) Native.SetWindowPos(handle, new IntPtr(-1), bounds.X, bounds.Y, bounds.Width, bounds.Height, 0x0010);
     }
+    internal void ConfigureDock(DrawingRect workArea, double scale) { DockWorkArea = workArea; DockScale = scale > 0 ? scale : 1; }
 
     private Button[] Actions => [pinButton, editButton, copyButton, saveButton, dragButton, closeButton];
     private double IconSize => Math.Round(unit * .54);

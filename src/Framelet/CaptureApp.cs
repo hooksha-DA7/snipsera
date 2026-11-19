@@ -22,6 +22,7 @@ public sealed partial class CaptureApp : Application
     public AppPreferencesController Preferences { get; }
     public StorageLocations Storage { get; }
     public ToolbarAppearanceSettings ToolbarAppearance { get; }
+    public PreviewPreferences PreviewPreferences { get; }
     public event Action? SettingsChanged;
     public bool Quitting { get; private set; }
     private readonly List<ImageWindow> pins = [];
@@ -51,20 +52,25 @@ public sealed partial class CaptureApp : Application
     public BitmapSource? OverlayShelfImage { get; private set; }
     public event Action? OverlayVisibilityChanged;
 
-    public CaptureApp(string dataRoot, Func<DrawingRect, BitmapSource>? capturePixels = null, bool startInTray = false, AppPreferencesController? preferences = null)
+    public CaptureApp(string dataRoot, Func<DrawingRect, BitmapSource>? capturePixels = null, bool startInTray = false, AppPreferencesController? preferences = null,
+        Action<ImageWindow, bool>? presentOverlay = null, Func<(DrawingRect WorkArea, double Scale)>? overlayPlacement = null)
     {
         this.capturePixels = capturePixels ?? CaptureService.Capture;
         this.startInTray = startInTray;
         History = new HistoryStore(dataRoot); Settings = History.LoadSettings();
         Storage = new StorageLocations(History.Root);
         ToolbarAppearance = new ToolbarAppearanceSettings(History.Root);
+        PreviewPreferences = new PreviewPreferences(History.Root);
+        presentNativeOverlays = presentOverlay is null;
+        this.overlayPlacement = overlayPlacement ?? (() => { var work = Native.MonitorAtCursor(true); return (work, ScrollCaptureLayout.ScaleFor(work)); });
         Preferences = preferences ?? AppPreferencesController.Create(History.Root);
         Recording = new RecordingController(this, History.Root);
         Recording.Changed += RecordingChanged;
         Recording.Completed += ShowRecordingResult;
         overlays = new OverlayVisibility<ImageWindow>((window, show) =>
         {
-            window.PresentOverlay(show, !capturing && (show || OverlaysHidden));
+            if (presentOverlay is not null) presentOverlay(window, show);
+            else window.PresentOverlay(show, !capturing && (show || OverlaysHidden));
         });
         overlays.Changed += RefreshOverlayVisibility;
         ShutdownMode = ShutdownMode.OnExplicitShutdown;
@@ -81,7 +87,7 @@ public sealed partial class CaptureApp : Application
         home.SourceInitialized += (_, _) =>
         {
             hotkeySink = new HwndSource(new HwndSourceParameters("Snipsera hotkeys") { ParentWindow = new IntPtr(-3), Width = 0, Height = 0, WindowStyle = 0 });
-            hotkeys = new HotkeyService(hotkeySink.Handle, kind => _ = CaptureAsync(kind), ShowCaptureBar);
+            hotkeys = new HotkeyService(hotkeySink.Handle, kind => _ = CaptureAsync(kind), ShowCaptureBar, ReopenLastDismissed);
             try { hotkeys.Apply(Settings, keepDirectOnLauncherFailure: true); } catch (Exception ex) { home.SetStatus(ex.Message, true); }
             HwndSource.FromHwnd(new WindowInteropHelper(home).Handle)?.AddHook((IntPtr hwnd, int msg, IntPtr wp, IntPtr lp, ref bool handled) =>
             { if (msg == 0x8042) { ShowHome(); handled = true; } return IntPtr.Zero; });
@@ -101,10 +107,13 @@ public sealed partial class CaptureApp : Application
         Item("Repeat last area", "History", () => _ = CaptureAsync(CaptureKind.PreviousArea), Settings.Previous);
         Item("All-in-one capture", "Area", ShowCaptureBar, Settings.AllInOne);
         ((MenuItem)trayMenu.Items[4]).Icon = CaptureBarVisuals.LauncherGlyph(16);
+        Item("Reopen last dismissed capture", "History", ReopenLastDismissed, Settings.ReopenLast);
+        reopenPreviewMenu = (MenuItem)trayMenu.Items[5];
         trayMenu.Items.Add(new Separator());
         Item("History", "History", ShowHome); Item("Scrolling capture", "Scrolling", () => _ = CaptureAsync(CaptureKind.Scrolling));
         Item("Record screen", "Record", OpenRecording);
         Item("Temporarily hide overlays", "HideOverlays", ToggleOverlays); overlayMenu = (MenuItem)trayMenu.Items[trayMenu.Items.Count - 1];
+        Item("Clear unpinned previews", "Close", ClearUnpinnedPreviews); clearPreviewMenu = (MenuItem)trayMenu.Items[trayMenu.Items.Count - 1];
         Item("Quit Snipsera", "Close", Quit);
         tray = new Forms.NotifyIcon { Icon = trayIcon, Text = "Snipsera — capture, copy, keep", Visible = true };
         ConfigureRecordingTray();
@@ -141,7 +150,7 @@ public sealed partial class CaptureApp : Application
             uint dpi = Native.GetDpiForWindow(handle);
             OverlayShelfWorkArea = Native.WorkArea(handle); OverlayShelfScale = dpi > 0 ? dpi / 96d : 1;
         }
-        else { OverlayShelfWorkArea = Native.MonitorAtCursor(true); OverlayShelfScale = 1; }
+        else { var placement = overlayPlacement(); OverlayShelfWorkArea = placement.WorkArea; OverlayShelfScale = placement.Scale; }
         OverlayShelfImage = anchor.CaptureImage;
         overlays.Hide();
     }
@@ -158,7 +167,7 @@ public sealed partial class CaptureApp : Application
             overlayMenu.Header = OverlaysHidden ? "Show overlays" : "Temporarily hide overlays";
             overlayMenu.IsEnabled = overlays.Desired.Length > 0 && !capturing && !Quitting;
         }
-        overlayShelf?.Refresh(); OverlayVisibilityChanged?.Invoke();
+        overlayShelf?.Refresh(); RestackPreviewDeck(); RefreshPreviewActions(); OverlayVisibilityChanged?.Invoke();
     }
 
     public void ShowHome() { CloseCaptureBar(); home.RefreshHistory(); home.Show(); if (home.WindowState == WindowState.Minimized) home.WindowState = WindowState.Normal; home.Activate(); }
@@ -270,9 +279,8 @@ public sealed partial class CaptureApp : Application
             try { Storage.SaveCapture(image, entry); }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
             { warning = (warning is null ? "" : warning + " ") + "Could not save to your screenshot folder. Use Copy or Save, and check Save locations in Settings."; }
-            preview?.Close();
             foreach (var editor in visible.OfType<EditorWindow>()) editor.Show();
-            preview = FloatingWindow(image, entry, false, warning); if (OverlaysHidden) OverlayShelfImage = image; overlays.Track(preview);
+            AddScreenshotPreview(image, entry, warning);
             home.RefreshHistory(); home.SetStatus(warning ?? "Capture ready");
             completed = true;
         }
@@ -302,8 +310,7 @@ public sealed partial class CaptureApp : Application
         try
         {
             var image = History.LoadImage(entry);
-            using var replacing = overlays.BeginUpdate();
-            preview?.Close(); preview = FloatingWindow(image, entry, false); if (OverlaysHidden) OverlayShelfImage = image; overlays.Track(preview);
+            AddScreenshotPreview(image, entry);
         }
         catch (Exception ex) { Report(ex); }
     }
@@ -312,13 +319,14 @@ public sealed partial class CaptureApp : Application
     {
         if (pins.Count >= 8) { Report(new InvalidOperationException("Close a pinned capture before adding another. Up to eight captures can be pinned.")); return false; }
         var window = FloatingWindow(image, entry, true);
-        pins.Add(window); overlays.Track(window); return true;
+        var placement = overlayPlacement(); window.ConfigureDock(placement.WorkArea, placement.Scale);
+        pins.Add(window); overlays.Track(window); RefreshPreviewStack(); return true;
     }
 
     private ImageWindow FloatingWindow(BitmapSource image, CaptureEntry? entry, bool pinned, string? warning = null, RecordingResult? recording = null)
     {
         var window = new ImageWindow(this, image, entry, pinned, warning, recording);
-        window.Closed += (_, _) => { overlays.Forget(window); if (preview == window) preview = null; if (pins.Remove(window)) ReflowPins(); };
+        window.Closed += (_, _) => PreviewClosed(window);
         return window;
     }
 
@@ -326,25 +334,33 @@ public sealed partial class CaptureApp : Application
     {
         if (window.IsPinned)
         {
-            pins.Remove(window); preview?.Close(); preview = window;
-            window.SetPinned(false); ReflowPins();
+            pins.Remove(window); window.SetPinned(false);
+            if (window.Entry is not null) AdoptScreenshotPreview(window);
+            else
+            {
+                if (previewWorkArea.IsEmpty)
+                { var placement = overlayPlacement(); previewWorkArea = placement.WorkArea; previewScale = placement.Scale; }
+                recordingPreview?.Close(); recordingPreview = window; RefreshPreviewStack();
+            }
         }
         else
         {
             if (pins.Count >= 8) { Report(new InvalidOperationException("Close a pinned capture before adding another. Up to eight captures can be pinned.")); return; }
             if (preview == window) preview = null;
-            pins.Add(window); window.SetPinned(true); ReflowPins();
+            if (recordingPreview == window) recordingPreview = null;
+            if (window.Entry is { } entry)
+            {
+                var removed = screenshotStack.Remove(entry.Id); if (removed is not null) removed.SuppressEditorRestore = true;
+                if (editingScreenshots.ContainsKey(entry.Id)) dismissedWhileEditing.Add(entry.Id);
+                screenshotWindows.Remove(entry.Id);
+            }
+            pins.Add(window); window.SetPinned(true); RefreshPreviewStack();
         }
     }
 
     public void ReflowPins()
     {
-        foreach (var group in pins.Where(p => p.IsLoaded && p.IsDocked).Reverse().GroupBy(p => p.DockWorkArea))
-        {
-            var docked = group.ToArray(); double scale = docked[0].DockScale;
-            var bounds = FloatingLayout.Pins(group.Key, docked.Select(p => new Size(p.CaptureImage.PixelWidth, p.CaptureImage.PixelHeight)).ToArray(), scale);
-            for (int i = 0; i < docked.Length; i++) docked[i].Place(bounds[i], scale);
-        }
+        RefreshPreviewStack();
     }
 
     public void EditImage(BitmapSource image, CaptureEntry? entry = null)
@@ -352,9 +368,8 @@ public sealed partial class CaptureApp : Application
         try
         {
             var stored = entry is null ? null : History.Entries.FirstOrDefault(e => e.Id == entry.Id);
-            var editingPreview = preview is not null && ReferenceEquals(preview.CaptureImage, image) ? preview : null;
-            ShowEditor(stored is null ? new EditDocument(image) : History.LoadDocument(stored), historyEntry: stored, editingPreview: editingPreview);
-            if (editingPreview is not null) overlays.SetDesired(editingPreview, false);
+            ShowEditor(stored is null ? new EditDocument(image) : History.LoadDocument(stored), historyEntry: stored,
+                editingItem: entry is null ? null : screenshotStack.Find(entry.Id));
         }
         catch (Exception ex) { Report(ex); }
     }
@@ -373,34 +388,85 @@ public sealed partial class CaptureApp : Application
         catch (Exception ex) { Report(ex); }
     }
 
-    private void ShowEditor(EditDocument document, string name = "Capture", string? projectPath = null, CaptureEntry? historyEntry = null, ImageWindow? editingPreview = null)
+    private void ShowEditor(EditDocument document, string name = "Capture", string? projectPath = null, CaptureEntry? historyEntry = null, PendingScreenshot? editingItem = null)
     {
-        bool saved = false;
-        void Persist(EditDocument edited)
-        {
-            historyEntry = History.SaveEdits(edited, historyEntry); saved = true;
-            home.RefreshHistory();
-            try { Storage.SaveCapture(EditRenderer.Render(edited), historyEntry); }
-            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
-            { home.SetStatus("Edits are in history, but the screenshot folder could not be updated. Check Save locations in Settings.", true); }
-        }
-        var editor = new EditorWindow(document, image => { Persist(document); Pin(image, historyEntry!); }, OpenImageOrProject, name, projectPath, Persist, () => Storage.ImageFolder);
-        editor.Closed += (_, _) =>
-        {
-            if (Quitting) return;
-            if (saved && historyEntry is not null && (preview is null || preview == editingPreview)) OpenEntry(historyEntry);
-            else if (editingPreview is not null && preview == editingPreview) overlays.SetDesired(editingPreview, true);
-        };
+        var editor = CreateEditor(document, name, projectPath, historyEntry, editingItem);
         editor.Show(); editor.Activate();
     }
 
-    public void SaveImage(BitmapSource image, Window owner)
+    internal EditorWindow CreateEditor(EditDocument document, string name = "Capture", string? projectPath = null, CaptureEntry? historyEntry = null, PendingScreenshot? editingItem = null)
+    {
+        bool saved = false;
+        var editorItem = editingItem;
+        string? editingId = editingItem?.Entry.Id;
+        if (editingId is not null)
+        {
+            if (!editingScreenshots.ContainsKey(editingId)) dismissedWhileEditing.Remove(editingId);
+            editingScreenshots[editingId] = editingScreenshots.GetValueOrDefault(editingId) + 1; RefreshPreviewStack();
+        }
+        void Persist(EditDocument edited)
+        {
+            historyEntry = History.SaveEdits(edited, historyEntry); saved = true;
+            if (editorItem is not null && editorItem.Entry.Id != historyEntry.Id)
+            {
+                string previousId = editorItem.Entry.Id;
+                var replacement = new PendingScreenshot(historyEntry) { SuppressEditorRestore = editorItem.SuppressEditorRestore };
+                if (OwnsPending(editorItem)) { screenshotStack.Remove(previousId); screenshotStack.Add(replacement, promote: false); }
+                else screenshotStack.ReplaceDismissed(editorItem, replacement);
+                if (editingId == previousId)
+                {
+                    int count = editingScreenshots.GetValueOrDefault(previousId);
+                    if (count <= 1) editingScreenshots.Remove(previousId); else editingScreenshots[previousId] = count - 1;
+                    editingId = historyEntry.Id; editingScreenshots[editingId] = editingScreenshots.GetValueOrDefault(editingId) + 1;
+                    if (dismissedWhileEditing.Contains(previousId)) dismissedWhileEditing.Add(editingId);
+                }
+                editorItem = replacement;
+            }
+            home?.RefreshHistory();
+            try { Storage.SaveCapture(EditRenderer.Render(edited), historyEntry); }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            { home?.SetStatus("Edits are in history, but the screenshot folder could not be updated. Check Save locations in Settings.", true); }
+        }
+        EditState? dismissedState = null;
+        var editor = new EditorWindow(document, image =>
+        {
+            Persist(document);
+            if (Pin(image, historyEntry!) && editorItem is not null)
+            { editorItem.SuppressEditorRestore = true; screenshotStack.Remove(editorItem.Entry.Id); RefreshPreviewStack(); }
+        }, OpenImageOrProject, name, projectPath, Persist, () => Storage.ImageFolder,
+            state =>
+            {
+                if (!PreviewPreferences.DismissAfterSharing || state != document.State || historyEntry is null || !HasHistory(historyEntry)) return;
+                dismissedState = state;
+                if (editorItem is not null && ReferenceEquals(screenshotStack.Find(editorItem.Entry.Id), editorItem))
+                    DismissPendingScreenshot(editorItem.Entry.Id, manual: false);
+            }, needsInitialHistorySave: historyEntry is null || !HasHistory(historyEntry));
+        editor.Closed += (_, _) =>
+        {
+            bool explicitlyDismissed = editingId is not null && dismissedWhileEditing.Contains(editingId);
+            if (editingId is not null && editingScreenshots.TryGetValue(editingId, out int count))
+            { if (count <= 1) { editingScreenshots.Remove(editingId); dismissedWhileEditing.Remove(editingId); } else editingScreenshots[editingId] = count - 1; }
+            if (Quitting) return;
+            if (explicitlyDismissed || editorItem?.SuppressEditorRestore == true) { RefreshPreviewStack(); return; }
+            if (PreviewPreferences.DismissAfterSharing && dismissedState == document.State && historyEntry is not null && HasHistory(historyEntry))
+            {
+                if (editorItem is not null && ReferenceEquals(screenshotStack.Find(editorItem.Entry.Id), editorItem)) DismissPendingScreenshot(editorItem.Entry.Id, manual: false);
+                RefreshPreviewStack();
+                return;
+            }
+            if (saved && historyEntry is not null) editorItem = AddScreenshotPreview(History.LoadImage(historyEntry), historyEntry, promote: false);
+            else RefreshPreviewStack();
+        };
+        return editor;
+    }
+
+    public bool SaveImage(BitmapSource image, Window owner)
     {
         var dialog = new SaveFileDialog { Title = "Save capture", Filter = "PNG image (*.png)|*.png", DefaultExt = ".png", AddExtension = true,
             FileName = "Snipsera-" + DateTime.Now.ToString("yyyy-MM-dd-HHmmss") + ".png", InitialDirectory = Storage.ImageFolder };
-        if (dialog.ShowDialog(owner) != true) return;
-        try { CaptureService.Save(image, dialog.FileName); home.SetStatus("Capture saved"); }
-        catch (Exception ex) { Report(ex); }
+        if (dialog.ShowDialog(owner) != true) return false;
+        try { CaptureService.Save(image, dialog.FileName); home.SetStatus("Capture saved"); return true; }
+        catch (Exception ex) { Report(ex); return false; }
     }
 
     public void Report(Exception exception)

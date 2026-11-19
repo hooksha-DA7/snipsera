@@ -170,7 +170,7 @@ internal static class WorkflowChecks
             var settings = new PreferencesWindow(app.Preferences, app); var root = (FrameworkElement)settings.Content;
             root.Measure(new Size(780, 620)); root.Arrange(new Rect(0, 0, 780, 620)); root.UpdateLayout();
             foreach (var page in Enum.GetValues<SettingsPage>()) { settings.ShowPage(page); Require(settings.Current == page); }
-            Require(Children(root).OfType<ShortcutRecorder>().Count() == 5);
+            Require(Children(root).OfType<ShortcutRecorder>().Count() == 6);
             var home = new HomeWindow(app); var homeRoot = (FrameworkElement)home.Content;
             homeRoot.Measure(new Size(1100, 720)); homeRoot.Arrange(new Rect(0, 0, 1100, 720)); homeRoot.UpdateLayout();
             Require(!Children(homeRoot).OfType<ShortcutRecorder>().Any()); home.Close(); settings.Close();

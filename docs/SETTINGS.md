@@ -2,6 +2,18 @@
 
 In version 1.0.6, open **Settings** on Home or in the tray menu. The sections are **General**, **Save locations**, **Keyboard shortcuts**, **Updates** and **Appearance**. The section list moves above the page in a narrow window.
 
+The preview preferences, screenshot stack and reopen shortcut below describe the current local build. These additions have not been published yet.
+
+## General: previews
+
+Under **Settings → General → Previews**, **Dismiss after sharing** is on by default. A successful Copy, an explicit Save, or a drag accepted as a copy dismisses the unpinned screenshot card. Its capture and saved edits remain in History. Canceled or failed actions and automatic saving to the screenshot folder leave the card in place. Pins and recording cards stay visible after sharing. If its history save failed, the screenshot also stays available so you can keep a copy.
+
+Turn the setting off to keep unpinned screenshots visible after sharing. The choice applies immediately and is saved between sessions. If saving the preference fails, the previous choice stays active. An unreadable preference file is preserved and the app uses the default with a recovery notice.
+
+Pending screenshots form an overlapping deck at the bottom left. The latest capture is in front, with up to two narrower cards peeking out behind it. Click an exposed edge to bring that screenshot forward. With a screenshot card focused, Alt+2 or Alt+3 selects a rear layer. An unpinned recording remains a separate full card below the deck and uses one of the three slots; short displays can show fewer layers. **+N** opens additional screenshots. Capturing again or unpinning an image keeps the other pending screenshots. The front card retains its on-image controls and same-window Pin/Unpin behavior.
+
+Use **Clear unpinned previews** in the tray or **+N** menu to clear the pending cards without removing pins, screenshot history or saved recordings. **Reopen last dismissed capture** in either menu, or its keyboard shortcut, brings back the last dismissed screenshot. Both the pending stack and dismissed list last for the current session only. History keeps the latest 100 screenshots for reopening after a restart. These changes do not add a separate library or cloud storage.
+
 ## Appearance
 
 Open **Settings → Appearance** to choose **Tinted surface** or **Frosted glass** for the all-in-one screenshot bar, recording setup and the controls shown during recording. The setting applies immediately and is kept between sessions. The default is Tinted surface at 80% background opacity.
@@ -22,7 +34,7 @@ Folder changes apply to future saves. Existing files stay in their previous fold
 
 ## Keyboard shortcuts
 
-Open **Settings → Keyboard shortcuts**, select an action box and press the keys you want, then **Save shortcuts**. Print Screen works on its own. **Discard changes** restores the saved bindings. The all-in-one capture shortcut is listed with the four direct capture shortcuts. Home's shortcut link opens this section directly.
+Open **Settings → Keyboard shortcuts**, select an action box and press the keys you want, then **Save shortcuts**. Print Screen works on its own. **Discard changes** restores the saved bindings. The all-in-one capture shortcut and **Reopen last dismissed capture** are listed with the four direct capture shortcuts. Reopen defaults to **Ctrl+Alt+Shift+6**. Existing shortcuts are preserved on upgrade; an unused default is chosen if that chord is already assigned. Home's shortcut link opens this section directly.
 
 Capture shortcuts pause while a box records a new key combination. Leaving the section, hiding or closing Settings, or switching to another app releases that pause. A rejected shortcut change keeps the previous bindings. Windows can reserve Print Screen for Snipping Tool; change that setting yourself under Windows **Accessibility → Keyboard** if needed.
 

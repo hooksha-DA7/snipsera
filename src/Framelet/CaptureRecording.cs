@@ -53,6 +53,7 @@ public sealed partial class CaptureApp
             pauseRecordingMenu!.IsEnabled = stopRecordingMenu.IsEnabled;
             pauseRecordingMenu.Header = Recording.State == RecordingState.Paused ? "Resume recording" : "Pause recording";
         }
+        RefreshPreviewActions();
     }
     internal void ShowRecordingBar()
     {
@@ -74,10 +75,12 @@ public sealed partial class CaptureApp
         var image = RecordingPreview.Placeholder();
         bool pinned = pins.Count < 8;
         var window = FloatingWindow(image, null, pinned, recording: result);
+        var placement = overlayPlacement(); window.ConfigureDock(placement.WorkArea, placement.Scale);
         if (pinned) pins.Add(window);
-        else { preview?.Close(); preview = window; }
+        else { recordingPreview?.Close(); recordingPreview = window; previewWorkArea = placement.WorkArea; previewScale = placement.Scale; }
         if (OverlaysHidden) OverlayShelfImage = image;
         overlays.Track(window);
+        RefreshPreviewStack();
         try
         {
             var thumbnail = await RecordingPreview.ThumbnailAsync(result.FilePath, History.Root);

@@ -13,9 +13,9 @@ namespace Framelet;
 // after reactivation.
 public sealed class ShortcutSettingsPanel : StackPanel
 {
-    internal static readonly string[] Labels = ["Select an area", "Choose a window", "Capture this display", "Repeat last area", "All-in-one capture"];
+    internal static readonly string[] Labels = ["Select an area", "Choose a window", "Capture this display", "Repeat last area", "All-in-one capture", "Reopen last dismissed capture"];
     private static readonly string[] Hints = ["Drag a rectangle across your screen", "Bring a visible window forward and capture it", "Capture the display under your pointer",
-        "Capture the same area again", "Open the capture bar with every screenshot mode"];
+        "Capture the same area again", "Open the capture bar with every screenshot mode", "Bring back the last screenshot you dismissed"];
     // Below this width each box moves under its label instead of beside it.
     private const double StackBelow = 460;
     private readonly CaptureApp app;
@@ -48,7 +48,7 @@ public sealed class ShortcutSettingsPanel : StackPanel
             row.Children.Add(text); row.Children.Add(recorder);
             list.Children.Add(row);
         }
-        Children.Add(Group("Capture shortcuts", list));
+        Children.Add(Group("Capture and preview shortcuts", list));
 
         save = Ui.Button("Save shortcuts", "SaveShortcuts", Save, true);
         discard = Ui.Button("Discard changes", "DiscardShortcuts", Discard);
@@ -79,7 +79,7 @@ public sealed class ShortcutSettingsPanel : StackPanel
         try
         {
             // Save moves focus off the recorder first, so the current shortcuts are restored before they are replaced.
-            app.UpdateSettings(new AppSettings(recorders[0].Shortcut, recorders[1].Shortcut, recorders[2].Shortcut, recorders[3].Shortcut, recorders[4].Shortcut));
+            app.UpdateSettings(new AppSettings(recorders[0].Shortcut, recorders[1].Shortcut, recorders[2].Shortcut, recorders[3].Shortcut, recorders[4].Shortcut, recorders[5].Shortcut));
             for (int i = 0; i < recorders.Length; i++) recorders[i].MarkSaved(app.Settings.Bindings[i]);
             Report("Shortcuts saved.", null);
         }

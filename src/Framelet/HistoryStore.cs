@@ -186,19 +186,36 @@ public sealed class HistoryStore
                 string available = Enumerable.Range(5, 5).Select(number => $"Ctrl+Alt+Shift+{number}").First(binding => !used.Contains(Hotkey.Parse(binding)));
                 settings = settings with { AllInOne = available };
             }
-            foreach (string binding in settings.Bindings) _ = Hotkey.Parse(binding);
+            if (document.RootElement.ValueKind == JsonValueKind.Object && !document.RootElement.TryGetProperty("ReopenLast", out _))
+            {
+                // Four/five-binding installations keep every saved chord and receive an unused reopen shortcut.
+                var used = settings.Bindings.Take(5).Select(Hotkey.Parse).ToHashSet();
+                string available = Enumerable.Range(6, 10).Select(number => $"Ctrl+Alt+Shift+{number % 10}").First(binding => !used.Contains(Hotkey.Parse(binding)));
+                settings = settings with { ReopenLast = available };
+            }
+            ValidateSettings(settings);
             return settings;
         }
-        catch (Exception ex) when (ex is JsonException or IOException or FormatException or NullReferenceException)
+        catch (Exception ex) when (ex is JsonException or IOException or FormatException or NullReferenceException or InvalidOperationException)
         { Notice = "Shortcut settings could not be read. Defaults are active; save shortcuts to replace them."; return new AppSettings(); }
     }
 
     public void SaveSettings(AppSettings settings)
     {
-        foreach (string binding in settings.Bindings) _ = Hotkey.Parse(binding);
+        ValidateSettings(settings);
         string path = Path.Combine(Root, "settings.json");
-        string temporary = path + ".tmp";
-        File.WriteAllText(temporary, JsonSerializer.Serialize(settings, json));
-        File.Move(temporary, path, true);
+        string temporary = path + "." + Guid.NewGuid().ToString("N") + ".tmp";
+        try
+        {
+            File.WriteAllText(temporary, JsonSerializer.Serialize(settings, json));
+            File.Move(temporary, path, true);
+        }
+        finally { try { if (File.Exists(temporary)) File.Delete(temporary); } catch (IOException) { } catch (UnauthorizedAccessException) { } }
+    }
+
+    private static void ValidateSettings(AppSettings settings)
+    {
+        var keys = settings.Bindings.Select(Hotkey.Parse).ToArray();
+        if (keys.Distinct().Count() != keys.Length) throw new InvalidOperationException("Each action needs a different keyboard shortcut.");
     }
 }

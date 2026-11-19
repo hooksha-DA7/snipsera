@@ -16,9 +16,9 @@ public sealed record CaptureEntry(string Id, DateTimeOffset Created, string Mode
 
 public sealed record AppSettings(string Area = "Ctrl+Alt+Shift+1", string Window = "Ctrl+Alt+Shift+2",
                                  string Screen = "Ctrl+Alt+Shift+3", string Previous = "Ctrl+Alt+Shift+4",
-                                 string AllInOne = "Ctrl+Alt+Shift+5")
+                                 string AllInOne = "Ctrl+Alt+Shift+5", string ReopenLast = "Ctrl+Alt+Shift+6")
 {
-    public string[] Bindings => [Area, Window, Screen, Previous, AllInOne];
+    public string[] Bindings => [Area, Window, Screen, Previous, AllInOne, ReopenLast];
 }
 
 public readonly record struct Hotkey(uint Modifiers, uint VirtualKey)

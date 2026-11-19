@@ -21,8 +21,8 @@ public static class DragExport
         string path = Path.Combine(folder, Guid.NewGuid().ToString("N") + ".png"); CaptureService.Save(image, path);
         var data = new DataObject(); data.SetFileDropList(new StringCollection { path }); data.SetImage(image); return data;
     }
-    public static void Attach(FrameworkElement source, string root, Func<BitmapSource> image, Action<Exception> report, bool ignoreControls = false, Func<bool>? enabled = null)
-        => AttachData(source, () => CreateData(root, image()), report, ignoreControls, enabled);
+    public static void Attach(FrameworkElement source, string root, Func<BitmapSource> image, Action<Exception> report, bool ignoreControls = false, Func<bool>? enabled = null, Action? completed = null)
+        => AttachData(source, () => CreateData(root, image()), report, ignoreControls, enabled, completed);
 
     public static DataObject CreateFileData(string path)
     {
@@ -31,9 +31,15 @@ public static class DragExport
     }
 
     public static void AttachFile(FrameworkElement source, string path, Action<Exception> report, bool ignoreControls = false, Func<bool>? enabled = null)
-        => AttachData(source, () => CreateFileData(path), report, ignoreControls, enabled);
+        => AttachData(source, () => CreateFileData(path), report, ignoreControls, enabled, null);
 
-    private static void AttachData(FrameworkElement source, Func<DataObject> createData, Action<Exception> report, bool ignoreControls, Func<bool>? enabled)
+    internal static void Drop(Func<DragDropEffects> drop, Action? completed)
+    {
+        // A cancelled/rejected drop returns None. A target must accept the offered Copy before we dismiss its source.
+        if ((drop() & DragDropEffects.Copy) != 0) completed?.Invoke();
+    }
+
+    private static void AttachData(FrameworkElement source, Func<DataObject> createData, Action<Exception> report, bool ignoreControls, Func<bool>? enabled, Action? completed)
     {
         Point? origin = null;
         source.PreviewMouseLeftButtonDown += (_, e) =>
@@ -49,7 +55,7 @@ public static class DragExport
             var delta = e.GetPosition(source) - start;
             if (Math.Abs(delta.X) < SystemParameters.MinimumHorizontalDragDistance && Math.Abs(delta.Y) < SystemParameters.MinimumVerticalDragDistance) return;
             origin = null; source.ReleaseMouseCapture();
-            try { DragDrop.DoDragDrop(source, createData(), DragDropEffects.Copy); }
+            try { Drop(() => DragDrop.DoDragDrop(source, createData(), DragDropEffects.Copy), completed); }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.Runtime.InteropServices.ExternalException) { report(ex); }
             e.Handled = true;
         };

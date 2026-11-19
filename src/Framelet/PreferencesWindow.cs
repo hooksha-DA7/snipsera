@@ -63,14 +63,38 @@ public sealed class PreferencesWindow : Window
         startupSettings = Ui.Button("Open Windows startup settings", "OpenStartupSettings", () => Run(controller.OpenStartupSettings, true));
         startupSettings.HorizontalAlignment = HorizontalAlignment.Left; startupSettings.Margin = new Thickness(28, 10, 0, 0); general.Children.Add(startupSettings);
         startupError.Margin = new Thickness(28, 8, 0, 0); Describe(startupError, "StartupError", AutomationLiveSetting.Assertive); general.Children.Add(startupError);
-        pages[0] = Page(SettingsPage.General, "How Snipsera starts.", Group("Startup", general));
+        if (app is null) pages[0] = Page(SettingsPage.General, "How Snipsera starts.", Group("Startup", general));
+        else
+        {
+            var screenshotOptions = new StackPanel();
+            var dismissAfterSharing = Box("Dismiss after sharing", "DismissAfterSharing",
+                "Close screenshot previews after Copy, Save or a completed drag. Pinned references stay visible; dismissed captures remain in History.", screenshotOptions);
+            var problem = Ui.Text("", 12, Ui.Muted); problem.Margin = new Thickness(28, 8, 0, 0);
+            Describe(problem, "PreviewPreferencesError", AutomationLiveSetting.Assertive); screenshotOptions.Children.Add(problem);
+            string? saveProblem = null;
+            void SyncPreviews()
+            {
+                dismissAfterSharing.IsChecked = app.PreviewPreferences.DismissAfterSharing;
+                SettingsUi.Show(problem, saveProblem ?? app.PreviewPreferences.Notice); problem.Foreground = UpdateNotice.Error;
+            }
+            dismissAfterSharing.Click += (_, _) =>
+            {
+                try { app.PreviewPreferences.SetDismissAfterSharing(dismissAfterSharing.IsChecked == true); saveProblem = null; }
+                catch (Exception ex) { saveProblem = ex.Message; }
+                finally { SyncPreviews(); }
+            };
+            app.PreviewPreferences.Changed += SyncPreviews;
+            Closed += (_, _) => app.PreviewPreferences.Changed -= SyncPreviews;
+            SyncPreviews();
+            pages[0] = Page(SettingsPage.General, "Startup and screenshot behavior.", Group("Startup", general), Group("Previews", screenshotOptions));
+        }
 
         // Save locations and shortcuts belong to the running app.
         if (app is not null) storagePanel = new StorageSettingsPanel(app.Storage);
         pages[1] = Page(SettingsPage.SaveLocations, "Choose where Snipsera saves screenshots and recordings.",
             storagePanel ?? Unavailable("Save locations can be changed from Settings in the running Snipsera app."));
         if (app is not null) shortcutPanel = new ShortcutSettingsPanel(app);
-        pages[2] = Page(SettingsPage.KeyboardShortcuts, "Start a capture from anywhere in Windows.",
+        pages[2] = Page(SettingsPage.KeyboardShortcuts, "Capture or restore a screenshot from anywhere in Windows.",
             shortcutPanel ?? Unavailable("Keyboard shortcuts can be changed from Settings in the running Snipsera app."));
 
         // Updates: checks only report availability; the action opens the Store or release page for the person to decide.

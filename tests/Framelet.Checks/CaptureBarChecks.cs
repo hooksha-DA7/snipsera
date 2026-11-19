@@ -44,7 +44,7 @@ internal static class CaptureBarChecks
         Test("New settings add a fifth distinct launcher without moving the four direct actions", () =>
         {
             var settings = new AppSettings();
-            Require(settings.Bindings.Length == 5 && settings.Bindings.Distinct().Count() == 5, "Launcher shortcut missing or duplicate");
+            Require(settings.Bindings.Length == 6 && settings.Bindings.Distinct().Count() == 6, "Launcher or reopen shortcut missing or duplicate");
             Require(settings.Area == "Ctrl+Alt+Shift+1" && settings.Previous == "Ctrl+Alt+Shift+4" && settings.AllInOne == "Ctrl+Alt+Shift+5", "Existing defaults changed");
         });
         Test("Four-binding settings retain Print Screen and add the launcher on upgrade", () =>
@@ -74,18 +74,18 @@ internal static class CaptureBarChecks
             var registered = new Dictionary<int, Hotkey>(); var captured = new List<CaptureKind>(); int opened = 0;
             using var service = new HotkeyService(source.Handle, captured.Add, () => opened++, (id, key) => registered.TryAdd(id, key), id => registered.Remove(id));
             service.Apply(new AppSettings(AllInOne: "PrintScreen"));
-            Require(registered.Count == 5 && registered[3104].VirtualKey == 0x2C, "Launcher was not registered");
+            Require(registered.Count == 6 && registered[3104].VirtualKey == 0x2C, "Launcher was not registered");
             Require(service.DispatchShortcut(3104), "Launcher message rejected"); Pump();
             Require(opened == 1 && captured.Count == 0, "Launcher took a screenshot directly");
             for (int i = 0; i < 4; i++) Require(service.DispatchShortcut(3100 + i), "Direct action rejected");
             Pump(); Require(captured.SequenceEqual(new[] { CaptureKind.Area, CaptureKind.Window, CaptureKind.Screen, CaptureKind.PreviousArea }), "Direct actions changed");
-            Require(!service.DispatchShortcut(3105) && !service.DispatchShortcut(3099), "Unregistered shortcut dispatched");
+            Require(!service.DispatchShortcut(3106) && !service.DispatchShortcut(3099), "Unregistered shortcut dispatched");
             using (service.Suspend())
             {
                 Require(registered.Count == 0 && !service.DispatchShortcut(3104), "Shortcut recorder suspension still dispatches");
                 using (service.Suspend()) Require(registered.Count == 0, "Nested suspension registered keys");
             }
-            Require(registered.Count == 5, "Suspension failed to restore all shortcuts");
+            Require(registered.Count == 6, "Suspension failed to restore all shortcuts");
             service.Dispose(); Require(registered.Count == 0 && !service.DispatchShortcut(3104), "Disposed service retained keys");
         });
         Test("Duplicate Print Screen reports the two actions and leaves working registrations intact", () =>
@@ -117,7 +117,7 @@ internal static class CaptureBarChecks
             Require(registered.Count == 4 && !registered.ContainsKey(3104), "New launcher disabled existing direct shortcuts");
             using (service.Suspend()) Require(registered.Count == 0, "Suspension failed");
             Require(registered.Count == 4, "Partial startup registration not restored");
-            service.Apply(new AppSettings()); Require(registered.Count == 5, "Changing the conflicting launcher did not recover it");
+            service.Apply(new AppSettings()); Require(registered.Count == 6, "Changing the conflicting launcher did not recover it");
         });
         Test("A rejected Save after failed startup never activates unpersisted direct shortcuts", () =>
         {
@@ -180,7 +180,7 @@ internal static class CaptureBarChecks
                 Require(closed && captured == 0 && !bar.Choose(CaptureKind.Area), "Dismissed bar captured an image");
             }
         });
-        Test("Settings owns all five key recorders and Home preserves its direct capture controls", () =>
+        Test("Settings owns all six key recorders and Home preserves its direct capture controls", () =>
         {
             var home = new HomeWindow(app);
             var settings = new PreferencesWindow(app.Preferences, app); settings.ShowPage(SettingsPage.KeyboardShortcuts);
@@ -192,7 +192,7 @@ internal static class CaptureBarChecks
                 var settingsRoot = (FrameworkElement)settings.Content;
                 settingsRoot.Measure(new Size(780, 640)); settingsRoot.Arrange(new Rect(0, 0, 780, 640)); settingsRoot.UpdateLayout();
                 var recorders = Children(settingsRoot).OfType<ShortcutRecorder>().OrderBy(r => AutomationProperties.GetAutomationId(r)).ToArray();
-                Require(recorders.Length == 5 && recorders[4].Saved == app.Settings.AllInOne, "Fifth key recorder missing or incorrectly initialized");
+                Require(recorders.Length == 6 && recorders[4].Saved == app.Settings.AllInOne && recorders[5].Saved == app.Settings.ReopenLast, "Launcher or reopen key recorder missing or incorrectly initialized");
                 recorders[4].Press(Key.PrintScreen, ModifierKeys.None, true);
                 Require(recorders[4].Shortcut == "PrintScreen" && recorders.Take(4).Select(r => r.Shortcut).SequenceEqual(app.Settings.Bindings.Take(4)), "Changing launcher altered direct shortcuts");
                 Require(controls.OfType<Button>().Any(b => AutomationProperties.GetAutomationId(b) == "ShowCaptureBar"), "Home launcher missing");

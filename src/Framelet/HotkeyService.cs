@@ -3,14 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Interop;
+using System.Windows.Threading;
 
 namespace Framelet;
 
 public sealed class HotkeyService : IDisposable
 {
-    private readonly HwndSource source;
+    private readonly HwndSource? source;
+    private readonly Dispatcher dispatcher;
     private readonly Action<CaptureKind> capture;
     private readonly Action openCaptureBar;
+    private readonly Action reopenLast;
     private readonly Func<int, Hotkey, bool> register;
     private readonly Action<int> unregister;
     private readonly List<int> active = [];
@@ -18,20 +21,30 @@ public sealed class HotkeyService : IDisposable
     private int suspensions;
     private bool disposed;
     private static readonly CaptureKind[] kinds = [CaptureKind.Area, CaptureKind.Window, CaptureKind.Screen, CaptureKind.PreviousArea];
-    private static readonly string[] names = ["Area", "Window", "Display", "Repeat last area", "All-in-one capture"];
+    private static readonly string[] names = ["Area", "Window", "Display", "Repeat last area", "All-in-one capture", "Reopen last dismissed capture"];
 
-    public HotkeyService(IntPtr handle, Action<CaptureKind> capture, Action openCaptureBar)
+    public HotkeyService(IntPtr handle, Action<CaptureKind> capture, Action openCaptureBar, Action? reopenLast = null)
         : this(handle, capture, openCaptureBar,
             (id, key) => Native.RegisterHotKey(handle, id, key.Modifiers | 0x4000, key.VirtualKey),
-            id => Native.UnregisterHotKey(handle, id)) { }
+            id => Native.UnregisterHotKey(handle, id), reopenLast) { }
 
     internal HotkeyService(IntPtr handle, Action<CaptureKind> capture, Action openCaptureBar,
-        Func<int, Hotkey, bool> register, Action<int> unregister)
+        Func<int, Hotkey, bool> register, Action<int> unregister, Action? reopenLast = null)
+        : this(capture, openCaptureBar, register, unregister, reopenLast)
     {
         source = HwndSource.FromHwnd(handle) ?? throw new InvalidOperationException("Capture window is not ready.");
-        this.capture = capture; this.openCaptureBar = openCaptureBar;
-        this.register = register; this.unregister = unregister;
+        dispatcher = source.Dispatcher;
         source.AddHook(HandleMessage);
+    }
+
+    // The dispatcher/registration contract can be exercised without an HWND or real global shortcuts.
+    internal HotkeyService(Action<CaptureKind> capture, Action openCaptureBar,
+        Func<int, Hotkey, bool> register, Action<int> unregister, Action? reopenLast = null)
+    {
+        dispatcher = Dispatcher.CurrentDispatcher;
+        this.capture = capture; this.openCaptureBar = openCaptureBar;
+        this.reopenLast = reopenLast ?? (() => { });
+        this.register = register; this.unregister = unregister;
     }
 
     public void Apply(AppSettings settings, bool keepDirectOnLauncherFailure = false)
@@ -45,9 +58,9 @@ public sealed class HotkeyService : IDisposable
         try { if (suspensions == 0) Register(keys); previous = keys; }
         catch
         {
-            // A newly added launcher must not disable the four working direct shortcuts on startup.
-            if (keepDirectOnLauncherFailure && previous is null && active.Count == kinds.Length)
-            { previous = keys.Take(kinds.Length).ToArray(); throw; }
+            // Newly added launcher/reopen actions must not disable the working shortcuts before them on startup.
+            if (keepDirectOnLauncherFailure && previous is null && active.Count >= kinds.Length)
+            { previous = keys.Take(active.Count).ToArray(); throw; }
             Unregister();
             if (previous is not null && suspensions == 0)
             {
@@ -104,14 +117,16 @@ public sealed class HotkeyService : IDisposable
     {
         int index = id - 3100;
         if (disposed || suspensions > 0 || index < 0 || index >= names.Length || !active.Contains(id)) return false;
-        source.Dispatcher.BeginInvoke(() =>
+        dispatcher.BeginInvoke(() =>
         {
             if (disposed || suspensions > 0 || !active.Contains(id)) return;
-            if (index == kinds.Length) openCaptureBar(); else capture(kinds[index]);
+            if (index < kinds.Length) capture(kinds[index]);
+            else if (index == kinds.Length) openCaptureBar();
+            else reopenLast();
         });
         return true;
     }
 
     private void Unregister() { foreach (int id in active) unregister(id); active.Clear(); }
-    public void Dispose() { if (disposed) return; disposed = true; Unregister(); source.RemoveHook(HandleMessage); }
+    public void Dispose() { if (disposed) return; disposed = true; Unregister(); source?.RemoveHook(HandleMessage); }
 }

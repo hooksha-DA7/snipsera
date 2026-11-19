@@ -14,7 +14,7 @@ if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 $targetFramework = ([xml](Get-Content -LiteralPath $project -Raw)).Project.PropertyGroup.TargetFramework
 $checks = Join-Path $root ('tests/Framelet.Checks/bin/Release/' + $targetFramework + '/Framelet.Checks.dll')
-foreach ($mode in @('identity-check','backend-check','overlay-style-check','recording-check','feedback-check','feedback-visual-check','recording-refinement-check','gif-conversion-check','recording-setup-visual-check','capture-bar-check','preferences-check','preferences-visual-check','workflow-check','workflow-visual-check','toolbar-appearance-check','branding-check')) {
+foreach ($mode in @('identity-check','backend-check','overlay-style-check','recording-check','feedback-check','feedback-visual-check','recording-refinement-check','gif-conversion-check','recording-setup-visual-check','capture-bar-check','preferences-check','preferences-visual-check','workflow-check','workflow-visual-check','toolbar-appearance-check','branding-check','preview-dismissal-check','preview-preferences-check','preview-stack-layout-check','preview-stack-check','preview-stack-integration-check','preview-overflow-visual-check','preview-deck-visual-check')) {
     & $dotnet $checks ('--' + $mode) (Join-Path $Output $mode)
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 }

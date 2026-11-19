@@ -2,6 +2,8 @@
 
 [Back to Snipsera](../README.md) · [Downloads](../RELEASES.md)
 
+The screenshot stack, **Dismiss after sharing** setting and **Reopen last dismissed capture** shortcut described below are available in the current local build. They have not been published yet.
+
 ## Run
 
 Install Snipsera from [Microsoft Store](https://apps.microsoft.com/detail/9NFL9VHL8GKV), or run the GitHub EXE installer. For a portable download, extract the entire ZIP and open **Snipsera.exe**. These new packages include .NET. Screen recording also requires the [Visual C++ x64 runtime](https://aka.ms/vs/17/release/vc_redist.x64.exe). No account or cloud service is needed to use the app.
@@ -20,7 +22,7 @@ Store installations check Microsoft Store and open the Store app to update. EXE 
 
 In 1.0.6, open **Settings → Keyboard shortcuts**, select an action box and press the actual keys you want, then choose **Save shortcuts**. Earlier releases put this panel in Home. **Print Screen** works by itself or with Ctrl, Alt or Shift. Escape cancels a pending change; Tab moves to the next box. Existing capture shortcuts pause while you record a new chord. If Windows reserves Print Screen for Snipping Tool, turn off **Use the Print Screen key to open screen capture** under Windows **Settings > Accessibility > Keyboard**, then save the shortcut again. Snipsera does not change that Windows setting.
 
-Docked previews and pins use matching 200 × 150 thumbnails with an 8-pixel logical gap between visible cards. Wide, tall and square captures fill the same card; only the thumbnail is cropped. Copy, save, drag and editing retain the complete image. Pins flow into additional columns when needed and scale down on small work areas. Manually moved or resized pins remain under your control.
+The front preview and docked pins use matching 200 × 150 thumbnails. Pending screenshots form an overlapping deck with narrower rear cards; separate pins and recording cards retain an 8-pixel logical gap. Wide, tall and square captures fill the same front card; only the thumbnail is cropped. Copy, save, drag and editing retain the complete image. Pins flow into additional columns when needed and scale down on small work areas. Manually moved or resized pins remain under your control.
 
 ## Capture
 
@@ -31,11 +33,12 @@ Docked previews and pins use matching 200 × 150 thumbnails with an 8-pixel logi
 | Full display | Ctrl+Alt+Shift+3 | Capture the entire monitor under the pointer, including its taskbar. |
 | Repeat area | Ctrl+Alt+Shift+4 | Capture the last selected rectangle again, during the current app session. |
 | All-in-one capture | Ctrl+Alt+Shift+5 | Open the compact bar for Area, Window, Display, Scroll or Last area. |
+| Reopen last dismissed capture | Ctrl+Alt+Shift+6 | Bring back the most recently dismissed screenshot from this app session. |
 | Scrolling capture | Home, tray or image right-click menu | Select scrolling content, Start, scroll down, then Done to create one tall image. |
 
 Press **Esc** or right-click to cancel selection. Snipsera hides its own home, previews and pins before capture, then restores pins after success. Canceling restores the previously visible windows.
 
-You can capture again while the previous preview, pins or editor are open. The new preview replaces the previous preview after a successful capture; each original stays in history. A request received while capture is finishing is queued; multiple waiting requests coalesce to the latest action. If a save/confirmation dialog is open, capture waits for you to dismiss that dialog. Selection itself is asynchronous and does not disable the other app windows.
+You can capture again while previews, pins or an editor are open. Each new screenshot joins the pending stack without replacing an earlier one; each original stays in history. A request received while capture is finishing is queued; multiple waiting requests coalesce to the latest action. If a save/confirmation dialog is open, capture waits for you to dismiss that dialog. Selection itself is asynchronous and does not disable the other app windows.
 
 Use the home buttons or tray menu for the same actions. Open **Settings → Keyboard shortcuts** to customize them, then select **Save shortcuts**. Supported shortcuts include Print Screen on its own or with modifiers, or Ctrl and/or Alt, optional Shift, and one letter, digit or F1–F11. If another application owns a requested shortcut, Snipsera explains the conflict and keeps the previous bindings. A startup conflict leaves the capture buttons usable; change the shortcuts to enable them.
 
@@ -61,16 +64,24 @@ Open **Record screen** in Home or the tray. Use the compact panel's source icons
 
 ## Preview, save and pin
 
-The preview is a small rounded thumbnail at the **bottom left** of the monitor under the pointer. Preview and pins share the same 240 Ã— 166 logical-pixel limit including shadow space and preserve the image's proportions. Hover for controls **on the image**: Pin/Unpin and Close in the top corners, Annotate and Drag in the bottom corners, and labeled Copy/Save pills in the center. **Tab** reveals the controls for keyboard use. Very shallow or slender captures use compact on-image controls and a More menu when needed. The frame keeps its size and proportions while controls appear. A soft shade behind the controls helps readability; the image stays sharp and exports exclude every display effect.
+Screenshot previews form a layered deck at the **bottom left** of the monitor under the pointer. The newest capture is in front, with up to two narrower cards peeking out behind it. Click a rear edge to bring that screenshot forward; hovering keeps the deck compact. When a screenshot card has keyboard focus, **Alt+2** and **Alt+3** select the rear layers. An unpinned recording stays separate below the deck and uses one of the three slots; short displays can show fewer layers. A **+N** button opens additional screenshots without losing the others. The front card and pins use matching 200 × 150 logical-pixel thumbnails; only the thumbnail is cropped, while the complete image is kept for sharing and editing.
+
+Hover for controls **on the image**: Pin/Unpin and Close in the top corners, Annotate and Drag in the bottom corners, and labeled Copy/Save pills in the center. **Tab** reveals the controls for keyboard use. The frame keeps its size while controls appear. A soft shade behind the controls helps readability; the image stays sharp and exports exclude every display effect.
 
 - **Copy** puts the image on the Windows clipboard. **Ctrl+C** also works in a preview or pin.
 - **Save…** exports a PNG to a location you choose. **Ctrl+S** opens the same dialog. The native dialog asks before overwriting an existing file.
-- **Pin** turns the same preview window into an always-on-top reference. The button changes to **Unpin**, which returns it to the preview area at the bottom left, keeping its size. Options are available by right-clicking the image. Up to eight pins stack at the left above space reserved for the next preview; crowded stacks can fit smaller cards or use more columns. Drag the image to move it independently; use its bottom-right grip to resize it. Double-click to toggle a larger view. Manually moved/resized pins leave the automatic stack; remaining docked pins reflow as captures are added or closed. Pins last for the current session; the underlying capture remains in history until removed or expired. Unpin replaces an existing preview, whose original remains in history.
+- **Pin** turns the same preview window into an always-on-top reference. **Unpin** returns that window to the compact pending stack without replacing another screenshot. Options are available by right-clicking the image. Up to eight pins stack at the left above the previews; crowded stacks can fit smaller cards or use more columns. Drag the image to move it independently; use its bottom-right grip to resize it. Double-click to toggle a larger view. Manually moved/resized pins leave the automatic stack; unpinning returns them to its compact size and position. Remaining docked pins reflow as captures are added or closed. Pins last for the current session; the underlying capture remains in history until removed or expired.
 - **History** in the right-click menu opens the home window. Select **Open** on an older capture to copy, save or pin it again.
 - **Annotate** (pencil icon) opens an independent document in the image editor. The original capture stays in history. The floating preview hides to give you room to edit; a new capture still produces a preview.
 - **Drag & drop:** drag the preview image, or use its Drag button, to send an original-resolution PNG to another compatible Windows app. Pins themselves drag to move; their Drag action exports. Drag stays visible when other actions fold into More. On an exceptionally tiny manually resized pin, the other actions remain in the right-click menu. The editor has its own drag handle for the flattened edited PNG.
 - **Pin opacity:** right-click for the opacity slider, or use Ctrl+wheel for 5% steps. Opacity affects the on-screen image only; copy/save/drag retain full opacity and resolution. Arrow keys move a focused pin by one logical pixel; Shift+arrow moves ten.
 - **Esc** dismisses open controls/menu; otherwise it closes the preview or pin. Closing it does not remove its history entry.
+
+**Dismiss after sharing** is on by default under **Settings → General → Previews**. A successful Copy, an explicit Save, or a drag accepted by another app as a copy dismisses the unpinned screenshot and brings the next pending screenshot into view. Canceled or failed actions leave it in place. Automatic saving to the screenshot folder does not dismiss a card. Pins and recording cards stay visible after sharing. If the screenshot could not be saved to history, it also stays visible so you can keep a copy. Turn the setting off to leave screenshot previews open after sharing.
+
+Use **Reopen last dismissed capture** in the tray or **+N** menu, or press **Ctrl+Alt+Shift+6**, to bring back the last dismissed screenshot. Customize its shortcut under **Settings → Keyboard shortcuts**. Existing bindings are preserved on upgrade; an unused default is chosen if that combination is already assigned. **Clear unpinned previews** in the tray or **+N** menu clears the pending cards while keeping pins, screenshot history and saved recording files.
+
+The pending stack and dismissed-capture list last only for the current app session. After restarting, use History to open earlier screenshots. History still retains the latest 100 captures; the stack does not extend that retention or add a separate library or cloud storage.
 
 ## Temporarily hide overlays
 
@@ -94,6 +105,7 @@ Default folder: `%LOCALAPPDATA%\Snipsera`
 - `captures\<capture-id>.snipsera`: automatically saved edits, original pixels and reversible layers for that history entry.
 - `history.json` and `history.json.bak`: capture metadata and previous committed index.
 - `settings.json`: shortcuts after saving custom settings.
+- `preview-preferences.json`: the saved **Dismiss after sharing** choice; it does not store the pending stack.
 - `drag-exports\<owned-id>.png`: local PNGs staged for file drag-and-drop. Targets can read them after the gesture ends. Owned files older than seven days are cleaned on a later drag; unrelated files are kept. These are unencrypted local copies, like capture history.
 
 History retains the latest **100 captures**, pruning older owned PNGs and their automatic edit projects after the new history index is committed. Export anything you need to keep permanently. **Remove** asks for confirmation and removes that history image and its automatic edit project; exported copies elsewhere remain. Screenshots are unencrypted local files. Snipsera does not upload captures or send telemetry. Optional update checks retrieve version information from GitHub or Microsoft Store; see [privacy](../PRIVACY.md).

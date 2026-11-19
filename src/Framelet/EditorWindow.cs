@@ -38,13 +38,17 @@ public sealed class EditorWindow : Window
     private readonly DispatcherTimer historySave = new() { Interval = TimeSpan.FromMilliseconds(600) };
     private EditState historyState = null!;
     private bool savingHistory;
+    private readonly Action<EditState>? transferCompleted;
+    private EditState? transferredState;
+    internal bool HasTransferredCurrentState => transferredState == Document.State;
     private double resizeRatio;
     private sealed record Swatch(string Name, string Value);
 
-    public EditorWindow(EditDocument document, Action<System.Windows.Media.Imaging.BitmapSource> pin, Action open, string name = "Capture", string? projectPath = null, Action<EditDocument>? saveHistory = null, Func<string>? imageFolder = null)
+    public EditorWindow(EditDocument document, Action<System.Windows.Media.Imaging.BitmapSource> pin, Action open, string name = "Capture", string? projectPath = null, Action<EditDocument>? saveHistory = null, Func<string>? imageFolder = null, Action<EditState>? transferCompleted = null, bool needsInitialHistorySave = false)
     {
-        Document = document; this.name = name; this.projectPath = projectPath; this.saveHistory = saveHistory; historyState = document.State;
+        Document = document; this.name = name; this.projectPath = projectPath; this.saveHistory = saveHistory; historyState = needsInitialHistorySave ? null! : document.State;
         this.imageFolder = imageFolder ?? (() => Environment.GetFolderPath(Environment.SpecialFolder.MyPictures));
+        this.transferCompleted = transferCompleted;
         Ui.Setup(this); Ui.UseSystemChrome(this); Width = 1120; Height = 780; MinWidth = 900; MinHeight = 560; WindowStartupLocation = WindowStartupLocation.CenterScreen;
         Canvas = new EditCanvas(document) { Report = ex => SetStatus(ex.Message, true) };
         Canvas.MakeMark = (kind, points) => new Mark(kind, points, SelectedColor(colors), Number(strokes, 4), text.Text, Number(fonts, 24),
@@ -102,7 +106,10 @@ public sealed class EditorWindow : Window
         output.Children.Add(Ui.IconButton("Pin", "Pin edited image", "EditorPin", () => pin(Canvas.Image)));
         output.Children.Add(Ui.IconButton("Copy", "Copy edited image · Ctrl+C", "EditorCopy", async () => await CopyImage()));
         var drag = Ui.IconButton("Drag", "Drag edited PNG to another app", "EditorDrag", () => SetStatus("Drag this handle to another app"));
-        DragExport.Attach(drag, (Application.Current as CaptureApp)?.History.Root ?? Path.Combine(Path.GetTempPath(), "Snipsera"), () => Canvas.Image, ex => SetStatus(ex.Message, true)); output.Children.Add(drag);
+        EditState? draggedState = null;
+        DragExport.Attach(drag, (Application.Current as CaptureApp)?.History.Root ?? Path.Combine(Path.GetTempPath(), "Snipsera"),
+            () => { draggedState = Document.State; return Canvas.Image; }, ex => SetStatus(ex.Message, true),
+            completed: () => { if (draggedState is not null) CompleteTransfer(draggedState); }); output.Children.Add(drag);
         output.Children.Add(Action("JPEG…", "ExportJpeg", () => Export(true)));
         output.Children.Add(Action("Save image…", "ExportPng", () => Export(false), true));
         DockPanel.SetDock(output, Dock.Right); footer.Children.Insert(0, output); DockPanel.SetDock(footer, Dock.Bottom); dock.Children.Add(footer);
@@ -243,7 +250,7 @@ public sealed class EditorWindow : Window
         var dialog = new SaveFileDialog { Title = jpeg ? "Export JPEG" : "Export PNG", Filter = jpeg ? "JPEG image (*.jpg)|*.jpg" : "PNG image (*.png)|*.png", DefaultExt = jpeg ? ".jpg" : ".png", AddExtension = true,
             FileName = name + "-edited" + (jpeg ? ".jpg" : ".png"), InitialDirectory = imageFolder() };
         if (dialog.ShowDialog(this) != true) return;
-        try { EditFiles.Export(Document, dialog.FileName, jpeg); SetStatus("Flattened " + (jpeg ? "JPEG" : "PNG") + " exported"); }
+        try { EditFiles.Export(Document, dialog.FileName, jpeg); if (CompleteTransfer(Document.State)) SetStatus("Flattened " + (jpeg ? "JPEG" : "PNG") + " exported"); }
         catch (Exception ex) { SetStatus(ex.Message, true); }
     }
     public bool ConfirmClose()
@@ -290,5 +297,11 @@ public sealed class EditorWindow : Window
         else if (e.Key == Key.Delete) { RemoveSelected(); e.Handled = true; }
     }
     private async System.Threading.Tasks.Task CopyImage()
-    { try { await CaptureService.Copy(Canvas.Image); SetStatus("Edited image copied to clipboard"); } catch (Exception ex) { SetStatus(ex.Message, true); } }
+    { try { var state = Document.State; await CaptureService.Copy(Canvas.Image); if (CompleteTransfer(state)) SetStatus("Edited image copied to clipboard"); } catch (Exception ex) { SetStatus(ex.Message, true); } }
+
+    internal bool CompleteTransfer(EditState state)
+    {
+        if (!FlushHistory()) return false;
+        transferredState = state; transferCompleted?.Invoke(state); return true;
+    }
 }
