@@ -18,7 +18,7 @@ The installer includes .NET. Screen recording needs the [Microsoft Visual C++ x6
 
 For the portable version, extract the complete ZIP and open **Snipsera.exe**. Keep its files and `encoder` folder together.
 
-**The GitHub EXE and portable ZIP are unsigned.** Windows may show a warning when you download or start them. The official GitHub release is 1.0.5, with update notices, optional startup with Windows, all-in-one capture, compact recording controls and faster GIF conversion. Its matching Store update passed certification and is now published. New GitHub versions stay previews until their matching Store update is approved. Installer code signing is pending; see the [release notes](https://github.com/hooksha-DA7/snipsera/releases) for current limits. [Code signing policy](docs/CODE-SIGNING.md).
+**The GitHub EXE and portable ZIP are unsigned.** Windows may show a warning when you download or start them. The official GitHub release is 1.0.6, with organized settings, configurable save folders, recording side cards and adjustable toolbar appearance. Its matching Store update passed certification and is now published. New GitHub versions stay previews until their matching Store update is approved. Installer code signing is pending; see the [release notes](https://github.com/hooksha-DA7/snipsera/releases) for current limits. [Code signing policy](docs/CODE-SIGNING.md).
 
 Snipsera runs locally, without an account or cloud service. Older Framelet downloads remain available in the [release history](RELEASES.md).
 
@@ -32,11 +32,11 @@ Snipsera runs locally, without an account or cloud service. Older Framelet downl
 | Repeat the last area | Ctrl+Alt+Shift+4 |
 | Open all-in-one capture | Ctrl+Alt+Shift+5 |
 
-You can also capture from the home window or tray menu. In version 1.0.5, change them under **Keyboard shortcuts**: select a box, press your keys and save. You can use **Print Screen** on its own.
+You can also capture from the home window or tray menu. Change them under **Settings > Keyboard shortcuts**: select a box, press your keys and save. You can use **Print Screen** on its own.
 
 The **All-in-one capture** bar puts Area, Window, Display, Scroll and Last area in one compact floating panel. Assign Print Screen to it under Keyboard shortcuts, then choose the mode you need. Esc dismisses the bar; your capture goes to the usual preview and history.
 
-A compact preview appears at the bottom left. In version 1.0.5, docked screenshots use matching cards with a tight gap. Hover over it to **Copy**, **Save**, **Pin** or **Annotate**. Take another screenshot whenever you need one; the previous capture stays in history.
+A compact preview appears at the bottom left. Docked screenshots use matching cards with a tight gap. Hover over it to **Copy**, **Save**, **Pin** or **Annotate**. Take another screenshot whenever you need one; the previous capture stays in history.
 
 ## Record your screen
 
