@@ -1,10 +1,10 @@
 # Snipsera build status
 
-## 1.0.7 candidate: pending screenshot stack and preview controls
+## 1.0.7 preview: layered screenshots and preview controls
 
-Prepared for the next update, 19 November 2026. Version 1.0.7 has not been published or submitted to Microsoft Store yet; the Store submission draft is prepared. GitHub will remain a preview until Microsoft approves the matching Store update.
+Published as a GitHub preview and submitted to Microsoft Store on 19 November 2026. Store Submission 6 (1152921505702444831), package 1.0.7.0, is in certification/pre-processing with automatic publication after approval. GitHub remains a preview until Microsoft approves this matching update; 1.0.6 remains the official release.
 
-Fresh dependency restore and the candidate Release build passed with **zero warnings/errors**. All **23 safe check modes** and **43 Python checks** passed. The isolated app launched and its accessibility tree was readable. Desktop screenshots returned black images for both the app and a separate test window, so this run could not verify the deck's live appearance, layering or hit targets. Final package and publication verification are still in progress.
+The exact [hosted build](https://github.com/hooksha-DA7/snipsera/actions/runs/44444517015) passed **507 automated/offscreen checks** (446 C# checks across 23 modes and 61 Python checks), with **zero compiler warnings/errors**. Package/source parity, safe ZIP paths and CRCs, manifests, Store identity/resource/block-map checks and EXE installation, synthetic launch, reinstall, increasing-version fixture upgrade, owned startup cleanup and uninstall passed on Windows Server 2025. Downloaded artifact bytes were independently verified. The isolated local app launched and its accessibility tree was readable, but black desktop screenshots prevented live deck appearance, layering and hit-target acceptance.
 
 New screenshots join a layered deck at the bottom left instead of replacing the previous preview. The front screenshot retains its 200 × 150 card and on-image controls. Up to two narrower cards peek out behind it, with 20-DIP steps and 8-DIP side insets. Clicking an exposed edge brings that capture forward; Alt+2/Alt+3 does the same when a screenshot card has keyboard focus. Rear cards have no active sharing, drag or close controls. **+N** opens additional pending screenshots. Short displays use fewer layers, and an unpinned recording stays separate below the deck while taking one slot. Pin/Unpin keeps the same window. Ordinary overflow captures load from History on demand, while failed history saves retain recovery pixels.
 
@@ -16,7 +16,7 @@ The preceding stack implementation passed **457 automated/offscreen checks** (41
 
 Desktop clipboard/paste, file-picker cancellation, cross-application drops, popup/deck focus, native layering and hit targets, monitor placement and capture exclusion remain pending native acceptance. Detached renders do not establish those behaviors. Local installation and clean Windows 11 acceptance also remain pending. A separate Library window and cloud features remain future proposals. See [preview workflow](docs/PREVIEW-WORKFLOW.md).
 
-The first hosted 1.0.7 build stopped because the pinned upstream GIF-converter archive returned HTTP 404. Build 1.0.7-preview.2 adds a hash-verified fallback to the unchanged encoder files in the prior official release. The fallback validates the entire archive and all 11 component hashes before writing runtime files; integrity failures do not switch sources. All 61 Python checks passed, including 18 dependency-retrieval regressions. The earlier source tag remains unchanged.
+The first hosted 1.0.7 build stopped because the pinned upstream GIF-converter archive returned HTTP 404. Build 1.0.7-preview.2 adds a hash-verified fallback to the unchanged encoder files in the prior official release. The fallback validates the entire archive and all 11 component hashes before writing runtime files; integrity failures do not switch sources. All 61 Python checks passed, including 18 dependency-retrieval regressions. The earlier source tag remains unchanged. The shipped source is `8cbb4c5fab2db5cb9d47be9fcc90cbf3ec206e11`, tag `v1.0.7-preview.2`. The submitted MSIX SHA256 is `577274a9225f499ca2fe2cdf1fb89eb4c44a8f87b32d711c9afc59e4a22961cf`. The GitHub installer is unsigned; the unsigned MSIX is submission-only.
 
 ## Settings and recording workflow release: 1.0.6
 

@@ -1,6 +1,6 @@
 # Screenshot preview workflow
 
-Version 1.0.7 candidate, 19 November 2026. These changes have not been published or submitted to Microsoft Store yet; the Store submission draft is prepared. GitHub will remain a preview until Microsoft approves the matching Store update.
+Version 1.0.7 preview, 19 November 2026. The update is published on GitHub and submitted to Microsoft Store with automatic publication after certification. GitHub remains a preview until Microsoft approves the matching Store update.
 
 New screenshots join a layered deck at the bottom left. The front screenshot keeps the familiar 200 × 150 card and its on-image controls. Up to two narrower cards peek out behind it, with 20-pixel logical steps and soft outlines. Click an exposed edge to bring that screenshot forward. The deck stays compact on hover. A **+N** button opens older pending captures in a scrollable thumbnail list. Selecting one brings it into view without dismissing another capture. Short displays can show fewer layers; an unpinned recording uses one of the three visible slots and remains a separate full card below the screenshot deck.
 
@@ -26,7 +26,7 @@ The pending and dismissed lists last for the app session. Restarting clears thos
 
 ## Verification
 
-The release check script includes isolated checks for transfer completion, preferences and shortcut migration, stack ordering and layout, app/editor integration, and detached deck and overflow visuals. They use synthetic images without showing windows, writing to the clipboard, opening a file picker or initiating a native drag. The candidate passed a fresh dependency restore, a Release build with zero warnings/errors, all 23 safe check modes and 43 Python checks. Detailed results and package verification status are recorded in [build status](../BUILD-STATUS.md).
+The release check script includes isolated checks for transfer completion, preferences and shortcut migration, stack ordering and layout, app/editor integration, and detached deck and overflow visuals. They use synthetic images without showing windows, writing to the clipboard, opening a file picker or initiating a native drag. The candidate passed a fresh dependency restore, a Release build with zero warnings/errors, all 507 automated/offscreen checks (446 C# checks across 23 safe modes and 61 Python checks). Detailed results and package verification status are recorded in [build status](../BUILD-STATUS.md).
 
 The isolated app launched and its accessibility tree was readable, but desktop screenshots of both the app and a separate test window returned black images. Live clipboard delivery, file-picker cancellation, accepted/rejected drops into other applications, popup/deck focus, native layering and hit targets, monitor placement and capture exclusion still need desktop acceptance. Offscreen completion and render tests do not establish those native behaviors. Local installation and clean Windows 11 acceptance also remain pending.
 

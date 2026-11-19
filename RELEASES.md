@@ -1,6 +1,37 @@
 # Releases
 
-The official Snipsera release is [1.0.6](https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.6-preview.3).
+The official Snipsera release is [1.0.6](https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.6-preview.3). The latest preview is [1.0.7](https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.7-preview.2).
+
+## 1.0.7: Layered screenshot previews
+
+2026-11-19 · Preview · [Release page](https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.7-preview.2)
+
+Keep several screenshots close at hand, bring an earlier capture forward and clear previews once you have used them.
+
+### Added
+
+- A compact screenshot deck with up to three visible layers. Click a rear edge to bring that capture forward; +N opens the rest.
+- Reopen last dismissed capture from the tray or with Ctrl+Alt+Shift+6. Change the shortcut in Settings.
+- Clear unpinned previews removes the side cards without deleting pins, saved files or History.
+- Dismiss after sharing in Settings → General, on by default. Successful Copy, Save or drag-and-drop closes an unpinned screenshot preview while keeping it in History.
+
+### Improved
+
+- Taking another screenshot keeps earlier pending captures available. Pin and Unpin keep their controls on the image and use the same window.
+- Alt+2 and Alt+3 bring rear layers forward when a screenshot card has keyboard focus. Older previews use small thumbnails to keep the stack light.
+
+### Fixed
+
+- An editor no longer brings back a screenshot that was already shared or cleared. Later edits are still saved in History, and reopening a dismissed screenshot uses its latest saved edits.
+- A late Copy or drag completion affects only its original capture, without closing a newer or reopened preview.
+
+**Preview with an unsigned GitHub installer and portable ZIP.** Windows may warn when downloading or starting them. This build stays a preview until Microsoft approves its matching 1.0.7 update. The [Microsoft Store](https://apps.microsoft.com/detail/9NFL9VHL8GKV) offers the current approved version. Store signing does not sign the GitHub installer. Live desktop capture/input, native layered-card interaction, frosted-glass and mixed-DPI appearance, real sign-in startup, notification delivery, Store API calls and final clean Windows 11/installed-MSIX acceptance remain pending. The unsigned MSIX is for Store submission only.
+
+### Download
+
+[EXE installer](https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.7-preview.2/Snipsera-1.0.7-preview.2-setup-win-x64.exe) · [Portable ZIP](https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.7-preview.2/Snipsera-1.0.7-preview.2-win-x64.zip) · [Source ZIP](https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.7-preview.2/Snipsera-1.0.7-preview.2-source.zip) · [Microsoft Store](https://apps.microsoft.com/detail/9NFL9VHL8GKV) · [Checksums](https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.7-preview.2/SHA256SUMS.txt)
+
+Run the EXE installer, or extract the portable ZIP and open **Snipsera.exe**. Windows 11 x64 is required; .NET is included. Quit an older copy from its tray menu first. The installer checks the Visual C++ x64 runtime needed for recording.
 
 ## 1.0.6: Save folders, recording cards and new icons
 

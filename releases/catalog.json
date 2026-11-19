@@ -3,7 +3,7 @@
   "repository": "hooksha-DA7/snipsera",
   "imported_on": "2026-11-01",
   "verified_baseline": "v1.0.6-preview.3",
-  "latest_preview": null,
+  "latest_preview": "v1.0.7-preview.2",
   "releases": [
     {
       "version": "0.1.0",
@@ -1120,6 +1120,83 @@
         "verified_date": "2026-11-06",
         "source_url": "https://partner.microsoft.com/en-us/dashboard/products/9NFL9VHL8GKV/overview"
       }
+    },
+    {
+      "version": "1.0.7-preview.2",
+      "display_version": "1.0.7",
+      "tag": "v1.0.7-preview.2",
+      "product": "Snipsera",
+      "build_date": "2026-11-19",
+      "title": "Layered screenshot previews",
+      "status": "preview",
+      "prerelease": true,
+      "latest": false,
+      "notes": "releases/notes/v1.0.7-preview.2.md",
+      "release_url": "https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.7-preview.2",
+      "kind": "Preview",
+      "intro": "Keep several screenshots close at hand, bring an earlier capture forward and clear previews once you have used them.",
+      "changes": {
+        "Added": [
+          "A compact screenshot deck with up to three visible layers. Click a rear edge to bring that capture forward; +N opens the rest.",
+          "Reopen last dismissed capture from the tray or with Ctrl+Alt+Shift+6. Change the shortcut in Settings.",
+          "Clear unpinned previews removes the side cards without deleting pins, saved files or History.",
+          "Dismiss after sharing in Settings → General, on by default. Successful Copy, Save or drag-and-drop closes an unpinned screenshot preview while keeping it in History."
+        ],
+        "Improved": [
+          "Taking another screenshot keeps earlier pending captures available. Pin and Unpin keep their controls on the image and use the same window.",
+          "Alt+2 and Alt+3 bring rear layers forward when a screenshot card has keyboard focus. Older previews use small thumbnails to keep the stack light."
+        ],
+        "Fixed": [
+          "An editor no longer brings back a screenshot that was already shared or cleared. Later edits are still saved in History, and reopening a dismissed screenshot uses its latest saved edits.",
+          "A late Copy or drag completion affects only its original capture, without closing a newer or reopened preview."
+        ]
+      },
+      "notice": "**Preview with an unsigned GitHub installer and portable ZIP.** Windows may warn when downloading or starting them. This build stays a preview until Microsoft approves its matching 1.0.7 update. The [Microsoft Store](https://apps.microsoft.com/detail/9NFL9VHL8GKV) offers the current approved version. Store signing does not sign the GitHub installer. Live desktop capture/input, native layered-card interaction, frosted-glass and mixed-DPI appearance, real sign-in startup, notification delivery, Store API calls and final clean Windows 11/installed-MSIX acceptance remain pending. The unsigned MSIX is for Store submission only.",
+      "verification": "507 automated/offscreen checks passed (446 C# and 61 Python) in the exact hosted build. Package/source parity, archive hashes and safe paths, MSIX identity/resource/block-map validation, and EXE installation, synthetic launch, reinstall, increasing-version fixture upgrade, owned startup cleanup and uninstall passed on Windows Server 2025. Downloaded artifacts were independently verified against the tagged source. Native layered-card interaction and clean Windows 11/installed-MSIX acceptance remain pending; local desktop screenshots were black.",
+      "signing_status": "unsigned-preview",
+      "source_commit": "8cbb4c5fab2db5cb9d47be9fcc90cbf3ec206e11",
+      "build_workflow": "https://github.com/hooksha-DA7/snipsera/actions/runs/44444517015",
+      "assets": [
+        {
+          "name": "Snipsera-1.0.7-preview.2-setup-win-x64.exe",
+          "bytes": 134050943,
+          "sha256": "e8efbc33eaf5d8c127910d0ce3ee9cb48b42e96daf192f2e7cea90b7a3217443",
+          "role": "installer-x64",
+          "url": "https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.7-preview.2/Snipsera-1.0.7-preview.2-setup-win-x64.exe"
+        },
+        {
+          "name": "Snipsera-1.0.7-preview.2-source.zip",
+          "bytes": 3159812,
+          "sha256": "e541a238fb2485c87cdcf67634c70ece35d331b539e592df4700d4c9e209958e",
+          "role": "source",
+          "url": "https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.7-preview.2/Snipsera-1.0.7-preview.2-source.zip"
+        },
+        {
+          "name": "Snipsera-1.0.7-preview.2-win-x64.zip",
+          "bytes": 159466839,
+          "sha256": "7b7a2e72248850293155701e1eb4cfa2f1905f3773dcb74994f956406135e351",
+          "role": "windows-x64",
+          "url": "https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.7-preview.2/Snipsera-1.0.7-preview.2-win-x64.zip"
+        }
+      ],
+      "store_submission": {
+        "name": "Snipsera-1.0.7-preview.2-store-submission-x64.msix",
+        "bytes": 159007332,
+        "sha256": "577274a9225f499ca2fe2cdf1fb89eb4c44a8f87b32d711c9afc59e4a22961cf"
+      },
+      "store_submission_status": {
+        "status": "in-certification",
+        "stage": "pre-processing",
+        "product_id": "9NFL9VHL8GKV",
+        "submission_id": "1152921505702444831",
+        "submission_number": 6,
+        "package_version": "1.0.7.0",
+        "verified_date": "2026-11-19",
+        "publishing": "automatic after certification",
+        "source_url": "https://partner.microsoft.com/en-us/dashboard/products/9NFL9VHL8GKV/overview",
+        "submitted_date": "2026-11-19"
+      },
+      "store_url": "https://apps.microsoft.com/detail/9NFL9VHL8GKV"
     }
   ],
   "product": "Snipsera",
