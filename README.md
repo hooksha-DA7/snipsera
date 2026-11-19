@@ -9,7 +9,7 @@ Snipsera is the new name for Framelet. Get it from Microsoft Store or download t
 ## Download and run
 
 <!-- FRAMELET_DOWNLOADS_START -->
-[Get Snipsera from Microsoft Store](https://apps.microsoft.com/detail/9NFL9VHL8GKV) · [Download Snipsera (1.0.6)](https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.6-preview.3/Snipsera-1.0.6-preview.3-setup-win-x64.exe) · [Portable ZIP](https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.6-preview.3/Snipsera-1.0.6-preview.3-win-x64.zip) · [Try the preview (1.0.7)](https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.7-preview.2) · [All releases](RELEASES.md)
+[Get Snipsera from Microsoft Store](https://apps.microsoft.com/detail/9NFL9VHL8GKV) · [Download Snipsera (1.0.7)](https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.7-preview.2/Snipsera-1.0.7-preview.2-setup-win-x64.exe) · [Portable ZIP](https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.7-preview.2/Snipsera-1.0.7-preview.2-win-x64.zip) · [All releases](RELEASES.md)
 <!-- FRAMELET_DOWNLOADS_END -->
 
 Install Snipsera from **Microsoft Store** above, then open it from the Start menu. If you prefer the GitHub download, run the **EXE installer** and follow the setup steps.
@@ -18,7 +18,7 @@ The installer includes .NET. Screen recording needs the [Microsoft Visual C++ x6
 
 For the portable version, extract the complete ZIP and open **Snipsera.exe**. Keep its files and `encoder` folder together.
 
-**The GitHub EXE and portable ZIP are unsigned.** Windows may show a warning when you download or start them. The official GitHub release is 1.0.6, with organized settings, configurable save folders, recording side cards and adjustable toolbar appearance. Its matching Store update passed certification and is now published. New GitHub versions stay previews until their matching Store update is approved. Installer code signing is pending; see the [release notes](https://github.com/hooksha-DA7/snipsera/releases) for current limits. [Code signing policy](docs/CODE-SIGNING.md).
+**The GitHub EXE and portable ZIP are unsigned.** Windows may show a warning when you download or start them. The official GitHub release is 1.0.7, with layered screenshot previews, reopening dismissed captures and optional dismissal after sharing. Its matching Store update passed certification and is now published. New GitHub versions stay previews until their matching Store update is approved. Installer code signing is pending; see the [release notes](https://github.com/hooksha-DA7/snipsera/releases) for current limits. [Code signing policy](docs/CODE-SIGNING.md).
 
 Snipsera runs locally, without an account or cloud service. Older Framelet downloads remain available in the [release history](RELEASES.md).
 
@@ -31,6 +31,7 @@ Snipsera runs locally, without an account or cloud service. Older Framelet downl
 | Capture a display | Ctrl+Alt+Shift+3 |
 | Repeat the last area | Ctrl+Alt+Shift+4 |
 | Open all-in-one capture | Ctrl+Alt+Shift+5 |
+| Reopen last dismissed capture | Ctrl+Alt+Shift+6 |
 
 You can also capture from the home window or tray menu. Change them under **Settings > Keyboard shortcuts**: select a box, press your keys and save. You can use **Print Screen** on its own.
 
@@ -38,7 +39,7 @@ The **All-in-one capture** bar puts Area, Window, Display, Scroll and Last area 
 
 A compact preview appears at the bottom left. Docked screenshots use matching cards with a tight gap. Hover over it to **Copy**, **Save**, **Pin** or **Annotate**. Take another screenshot whenever you need one; the previous capture stays in history.
 
-The **1.0.7 preview** adds a layered screenshot stack, reopening dismissed captures and optional dismissal after sharing. [See how previews work](docs/PREVIEW-WORKFLOW.md).
+Version **1.0.7** adds a layered screenshot stack, reopening dismissed captures and optional dismissal after sharing. [See how previews work](docs/PREVIEW-WORKFLOW.md).
 
 ## Record your screen
 

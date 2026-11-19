@@ -1,6 +1,6 @@
 # Screenshot preview workflow
 
-Version 1.0.7 preview, 19 November 2026. The update is published on GitHub and submitted to Microsoft Store with automatic publication after certification. GitHub remains a preview until Microsoft approves the matching Store update.
+Version 1.0.7, 19 November 2026. Microsoft approval and Store availability are confirmed for the matching update. The same GitHub build is the official release; download filenames and the original build tag are unchanged.
 
 New screenshots join a layered deck at the bottom left. The front screenshot keeps the familiar 200 × 150 card and its on-image controls. Up to two narrower cards peek out behind it, with 20-pixel logical steps and soft outlines. Click an exposed edge to bring that screenshot forward. The deck stays compact on hover. A **+N** button opens older pending captures in a scrollable thumbnail list. Selecting one brings it into view without dismissing another capture. Short displays can show fewer layers; an unpinned recording uses one of the three visible slots and remains a separate full card below the screenshot deck.
 

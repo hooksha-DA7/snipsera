@@ -4,14 +4,14 @@
 
 ## 1.0.7 — 2026-11-19
 
-Preview. Keep several screenshots close at hand, bring an earlier capture forward and clear previews once you have used them.
+Release. Keep several screenshots close at hand, bring an earlier capture forward and clear previews once you have used them.
 
 ### Added
 
 - A compact screenshot deck with up to three visible layers. Click a rear edge to bring that capture forward; +N opens the rest.
 - Reopen last dismissed capture from the tray or with Ctrl+Alt+Shift+6. Change the shortcut in Settings.
 - Clear unpinned previews removes the side cards without deleting pins, saved files or History.
-- Dismiss after sharing in Settings → General, on by default. Successful Copy, Save or drag-and-drop closes an unpinned screenshot preview while keeping it in History.
+- Dismiss after sharing in Settings > General, on by default. Successful Copy, Save or drag-and-drop closes an unpinned screenshot preview while keeping it in History.
 
 ### Improved
 
@@ -23,7 +23,7 @@ Preview. Keep several screenshots close at hand, bring an earlier capture forwar
 - An editor no longer brings back a screenshot that was already shared or cleared. Later edits are still saved in History, and reopening a dismissed screenshot uses its latest saved edits.
 - A late Copy or drag completion affects only its original capture, without closing a newer or reopened preview.
 
-**Preview with an unsigned GitHub installer and portable ZIP.** Windows may warn when downloading or starting them. This build stays a preview until Microsoft approves its matching 1.0.7 update. The [Microsoft Store](https://apps.microsoft.com/detail/9NFL9VHL8GKV) offers the current approved version. Store signing does not sign the GitHub installer. Live desktop capture/input, native layered-card interaction, frosted-glass and mixed-DPI appearance, real sign-in startup, notification delivery, Store API calls and final clean Windows 11/installed-MSIX acceptance remain pending. The unsigned MSIX is for Store submission only.
+**The GitHub installer and portable ZIP are unsigned.** Windows may warn when downloading or starting them. Snipsera 1.0.7 is approved and available from the [Microsoft Store](https://apps.microsoft.com/detail/9NFL9VHL8GKV). Store signing does not sign the GitHub installer. Live desktop capture/input, native layered-card interaction, frosted-glass and mixed-DPI appearance, real sign-in startup, notification delivery, Store API calls and final clean Windows 11/installed-MSIX acceptance remain pending. The unsigned MSIX is for Store submission only.
 
 ## 1.0.6 — 2026-11-06
 

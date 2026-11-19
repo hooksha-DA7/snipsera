@@ -2,8 +2,8 @@
   "schema_version": 1,
   "repository": "hooksha-DA7/snipsera",
   "imported_on": "2026-11-01",
-  "verified_baseline": "v1.0.6-preview.3",
-  "latest_preview": "v1.0.7-preview.2",
+  "verified_baseline": "v1.0.7-preview.2",
+  "latest_preview": null,
   "releases": [
     {
       "version": "0.1.0",
@@ -1039,7 +1039,7 @@
       "title": "Save folders, recording cards and new icons",
       "status": "release",
       "prerelease": false,
-      "latest": true,
+      "latest": false,
       "notes": "releases/notes/v1.0.6-preview.3.md",
       "release_url": "https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.6-preview.3",
       "kind": "Release",
@@ -1128,19 +1128,19 @@
       "product": "Snipsera",
       "build_date": "2026-11-19",
       "title": "Layered screenshot previews",
-      "status": "preview",
-      "prerelease": true,
-      "latest": false,
+      "status": "release",
+      "prerelease": false,
+      "latest": true,
       "notes": "releases/notes/v1.0.7-preview.2.md",
       "release_url": "https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.7-preview.2",
-      "kind": "Preview",
+      "kind": "Release",
       "intro": "Keep several screenshots close at hand, bring an earlier capture forward and clear previews once you have used them.",
       "changes": {
         "Added": [
           "A compact screenshot deck with up to three visible layers. Click a rear edge to bring that capture forward; +N opens the rest.",
           "Reopen last dismissed capture from the tray or with Ctrl+Alt+Shift+6. Change the shortcut in Settings.",
           "Clear unpinned previews removes the side cards without deleting pins, saved files or History.",
-          "Dismiss after sharing in Settings → General, on by default. Successful Copy, Save or drag-and-drop closes an unpinned screenshot preview while keeping it in History."
+          "Dismiss after sharing in Settings > General, on by default. Successful Copy, Save or drag-and-drop closes an unpinned screenshot preview while keeping it in History."
         ],
         "Improved": [
           "Taking another screenshot keeps earlier pending captures available. Pin and Unpin keep their controls on the image and use the same window.",
@@ -1151,9 +1151,9 @@
           "A late Copy or drag completion affects only its original capture, without closing a newer or reopened preview."
         ]
       },
-      "notice": "**Preview with an unsigned GitHub installer and portable ZIP.** Windows may warn when downloading or starting them. This build stays a preview until Microsoft approves its matching 1.0.7 update. The [Microsoft Store](https://apps.microsoft.com/detail/9NFL9VHL8GKV) offers the current approved version. Store signing does not sign the GitHub installer. Live desktop capture/input, native layered-card interaction, frosted-glass and mixed-DPI appearance, real sign-in startup, notification delivery, Store API calls and final clean Windows 11/installed-MSIX acceptance remain pending. The unsigned MSIX is for Store submission only.",
+      "notice": "**The GitHub installer and portable ZIP are unsigned.** Windows may warn when downloading or starting them. Snipsera 1.0.7 is approved and available from the [Microsoft Store](https://apps.microsoft.com/detail/9NFL9VHL8GKV). Store signing does not sign the GitHub installer. Live desktop capture/input, native layered-card interaction, frosted-glass and mixed-DPI appearance, real sign-in startup, notification delivery, Store API calls and final clean Windows 11/installed-MSIX acceptance remain pending. The unsigned MSIX is for Store submission only.",
       "verification": "507 automated/offscreen checks passed (446 C# and 61 Python) in the exact hosted build. Package/source parity, archive hashes and safe paths, MSIX identity/resource/block-map validation, and EXE installation, synthetic launch, reinstall, increasing-version fixture upgrade, owned startup cleanup and uninstall passed on Windows Server 2025. Downloaded artifacts were independently verified against the tagged source. Native layered-card interaction and clean Windows 11/installed-MSIX acceptance remain pending; local desktop screenshots were black.",
-      "signing_status": "unsigned-preview",
+      "signing_status": "unsigned",
       "source_commit": "8cbb4c5fab2db5cb9d47be9fcc90cbf3ec206e11",
       "build_workflow": "https://github.com/hooksha-DA7/snipsera/actions/runs/44444517015",
       "assets": [
@@ -1185,8 +1185,8 @@
         "sha256": "577274a9225f499ca2fe2cdf1fb89eb4c44a8f87b32d711c9afc59e4a22961cf"
       },
       "store_submission_status": {
-        "status": "in-certification",
-        "stage": "pre-processing",
+        "status": "published",
+        "stage": "published",
         "product_id": "9NFL9VHL8GKV",
         "submission_id": "1152921505702444831",
         "submission_number": 6,
@@ -1196,7 +1196,17 @@
         "source_url": "https://partner.microsoft.com/en-us/dashboard/products/9NFL9VHL8GKV/overview",
         "submitted_date": "2026-11-19"
       },
-      "store_url": "https://apps.microsoft.com/detail/9NFL9VHL8GKV"
+      "store_url": "https://apps.microsoft.com/detail/9NFL9VHL8GKV",
+      "store_approval": {
+        "status": "approved",
+        "product_id": "9NFL9VHL8GKV",
+        "submission_id": "1152921505702444831",
+        "package_version": "1.0.7.0",
+        "package_sha256": "577274a9225f499ca2fe2cdf1fb89eb4c44a8f87b32d711c9afc59e4a22961cf",
+        "source_commit": "8cbb4c5fab2db5cb9d47be9fcc90cbf3ec206e11",
+        "verified_date": "2026-11-19",
+        "source_url": "https://partner.microsoft.com/en-us/dashboard/products/9NFL9VHL8GKV/overview"
+      }
     }
   ],
   "product": "Snipsera",
