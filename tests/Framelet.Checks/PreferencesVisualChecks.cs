@@ -131,6 +131,28 @@ internal static class PreferencesVisualChecks
             }
             finally { window.Close(); }
         });
+        Test("Approved legacy builds show numeric versions in Settings, Home and accessible actions", () =>
+        {
+            var updates = new UpdateFake { Offer = GitHub("1.0.7-preview.2", false) };
+            using var controller = new AppPreferencesController(Store(), updates, new StartupFake(), "1.0.6-preview.3+abc", false);
+            Wait(controller.CheckUpdatesAsync());
+            var window = new PreferencesWindow(controller); window.ShowPage(SettingsPage.Updates);
+            try
+            {
+                var root = (FrameworkElement)window.Content; window.Content = null;
+                Render(root, 544, 1.5, Path.Combine(output, "settings-approved-legacy-version.png"));
+                Require(Find<TextBlock>(root, "InstalledVersion").Text == "Snipsera 1.0.6 · GitHub releases", "Installed version exposed a build suffix");
+                var title = Find<TextBlock>(root, "UpdateOfferTitle");
+                Require(new TextRange(title.ContentStart, title.ContentEnd).Text.Trim() == "Snipsera 1.0.7 is available" && !Children(root).Any(c => AutomationProperties.GetAutomationId(c) == "UpdatePreviewLabel"), "Approved offer retained a preview label");
+                Require(AutomationProperties.GetName(Find<Button>(root, "OpenUpdate")) == "View GitHub release for Snipsera 1.0.7", "Accessible update action exposed a build suffix");
+                var notice = new UpdateNotice(controller, () => { });
+                Render(notice, 480, 1.5, Path.Combine(output, "notice-approved-legacy-version.png"));
+                Require(AutomationProperties.GetName(notice) == "Snipsera 1.0.7 is available" && AutomationProperties.GetName(Find<Button>(notice, "HomeViewUpdate")) == "View update for Snipsera 1.0.7", "Home notice exposed a build suffix");
+                updates.Offer = GitHub("1.0.8", true); Wait(controller.CheckUpdatesAsync()); notice.Refresh(); Layout(notice);
+                Require(Children(notice).Any(c => AutomationProperties.GetAutomationId(c) == "UpdatePreviewLabel"), "Actual GitHub prerelease badge was hidden");
+            }
+            finally { window.Close(); }
+        });
         foreach (bool dark in new[] { true, false })
         foreach (bool store in new[] { true, false })
         foreach (bool error in new[] { false, true })

@@ -99,7 +99,7 @@ public sealed class PreferencesWindow : Window
 
         // Updates: checks only report availability; the action opens the Store or release page for the person to decide.
         var updates = new StackPanel();
-        var installed = Ui.Text($"Snipsera {controller.InstalledVersion} · {controller.UpdateSourceName}", 13); Describe(installed, "InstalledVersion", AutomationLiveSetting.Off);
+        var installed = Ui.Text($"Snipsera {controller.InstalledDisplayVersion} · {controller.UpdateSourceName}", 13); Describe(installed, "InstalledVersion", AutomationLiveSetting.Off);
         updates.Children.Add(installed); updates.Children.Add(Rule());
         automatic = Box("Automatically check for updates", "AutomaticUpdateChecks", "Checks once a day, retries hourly after a failed check, and lets you know when an update is ready.", updates);
         automatic.Click += (_, _) => SavePreferences();

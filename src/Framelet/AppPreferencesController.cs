@@ -20,6 +20,7 @@ public sealed class AppPreferencesController : IDisposable
     private readonly IDisposable? ownedClient;
     private bool startupBusy, disposed;
     public string InstalledVersion { get; }
+    public string InstalledDisplayVersion => ReleaseVersion.Display(InstalledVersion);
     public string UpdateSourceName => updates.Name;
     public bool IsStoreInstall { get; }
     public UpdatePreferences Preferences { get; private set; }
@@ -98,7 +99,7 @@ public sealed class AppPreferencesController : IDisposable
             { Update = Update with { Checking = false, Message = "Update settings changed. Check again for the selected releases." }; return; }
             var checkedAt = now();
             Preferences = Preferences with { LastChecked = checkedAt, AvailableUpdate = offer, CheckedVersion = InstalledVersion };
-            string message = offer is null ? "You're up to date." : IsStoreInstall ? "An update is available from Microsoft Store." : $"{offer.Version}{(offer.IsPreview ? " preview" : "")} is available from {offer.Source}.";
+            string message = offer is null ? "You're up to date." : IsStoreInstall ? "An update is available from Microsoft Store." : $"{offer.DisplayVersion}{(offer.IsPreview ? " preview" : "")} is available from {offer.Source}.";
             Update = new(false, offer, message, checkedAt);
             try { file.Save(Preferences); }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { Update = Update with { Message = message + " Update preferences could not be saved." }; }
@@ -149,7 +150,7 @@ public sealed class AppPreferencesController : IDisposable
         try { file.Save(preferences); } catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { return null; }
         Preferences = preferences;
         return IsStoreInstall ? "An update for Snipsera is available in Microsoft Store. Open Settings to view it."
-            : $"Snipsera {offer.Version}{(offer.IsPreview ? " preview" : "")} is available. Open Settings to view the update.";
+            : $"Snipsera {offer.DisplayVersion}{(offer.IsPreview ? " preview" : "")} is available. Open Settings to view the update.";
     }
     private void ThrowIfDisposed() { if (disposed) throw new ObjectDisposedException(nameof(AppPreferencesController)); }
     public void Dispose() { if (disposed) return; disposed = true; lifetime.Cancel(); lifetime.Dispose(); ownedClient?.Dispose(); }

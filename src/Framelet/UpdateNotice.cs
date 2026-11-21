@@ -35,14 +35,14 @@ public sealed class UpdateNotice : Border
         if (controller.Update.Offer is not { } offer) { Visibility = Visibility.Collapsed; return; }
         Visibility = Visibility.Visible; Heading(title, offer);
         detail.Text = controller.IsStoreInstall ? "Review it in Settings and install it from Microsoft Store whenever it suits you." : "See what's new and download it from GitHub whenever it suits you.";
-        AutomationProperties.SetName(action, FromStore(offer) ? "View update for Snipsera" : $"View update for Snipsera {offer.Version}");
+        AutomationProperties.SetName(action, FromStore(offer) ? "View update for Snipsera" : $"View update for Snipsera {offer.DisplayVersion}");
         AutomationProperties.SetName(this, Title(offer) + (offer.IsPreview ? ", preview" : ""));
     }
 
     // Microsoft Store reports that an update exists, not which version it is, so Store offers never show offer.Version.
     public static bool FromStore(UpdateOffer offer) => offer.Source == "Microsoft Store";
-    public static string Title(UpdateOffer offer) => FromStore(offer) ? "Snipsera update available" : $"Snipsera {offer.Version} is available";
-    public static string ActionName(UpdateOffer offer, bool store) => FromStore(offer) ? $"{ActionLabel(store)} to update Snipsera" : $"{ActionLabel(store)} for Snipsera {offer.Version}";
+    public static string Title(UpdateOffer offer) => FromStore(offer) ? "Snipsera update available" : $"Snipsera {offer.DisplayVersion} is available";
+    public static string ActionName(UpdateOffer offer, bool store) => FromStore(offer) ? $"{ActionLabel(store)} to update Snipsera" : $"{ActionLabel(store)} for Snipsera {offer.DisplayVersion}";
     public static string ActionLabel(bool store) => store ? "Open Microsoft Store" : "View GitHub release";
     public static Brush Error => SystemParameters.HighContrast ? Ui.Ink : Ui.Brush(Appearance.Current.Dark ? "#FF99A4" : "#C42B1C");
 

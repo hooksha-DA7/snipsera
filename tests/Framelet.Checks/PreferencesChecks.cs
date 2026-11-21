@@ -104,6 +104,29 @@ internal static class PreferencesChecks
             var offer = GitHubUpdateSource.Select(Feed(("v1.0.2-preview.2", false, false, true)), "1.0.1", false);
             Require(offer is { IsPreview: false } && offer.Version == "1.0.2-preview.2", "Approved historical build excluded");
         });
+        Test("Approved legacy updates use a clean version label without changing their identity", () =>
+        {
+            var offer = GitHubUpdateSource.Select(Feed(("v1.0.7-preview.2", false, false, true)), "1.0.6-preview.3", false)!;
+            var file = FileStore(); var opened = new List<string>();
+            using var controller = new AppPreferencesController(file, new UpdateFake { Offer = offer }, new StartupFake(), "1.0.6-preview.3+abc", false, open: opened.Add);
+            Wait(controller.CheckUpdatesAsync());
+            Require(controller.InstalledDisplayVersion == "1.0.6" && controller.InstalledVersion == "1.0.6-preview.3+abc", "Installed label changed comparison identity");
+            Require(controller.Update.Message == "1.0.7 is available from GitHub." && controller.TakeNotification() == "Snipsera 1.0.7 is available. Open Settings to view the update.", "Approved release is still announced as a preview");
+            controller.OpenUpdate(); var cached = file.Load();
+            Require(opened.Single() == GitHubUpdateSource.ReleasePrefix + "v1.0.7-preview.2" && cached.AvailableUpdate?.Version == "1.0.7-preview.2" && cached.NotifiedVersion == "github:v1.0.7-preview.2", "Clean label changed the immutable destination or cache key");
+            using var restarted = new AppPreferencesController(file, new UpdateFake(), new StartupFake(), "1.0.6-preview.3+abc", false);
+            Require(restarted.Update.Offer?.DisplayVersion == "1.0.7" && restarted.TakeNotification() is null, "Clean cached offer was lost or announced twice");
+        });
+        Test("Numeric version labels preserve revisions and actual preview classification", () =>
+        {
+            Require(ReleaseVersion.Display("v1.0.8.0-preview.1+abc") == "1.0.8" && ReleaseVersion.Display("1.0.8.2+abc") == "1.0.8.2", "Numeric display lost a real revision");
+            var data = Feed(("v1.0.8", true, false, true));
+            Require(GitHubUpdateSource.Select(data, "1.0.7", false) is null, "Numeric tag bypassed preview preference");
+            var offer = GitHubUpdateSource.Select(data, "1.0.7", true)!;
+            using var controller = new AppPreferencesController(FileStore(), new UpdateFake { Offer = offer }, new StartupFake(), "1.0.7", false);
+            Wait(controller.CheckUpdatesAsync());
+            Require(offer.IsPreview && controller.TakeNotification()!.Contains("1.0.8 preview"), "Actual prerelease status was hidden");
+        });
         Test("Drafts, missing installers and equal or older builds never offer an update", () =>
         {
             var data = Feed(("v1.0.9", true, true, true), ("v1.0.8", false, false, false), ("v1.0.5", false, false, true), ("v1.0.4", false, false, true));

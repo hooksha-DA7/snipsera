@@ -6,6 +6,11 @@ namespace Framelet;
 
 internal sealed record ReleaseVersion(Version Core, string? Prerelease) : IComparable<ReleaseVersion>
 {
+    // Build suffixes identify immutable downloads, not the current release channel.
+    // Keep the original version for comparisons, cache keys and release URLs.
+    internal static string Display(string text) => Parse(text) is { } version
+        ? version.Core.ToString(version.Core.Revision == 0 ? 3 : 4) : text;
+
     internal static ReleaseVersion? Parse(string text)
     {
         var match = Regex.Match(text, @"^v?(\d+\.\d+\.\d+(?:\.\d+)?)(?:-([0-9A-Za-z]+(?:[.-][0-9A-Za-z]+)*))?(?:\+[0-9A-Za-z.-]+)?$", RegexOptions.CultureInvariant);

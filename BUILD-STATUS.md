@@ -1,5 +1,11 @@
 # Snipsera build status
 
+## 1.0.8: numeric version labels
+
+The replacement candidate uses `1.0.8` in application metadata and download filenames. Update notices and the installed-version label display the numeric version, including for approved historical releases whose immutable tags contain a preview suffix. Exact version identifiers remain available internally for comparison and download links; GitHub prerelease status still controls availability.
+
+This candidate includes the editor and capture changes described below. Its own build and package checks are recorded separately before Store submission. Submission 7 remains a draft until its matching package is uploaded and submitted; the previous `v1.0.8-preview.1` assets remain available unchanged.
+
 ## 1.0.8-preview.1: editor and capture refinements
 
 Release candidate verified on 2026-11-21. Store Submission 7 is a draft with automatic publication selected; it has not been submitted for certification. This build remains a preview until Microsoft approves the matching update. The official 1.0.7 release and its downloads remain unchanged.

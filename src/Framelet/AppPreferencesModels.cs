@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -9,7 +10,10 @@ namespace Framelet;
 public sealed record UpdatePreferences(bool AutomaticChecks = true, bool IncludePreviews = true,
     DateTimeOffset? LastChecked = null, string? NotifiedVersion = null, DateTimeOffset? LastAttempt = null,
     UpdateOffer? AvailableUpdate = null, string? CheckedVersion = null);
-public sealed record UpdateOffer(string Version, string Source, string Url, bool IsPreview, string Key);
+public sealed record UpdateOffer(string Version, string Source, string Url, bool IsPreview, string Key)
+{
+    [JsonIgnore] public string DisplayVersion => ReleaseVersion.Display(Version);
+}
 public sealed record UpdateState(bool Checking = false, UpdateOffer? Offer = null,
     string Message = "Not checked yet.", DateTimeOffset? CheckedAt = null);
 public sealed record StartupStatus(bool Enabled, bool CanChange, string Message, bool ManageInWindows = false);

@@ -2,7 +2,7 @@
 
 [Back to Snipsera](../README.md) · [Downloads](../RELEASES.md)
 
-The editor and preview refinements described for **1.0.8-preview.1** are available in the preview. The current official release remains **1.0.7**.
+The editor and capture refinements described for **1.0.8** are part of the next update. The current official release remains **1.0.7** until the matching Store update is approved.
 
 ## Run
 
@@ -116,7 +116,7 @@ For an isolated history/settings folder, launch `Snipsera.exe --data-dir "C:\pat
 
 ## Annotate and edit
 
-The **1.0.8-preview.1 preview** adds direct **Edit** buttons in History, inline text, richer annotation selection, combined images and backgrounds. See the [editor guide](EDITOR.md) for the full workflow and [verification status](EDITOR-REFINEMENT-VERIFICATION.md) for remaining acceptance checks.
+Version **1.0.8** adds direct **Edit** buttons in History, inline text, richer annotation selection, combined images and backgrounds. See the [editor guide](EDITOR.md) for the full workflow and [verification status](EDITOR-REFINEMENT-VERIFICATION.md) for remaining acceptance checks.
 
 Open **Edit** from a History row, **Annotate** from a preview or pin, or **Open image / project…** on Home. PNG, JPEG, `.snipsera` and legacy `.framelet` files are supported. JPEG orientation is applied on import.
 
