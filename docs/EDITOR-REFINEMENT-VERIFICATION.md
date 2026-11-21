@@ -1,8 +1,8 @@
 # Editor and capture refinements: verification
 
-**Build:** 1.0.8-preview.1 release candidate. **Date:** 21 November 2026.
+**Build:** 1.0.8 release candidate. **Date:** 21 November 2026.
 
-The exact [hosted build](https://github.com/hooksha-DA7/snipsera/actions/runs/44866999910) of tag `v1.0.8-preview.1` at `d60a47c5e7c5a114c40a682d4530d54640ad2045` passed **599 automated/offscreen checks**: 538 C# checks across 25 modes and 61 Python checks, with zero compiler warnings or errors. Store Submission 7 is a draft with automatic publication selected; it has not been submitted for certification. Certification and GitHub official promotion remain separate from these test results. The official 1.0.7 artifacts remain unchanged.
+The exact [hosted build](https://github.com/hooksha-DA7/snipsera/actions/runs/44872890301) of tag `v1.0.8` at `419a491d044b80eb85af67b48f62d91b7f14cd41` passed **602 automated/offscreen checks**: 541 C# checks across 25 modes and 61 Python checks, with zero compiler warnings or errors. Store Submission 7 is submitted for certification with automatic publication after approval. Certification and GitHub official promotion remain separate from these test results. The official 1.0.7 artifacts remain unchanged.
 
 The editor mode passed 68 checks covering legacy rendering, composition, cache correctness, direct manipulation, inline text, rejected drops, undo and detached layouts. The separate History checks also pass after correcting empty-layer normalization across a save/reopen. Unchanged blur and pixelation regions are cached within a 32 MiB per-document budget; changes to contributing content invalidate them. Cached output is compared against fresh rendered pixels.
 

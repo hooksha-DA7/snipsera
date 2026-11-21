@@ -2,6 +2,34 @@
 
 [Downloads and release notes](RELEASES.md)
 
+## 1.0.8 — 2026-11-21
+
+Preview. Write directly on screenshots, rearrange annotations, combine images and add a background without leaving the editor.
+
+### Added
+
+- Text editing directly on the image, with seven styles and check, cross and other symbol stamps.
+- Image layers: drop or paste another screenshot into the editor, or add one from History, then move, resize and reorder it.
+- A Background panel with 15 gradients, solid colors, padding, aspect ratios, alignment, rounded corners and soft shadows. Auto-balance trims matching empty margins and centers the result.
+- An Edit button beside each screenshot in History, opening its saved editable version directly.
+
+### Improved
+
+- Select and move existing annotations directly. Resize with handles, adjust arrow endpoints and bends, or double-click text to change its words.
+- Inspect a scrolling capture as it grows: scroll or drag its preview, fit the whole image or follow the latest content. Scrolling image processing and preview generation do less work on the UI thread.
+- Clearer Background, Layers and Image size controls, consistent library surfaces, and a smaller handle for restoring hidden previews.
+- Unchanged blur and pixelation regions are reused while editing other annotations, reducing repeated rendering work.
+- Download filenames and update notifications use plain version numbers.
+
+### Fixed
+
+- Undo restores the correct text controls and selected image after restyling or changing image order.
+- Text still being typed is included when an edited screenshot is dragged to another app.
+- Failed image imports are rejected, and canceled or rejected resizing does not create an unwanted edit.
+- Background alignment shows the selected position and explains when the chosen aspect ratio leaves no space to align.
+
+**This is a preview. The GitHub installer and portable ZIP are unsigned.** Windows may warn when downloading or starting them. The matching update has been submitted to Microsoft Store and is awaiting certification. Store signing does not sign the GitHub installer. Live desktop capture/input, Chrome scrolling, native drag-and-drop, clipboard transfer, material/DPI appearance and final clean Windows 11/installed-MSIX acceptance remain pending. The unsigned MSIX is for Store submission only. New editable projects and History edits require Snipsera 1.0.8; older versions cannot reopen them. Original capture images remain preserved. The original image stays anchored, and Crop affects that image only; added image layers remain editable.
+
 ## 1.0.8-preview.1 — 2026-11-21
 
 Preview. Write directly on screenshots, rearrange annotations, combine images and add a background without leaving the editor.

@@ -2,9 +2,13 @@
 
 ## 1.0.8: numeric version labels
 
-The replacement candidate uses `1.0.8` in application metadata and download filenames. Update notices and the installed-version label display the numeric version, including for approved historical releases whose immutable tags contain a preview suffix. Exact version identifiers remain available internally for comparison and download links; GitHub prerelease status still controls availability.
+Application metadata, download filenames, update notices and the installed-version label use plain version numbers. Internal version comparison and links retain exact build identifiers, including historical preview tags. GitHub prerelease status still controls availability.
 
-This candidate includes the editor and capture changes described below. Its own build and package checks are recorded separately before Store submission. Submission 7 remains a draft until its matching package is uploaded and submitted; the previous `v1.0.8-preview.1` assets remain available unchanged.
+This candidate includes the editor and capture changes described below. The earlier `v1.0.8-preview.1` source, files and release notes remain unchanged.
+
+Release candidate verified on 2026-11-21. Store Submission 7 is submitted for certification with automatic publication after approval. This build remains a preview until Microsoft approves the matching update. The official 1.0.7 release and its downloads remain unchanged.
+
+The exact [hosted build](https://github.com/hooksha-DA7/snipsera/actions/runs/44872890301) from source `419a491d044b80eb85af67b48f62d91b7f14cd41` passed **602 automated/offscreen checks** (541 C# checks across 25 modes and 61 Python checks), with zero compiler warnings or errors. Package verification and EXE installation, synthetic launch, reinstall, increasing-version fixture upgrade, owned startup cleanup and uninstall passed on Windows Server 2025. Local desktop/input, live Chrome/clipboard/drag-and-drop, material/DPI appearance and final clean Windows 11/installed-MSIX acceptance remain paused or pending. The EXE remains unsigned; the unsigned MSIX is submission-only. See the [editor guide](docs/EDITOR.md) and [verification record](docs/EDITOR-REFINEMENT-VERIFICATION.md).
 
 ## 1.0.8-preview.1: editor and capture refinements
 
