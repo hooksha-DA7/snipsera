@@ -1,8 +1,8 @@
 # Editor and capture refinements: verification
 
-**Build:** 1.0.8 release candidate. **Date:** 21 November 2026.
+**Build:** 1.0.8 release. **Date:** 21 November 2026.
 
-The exact [hosted build](https://github.com/hooksha-DA7/snipsera/actions/runs/44872890301) of tag `v1.0.8` at `419a491d044b80eb85af67b48f62d91b7f14cd41` passed **602 automated/offscreen checks**: 541 C# checks across 25 modes and 61 Python checks, with zero compiler warnings or errors. Store Submission 7 is submitted for certification with automatic publication after approval. Certification and GitHub official promotion remain separate from these test results. The official 1.0.7 artifacts remain unchanged.
+The exact [hosted build](https://github.com/hooksha-DA7/snipsera/actions/runs/44872890301) of tag `v1.0.8` at `419a491d044b80eb85af67b48f62d91b7f14cd41` passed **602 automated/offscreen checks**: 541 C# checks across 25 modes and 61 Python checks, with zero compiler warnings or errors. Store approval and publication of matching Submission 7 (`1152921505702465950`, MSIX `1.0.8.0`) were verified on 2026-11-21. The same immutable `v1.0.8` build is the official release. Store approval does not establish the native behaviors still marked pending below. Earlier 1.0.7 artifacts remain unchanged.
 
 The editor mode passed 68 checks covering legacy rendering, composition, cache correctness, direct manipulation, inline text, rejected drops, undo and detached layouts. The separate History checks also pass after correcting empty-layer normalization across a save/reopen. Unchanged blur and pixelation regions are cached within a 32 MiB per-document budget; changes to contributing content invalidate them. Cached output is compared against fresh rendered pixels.
 
@@ -30,7 +30,7 @@ Project round-trip checks cover self-contained version 4 assets, reading older p
 
 ## Compatibility and remaining acceptance
 
-New project saves use version 4. This candidate reads versions 1–4; 1.0.7 and earlier do not read new version 4 files. The original pixels remain embedded. Opening an older project does not change its file until it is explicitly saved, but automatic History edits use the new format. Reverting the app version will therefore not restore access to newly saved editable History projects; the original capture PNGs remain separate.
+New project saves use version 4. Snipsera 1.0.8 reads versions 1–4; 1.0.7 and earlier do not read new version 4 files. The original pixels remain embedded. Opening an older project does not change its file until it is explicitly saved, but automatic History edits use the new format. Reverting the app version will therefore not restore access to newly saved editable History projects; the original capture PNGs remain separate.
 
 The original image is anchored, Crop affects that image only, and annotations render above added images. Added History images are flattened copies of their visible edits. Auto-balance analyzes plain outer margins; it does not perform subject recognition. Images are PNG/JPEG only, with up to 32 added layers, a 40-million-pixel output limit and an 80-million-pixel decoded asset budget including undo-retained assets.
 

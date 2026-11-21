@@ -1,12 +1,12 @@
 # Snipsera build status
 
-## 1.0.8: numeric version labels
+## 1.0.8 release: editor refinements and numeric version labels
 
 Application metadata, download filenames, update notices and the installed-version label use plain version numbers. Internal version comparison and links retain exact build identifiers, including historical preview tags. GitHub prerelease status still controls availability.
 
-This candidate includes the editor and capture changes described below. The earlier `v1.0.8-preview.1` source, files and release notes remain unchanged.
+This release includes the editor and capture changes described below. The earlier `v1.0.8-preview.1` source, files and release notes remain unchanged.
 
-Release candidate verified on 2026-11-21. Store Submission 7 is submitted for certification with automatic publication after approval. This build remains a preview until Microsoft approves the matching update. The official 1.0.7 release and its downloads remain unchanged.
+Store approval and publication verified on 2026-11-21 for Submission 7 (`1152921505702465950`), numeric MSIX `1.0.8.0`. The existing `v1.0.8` build is the official release; its source, files and hashes are unchanged. Earlier 1.0.7 downloads remain available. Store approval does not establish the pending native acceptance checks or sign the GitHub installer.
 
 The exact [hosted build](https://github.com/hooksha-DA7/snipsera/actions/runs/44872890301) from source `419a491d044b80eb85af67b48f62d91b7f14cd41` passed **602 automated/offscreen checks** (541 C# checks across 25 modes and 61 Python checks), with zero compiler warnings or errors. Package verification and EXE installation, synthetic launch, reinstall, increasing-version fixture upgrade, owned startup cleanup and uninstall passed on Windows Server 2025. Local desktop/input, live Chrome/clipboard/drag-and-drop, material/DPI appearance and final clean Windows 11/installed-MSIX acceptance remain paused or pending. The EXE remains unsigned; the unsigned MSIX is submission-only. See the [editor guide](docs/EDITOR.md) and [verification record](docs/EDITOR-REFINEMENT-VERIFICATION.md).
 

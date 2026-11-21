@@ -1,10 +1,10 @@
 # Releases
 
-The official Snipsera release is [1.0.7](https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.7-preview.2). The latest preview is [1.0.8](https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.8).
+The official Snipsera release is [1.0.8](https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.8).
 
 ## 1.0.8: A more capable screenshot editor
 
-2026-11-21 · Preview · [Release page](https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.8)
+2026-11-21 · Release · [Release page](https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.8)
 
 Write directly on screenshots, rearrange annotations, combine images and add a background without leaving the editor.
 
@@ -30,7 +30,7 @@ Write directly on screenshots, rearrange annotations, combine images and add a b
 - Failed image imports are rejected, and canceled or rejected resizing does not create an unwanted edit.
 - Background alignment shows the selected position and explains when the chosen aspect ratio leaves no space to align.
 
-**This is a preview. The GitHub installer and portable ZIP are unsigned.** Windows may warn when downloading or starting them. The matching update has been submitted to Microsoft Store and is awaiting certification. Store signing does not sign the GitHub installer. Live desktop capture/input, Chrome scrolling, native drag-and-drop, clipboard transfer, material/DPI appearance and final clean Windows 11/installed-MSIX acceptance remain pending. The unsigned MSIX is for Store submission only. New editable projects and History edits require Snipsera 1.0.8; older versions cannot reopen them. Original capture images remain preserved. The original image stays anchored, and Crop affects that image only; added image layers remain editable.
+**The GitHub installer and portable ZIP are unsigned.** Windows may warn when downloading or starting them. The matching update is available from Microsoft Store. Store signing does not sign the GitHub installer. Live desktop capture/input, Chrome scrolling, native drag-and-drop, clipboard transfer, material/DPI appearance and final clean Windows 11/installed-MSIX acceptance remain pending. The unsigned MSIX is for Store submission only. New editable projects and History edits require Snipsera 1.0.8; older versions cannot reopen them. Original capture images remain preserved. The original image stays anchored, and Crop affects that image only; added image layers remain editable.
 
 ### Download
 

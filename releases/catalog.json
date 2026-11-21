@@ -2,8 +2,8 @@
   "schema_version": 1,
   "repository": "hooksha-DA7/snipsera",
   "imported_on": "2026-11-01",
-  "verified_baseline": "v1.0.7-preview.2",
-  "latest_preview": "v1.0.8",
+  "verified_baseline": "v1.0.8",
+  "latest_preview": null,
   "releases": [
     {
       "version": "0.1.0",
@@ -1130,7 +1130,7 @@
       "title": "Layered screenshot previews",
       "status": "release",
       "prerelease": false,
-      "latest": true,
+      "latest": false,
       "notes": "releases/notes/v1.0.7-preview.2.md",
       "release_url": "https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.7-preview.2",
       "kind": "Release",
@@ -1293,12 +1293,12 @@
       "product": "Snipsera",
       "build_date": "2026-11-21",
       "title": "A more capable screenshot editor",
-      "status": "preview",
-      "prerelease": true,
-      "latest": false,
+      "status": "release",
+      "prerelease": false,
+      "latest": true,
       "notes": "releases/notes/v1.0.8.md",
       "release_url": "https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.8",
-      "kind": "Preview",
+      "kind": "Release",
       "intro": "Write directly on screenshots, rearrange annotations, combine images and add a background without leaving the editor.",
       "changes": {
         "Added": [
@@ -1321,9 +1321,9 @@
           "Background alignment shows the selected position and explains when the chosen aspect ratio leaves no space to align."
         ]
       },
-      "notice": "**This is a preview. The GitHub installer and portable ZIP are unsigned.** Windows may warn when downloading or starting them. The matching update has been submitted to Microsoft Store and is awaiting certification. Store signing does not sign the GitHub installer. Live desktop capture/input, Chrome scrolling, native drag-and-drop, clipboard transfer, material/DPI appearance and final clean Windows 11/installed-MSIX acceptance remain pending. The unsigned MSIX is for Store submission only. New editable projects and History edits require Snipsera 1.0.8; older versions cannot reopen them. Original capture images remain preserved. The original image stays anchored, and Crop affects that image only; added image layers remain editable.",
+      "notice": "**The GitHub installer and portable ZIP are unsigned.** Windows may warn when downloading or starting them. The matching update is available from Microsoft Store. Store signing does not sign the GitHub installer. Live desktop capture/input, Chrome scrolling, native drag-and-drop, clipboard transfer, material/DPI appearance and final clean Windows 11/installed-MSIX acceptance remain pending. The unsigned MSIX is for Store submission only. New editable projects and History edits require Snipsera 1.0.8; older versions cannot reopen them. Original capture images remain preserved. The original image stays anchored, and Crop affects that image only; added image layers remain editable.",
       "verification": "602 automated/offscreen checks passed (541 C# across 25 modes and 61 Python) in the exact hosted build, with zero compiler warnings/errors. Package/source parity, archive hashes and safe paths, MSIX identity/resource/block-map validation, and EXE installation, synthetic launch, reinstall, increasing-version fixture upgrade, owned startup cleanup and uninstall passed on Windows Server 2025. Downloaded artifact validation is recorded separately. Live desktop/Chrome interaction and clean Windows 11/installed-MSIX acceptance remain pending.",
-      "signing_status": "unsigned-preview",
+      "signing_status": "unsigned",
       "source_commit": "419a491d044b80eb85af67b48f62d91b7f14cd41",
       "build_workflow": "https://github.com/hooksha-DA7/snipsera/actions/runs/44872890301",
       "assets": [
@@ -1355,8 +1355,8 @@
         "sha256": "7141bc899d80cf33d1c1ed07f1c4c7fbde8080641e23ab4c92eb38f661f5936d"
       },
       "store_submission_status": {
-        "status": "submitted",
-        "stage": "Submitted; awaiting certification",
+        "status": "published",
+        "stage": "Published; available in Microsoft Store",
         "product_id": "9NFL9VHL8GKV",
         "submission_id": "1152921505702465950",
         "submission_number": 7,
@@ -1366,7 +1366,17 @@
         "source_url": "https://partner.microsoft.com/en-us/dashboard/products/9NFL9VHL8GKV/overview",
         "submitted_date": "2026-11-21"
       },
-      "store_url": "https://apps.microsoft.com/detail/9NFL9VHL8GKV"
+      "store_url": "https://apps.microsoft.com/detail/9NFL9VHL8GKV",
+      "store_approval": {
+        "status": "approved",
+        "product_id": "9NFL9VHL8GKV",
+        "submission_id": "1152921505702465950",
+        "package_version": "1.0.8.0",
+        "package_sha256": "7141bc899d80cf33d1c1ed07f1c4c7fbde8080641e23ab4c92eb38f661f5936d",
+        "source_commit": "419a491d044b80eb85af67b48f62d91b7f14cd41",
+        "verified_date": "2026-11-21",
+        "source_url": "https://partner.microsoft.com/en-us/dashboard/products/9NFL9VHL8GKV/overview"
+      }
     }
   ],
   "product": "Snipsera",

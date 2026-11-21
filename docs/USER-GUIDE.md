@@ -2,7 +2,7 @@
 
 [Back to Snipsera](../README.md) · [Downloads](../RELEASES.md)
 
-The editor and capture refinements described for **1.0.8** are part of the next update. The current official release remains **1.0.7** until the matching Store update is approved.
+These instructions cover **Snipsera 1.0.8**, the current official release, including its editor and capture refinements.
 
 ## Run
 
@@ -127,7 +127,7 @@ Open **Edit** from a History row, **Annotate** from a preview or pin, or **Open 
 
 Edits save automatically to local History after a short pause and before closing. Closing normally needs no save-or-discard prompt. If saving fails, the editor stays open with an error so you can retry or export. History retains the latest 100 captures; export anything you need to keep permanently. Changes just before a crash may not have reached disk.
 
-**Save project…** writes the original pixels, added images and editable annotations into one file. New saves use **project version 4**, even with a `.framelet` filename. This candidate reads versions 1–4, but **Snipsera 1.0.7 and earlier cannot reopen version 4 projects**. Save a separate copy if you need to retain an older project for an older app. Session undo history is not stored.
+**Save project…** writes the original pixels, added images and editable annotations into one file. New saves use **project version 4**, even with a `.framelet` filename. Snipsera 1.0.8 reads versions 1–4, but **Snipsera 1.0.7 and earlier cannot reopen version 4 projects**. Save a separate copy if you need to retain an older project for an older app. Session undo history is not stored.
 
 PNG, JPEG, Copy, Pin and drag sharing use the rendered result. JPEG fills transparency with white. A solid mask hides content in flattened output; editable projects still retain the original pixels. Blur and pixelation are not secure redaction. Reopening a History capture restores saved editable layers and updates the same entry.
 
