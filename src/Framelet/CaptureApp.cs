@@ -363,6 +363,17 @@ public sealed partial class CaptureApp : Application
         RefreshPreviewStack();
     }
 
+    public void EditEntry(CaptureEntry entry)
+    {
+        try
+        {
+            var stored = History.Entries.FirstOrDefault(e => e.Id == entry.Id);
+            if (stored is null) throw new InvalidOperationException("This capture is no longer in history.");
+            ShowEditor(History.LoadDocument(stored), historyEntry: stored, editingItem: screenshotStack.Find(stored.Id));
+        }
+        catch (Exception ex) { Report(ex); }
+    }
+
     public void EditImage(BitmapSource image, CaptureEntry? entry = null)
     {
         try

@@ -27,15 +27,15 @@ public sealed class ScrollCaptureWindow : Window
     // Two 12 px lines at this width hold the backend's longest guidance (~90 characters) without trimming.
     private const double StatusWidth = 280;
     private const string Blocked = "Leave space around the selection for the controls, then try again.";
-    private static readonly Brush Danger = Frozen(Color.FromRgb(0xC4, 0x2B, 0x1C)), Dim = Frozen(Color.FromArgb(0x59, 0, 0, 0));
+    private static readonly Brush Danger = Frozen(Color.FromRgb(0xC4, 0x2B, 0x1C)), Caution = Frozen(Color.FromRgb(0xC0, 0x7D, 0x19)), Dim = Frozen(Color.FromArgb(0x59, 0, 0, 0));
     private readonly ScrollCaptureSession session;
     private readonly Canvas surface = new() { Visibility = Visibility.Hidden };
     private readonly Path shade = new() { Fill = Dim }, ring = new() { IsHitTestVisible = false };
     private readonly Border bar, card;
     private readonly StackPanel actions = new() { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Center };
     private readonly Ellipse dot = new() { Width = 8, Height = 8, Margin = new Thickness(2, 0, 8, 0), VerticalAlignment = VerticalAlignment.Center };
-    private readonly TextBlock statusText, caption;
-    private readonly Image preview = new() { Stretch = Stretch.Uniform };
+    private readonly TextBlock statusText;
+    private readonly ScrollPreviewPanel preview = new();
     private readonly Button start, done, cancel, auto;
     private readonly TextBlock doneLabel, cancelLabel;
     private readonly List<PixelRect> fixedObstructions = [];
@@ -94,13 +94,8 @@ public sealed class ScrollCaptureWindow : Window
         bar = new Border { Child = grid, Background = Ui.Floating, BorderBrush = Ui.Line, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(12), Padding = new Thickness(8, 6, 6, 6) };
         AutomationProperties.SetName(bar, "Scrolling capture controls"); KeyboardNavigation.SetTabNavigation(bar, KeyboardNavigationMode.Cycle);
 
-        caption = new TextBlock { FontSize = 11, Foreground = Ui.Muted, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center, TextTrimming = TextTrimming.CharacterEllipsis };
-        RenderOptions.SetBitmapScalingMode(preview, BitmapScalingMode.HighQuality); AutomationProperties.SetAutomationId(preview, "ScrollPreview");
-        var previewGrid = new Grid();
-        previewGrid.RowDefinitions.Add(new RowDefinition()); previewGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(18) });
-        Grid.SetRow(caption, 1); previewGrid.Children.Add(preview); previewGrid.Children.Add(caption);
-        // Chrome is PreviewChromeX/Y in ScrollCaptureLayout: 1 px border + 4 px padding per side, plus the 18 px caption row.
-        card = new Border { Child = previewGrid, Background = Ui.Floating, BorderBrush = Ui.Line, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(8), Padding = new Thickness(4), Visibility = Visibility.Collapsed };
+        // Preview chrome: 1 px border + 6 px padding, with a compact inspection header.
+        card = new Border { Child = preview, Background = Ui.Floating, BorderBrush = Ui.Line, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(8), Padding = new Thickness(6), Visibility = Visibility.Collapsed };
         surface.Children.Add(card); surface.Children.Add(bar);
         Content = surface;
         Restyle();
@@ -294,7 +289,10 @@ public sealed class ScrollCaptureWindow : Window
             ScrollCapturePhase.Finishing or ScrollCapturePhase.Cancelled => Ui.Muted,
             _ => Brushes.White
         };
-        dot.Fill = failed ? (hc ? Ui.Ink : Danger) : phase is ScrollCapturePhase.Capturing or ScrollCapturePhase.Completed ? Ui.Blue : Ui.Muted;
+        bool warning = !failed && session.Warning is not null;
+        dot.Fill = failed ? (hc ? Ui.Ink : Danger) : warning ? (hc ? Ui.Ink : Caution) : phase is ScrollCapturePhase.Capturing or ScrollCapturePhase.Completed ? Ui.Blue : Ui.Muted;
+        card.BorderBrush = warning ? (hc ? Ui.Ink : Caution) : Ui.Line;
+        card.BorderThickness = new Thickness(warning && hc ? 2 : 1);
 
         string text = blocked ? Blocked : !string.IsNullOrWhiteSpace(session.Status) ? session.Status : phase switch
         {
@@ -322,9 +320,7 @@ public sealed class ScrollCaptureWindow : Window
         var size = session.Width > 0 && session.Height > 0 ? new PixelSize(session.Width, session.Height) : new PixelSize(image.PixelWidth, image.PixelHeight);
         var body = ScrollCaptureLayout.FitPreview(place, size, scale);
         if (body.IsEmpty) { card.Visibility = Visibility.Collapsed; return; }
-        preview.Source = image; card.Width = body.Width / scale; card.Height = body.Height / scale; Put(card, body);
-        caption.Text = $"{size.Width:N0} × {size.Height:N0}";
-        AutomationProperties.SetName(preview, $"Capture preview, {size.Width:N0} by {size.Height:N0} pixels, {session.Frames:N0} frames");
+        preview.SetImage(image, size.Width, size.Height, session.Frames); card.Width = body.Width / scale; card.Height = body.Height / scale; Put(card, body);
         int pad = ScrollCaptureLayout.Px(ScrollCaptureLayout.Pad, scale); previewOuter = PixelRect.Inflate(body, pad, pad);
         card.Visibility = Visibility.Visible;
     }
@@ -332,6 +328,7 @@ public sealed class ScrollCaptureWindow : Window
     // High contrast swaps the floating button template and drops shadows; theme colours already follow the bound tokens.
     private void Restyle()
     {
+        preview.RefreshTheme();
         FloatingButtons.Apply(start, true); FloatingButtons.Apply(done, true); FloatingButtons.Apply(cancel); FloatingButtons.Apply(auto, session.AutoScroll);
         // Shadow stays well inside ScrollCaptureLayout.Pad (14): blur 8 + depth 1.
         bar.Effect = SystemParameters.HighContrast ? null : new DropShadowEffect { BlurRadius = 8, ShadowDepth = 1, Direction = 270, Opacity = .25 };

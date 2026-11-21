@@ -6,21 +6,21 @@ using PixelRect = System.Drawing.Rectangle;
 namespace Framelet;
 
 // Physical-pixel window rectangle for the restore tab, kept pure so it can be checked without a desktop.
-// Window = tab body (expanded height) + shadow pad on the left, right and top. The bottom edge sits flush on the work-area
+// Window = pointer target + shadow pad on the left, right and top. The bottom edge sits flush on the work-area
 // bottom, i.e. directly above the taskbar, never on it or on another monitor. See design/temporary-hide-2026-11-01/DESIGN.md.
 public readonly record struct OverlayShelfPlacement(PixelRect Window, PixelRect Body, PixelRect Resting, PixelRect WorkArea, double Scale);
 
 public static class OverlayShelfLayout
 {
     // Logical (96 dpi) metrics. Left matches the preview card's image edge (FloatingLayout margin 12 + window shadow margin 8).
-    public const double Width = 112, MinWidth = 48, RestingHeight = 22, ExpandedHeight = 68, Pad = 12, Left = 20, Radius = 8;
+    public const double Width = 64, MinWidth = 40, RestingHeight = 16, ExpandedHeight = 22, HitHeight = 28, Pad = 10, Left = 20, Radius = 8;
 
     public static OverlayShelfPlacement? Place(PixelRect saved, IReadOnlyList<PixelRect> current, double scale)
     {
         if (!(scale > 0) || !double.IsFinite(scale)) scale = 1;
         var work = Choose(saved, current);
         if (work.Width <= 0 || work.Height <= 0) return null;
-        int pad = Px(Pad, scale), width = Px(Width, scale), height = Px(ExpandedHeight, scale), resting = Px(RestingHeight, scale), narrowest = Px(MinWidth, scale);
+        int pad = Px(Pad, scale), width = Px(Width, scale), height = Px(HitHeight, scale), resting = Px(RestingHeight, scale), narrowest = Px(MinWidth, scale);
         // The shadow pad plus a usable resting tab must fit; otherwise there is no safe tab (CaptureApp keeps tray/Home/menu routes).
         if (work.Width < 2 * pad + narrowest || work.Height < pad + resting) return null;
         // Small work areas: shrink the body (never below the minimum) rather than spill outside.

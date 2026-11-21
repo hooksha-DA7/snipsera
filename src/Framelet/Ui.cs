@@ -12,7 +12,7 @@ public static class Ui
     public static readonly Brush Ink = Appearance.Token(nameof(Appearance.Ink)), Muted = Appearance.Token(nameof(Appearance.Muted)), Blue = Appearance.Token(nameof(Appearance.Accent)),
         OnAccent = Appearance.Token(nameof(Appearance.OnAccent)), Paper = Appearance.Token(nameof(Appearance.Paper)), Surface = Appearance.Token(nameof(Appearance.Surface)),
         Line = Appearance.Token(nameof(Appearance.Line)), Chrome = Appearance.Token(nameof(Appearance.Chrome)), Canvas = Appearance.Token(nameof(Appearance.Canvas)), Glass = Appearance.Token(nameof(Appearance.Glass)),
-        Floating = Appearance.Token(nameof(Appearance.Floating));
+        Floating = Appearance.Token(nameof(Appearance.Floating)), CardMaterial = Appearance.Token(nameof(Appearance.Card)), CardStroke = Appearance.Token(nameof(Appearance.CardStroke));
     public static Brush Brush(string hex) => (Brush)new BrushConverter().ConvertFromString(hex)!;
 
     public static void Install(Application application)

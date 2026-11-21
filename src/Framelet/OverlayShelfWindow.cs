@@ -15,16 +15,14 @@ using Microsoft.Win32;
 namespace Framelet;
 
 // Restore tab shown while floating captures are temporarily hidden. A small top-rounded tab sits flush on the bottom-left of the
-// saved work area, above the taskbar. Hover rises it to show a frosted hint of the hidden image; a short dwell, a click, or
+// saved work area, above the taskbar. Hover lifts the small chevron/count handle; a short dwell, a click, or
 // Enter/Space restores the original windows. It never activates itself. See design/temporary-hide-2026-11-01/DESIGN.md.
 public sealed class OverlayShelfWindow : Window
 {
-    private static readonly TimeSpan Dwell = TimeSpan.FromMilliseconds(380), Rise = TimeSpan.FromMilliseconds(140), Entrance = TimeSpan.FromMilliseconds(180);
+    private static readonly TimeSpan Dwell = TimeSpan.FromMilliseconds(320), Rise = TimeSpan.FromMilliseconds(120), Entrance = TimeSpan.FromMilliseconds(160);
     private readonly CaptureApp app;
     private readonly Button tab;
-    private readonly Grid content = new();
-    private readonly Image image = new() { Stretch = Stretch.UniformToFill, IsHitTestVisible = false };
-    private readonly Border hint, badge;
+    private readonly Border hitTarget;
     private readonly TextBlock count = new() { FontSize = 11, FontWeight = FontWeights.SemiBold, Foreground = Ui.Ink };
     private readonly ToolTip tip = new() { Placement = PlacementMode.Top };
     private readonly TranslateTransform slide = new();
@@ -33,6 +31,7 @@ public sealed class OverlayShelfWindow : Window
     private readonly DispatcherTimer arming = new() { Interval = TimeSpan.FromMilliseconds(120) };
     private double restingHeight = OverlayShelfLayout.RestingHeight, expandedHeight = OverlayShelfLayout.ExpandedHeight;
     private bool expanded;
+    private bool pressedOnTarget;
     private readonly OverlayRestoreHover hover = new();
 
     // Physical placement of the last layout, for non-desktop geometry checks.
@@ -46,30 +45,34 @@ public sealed class OverlayShelfWindow : Window
         WindowStyle = WindowStyle.None; AllowsTransparency = true; Background = Brushes.Transparent; ResizeMode = ResizeMode.NoResize;
         ShowInTaskbar = false; Topmost = true; ShowActivated = false; WindowStartupLocation = WindowStartupLocation.Manual; SizeToContent = SizeToContent.Manual;
 
-        RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.HighQuality);
-        hint = new Border { Child = image, Opacity = 0, IsHitTestVisible = false };
-        var chevron = new UiIcon("ChevronUp", 16, 2.2) { HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Top, Margin = new Thickness(0, 3, 0, 0) };
-        badge = new Border { Child = count, Background = Ui.Floating, BorderBrush = Ui.Line, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(8), Padding = new Thickness(7, 1, 7, 1),
-            HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Bottom, Margin = new Thickness(0, 0, 0, 7), Opacity = 0, IsHitTestVisible = false };
-        content.Children.Add(hint); content.Children.Add(chevron); content.Children.Add(badge);
-        content.SizeChanged += (_, e) => content.OpacityMask = TopRounded(e.NewSize);
-
-        tab = new Button { Content = content, HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Bottom, Padding = new Thickness(0),
-            HorizontalContentAlignment = HorizontalAlignment.Stretch, VerticalContentAlignment = VerticalAlignment.Stretch, RenderTransform = slide, ToolTip = tip };
+        tab = new Button { Content = CreateContent(count), HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Bottom, Padding = new Thickness(0),
+            HorizontalContentAlignment = HorizontalAlignment.Stretch, VerticalContentAlignment = VerticalAlignment.Stretch, RenderTransform = slide };
+        // A very faint hit surface gives the small visible handle a 28 px target, without a large expanding thumbnail.
+        hitTarget = new Border { Background = new SolidColorBrush(Color.FromArgb(1, 0, 0, 0)), Child = tab,
+            HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Bottom, ToolTip = tip };
+        AutomationProperties.SetAutomationId(hitTarget, "RestoreOverlaysTarget");
         AutomationProperties.SetAutomationId(tab, "RestoreOverlays");
         AutomationProperties.SetHelpText(tab, "Hover, click, or press Enter to bring the hidden captures back.");
-        ToolTipService.SetInitialShowDelay(tab, 600);
-        var root = new Grid(); root.Children.Add(tab); Content = root;
+        ToolTipService.SetInitialShowDelay(hitTarget, 600);
+        var root = new Grid(); root.Children.Add(hitTarget); Content = root;
         Restyle();
 
         tab.Click += (_, _) => Restore();
+        hitTarget.MouseLeftButtonDown += (_, e) => { pressedOnTarget = hitTarget.CaptureMouse(); e.Handled = true; };
+        hitTarget.MouseLeftButtonUp += (_, e) =>
+        {
+            bool restore = pressedOnTarget && hitTarget.IsMouseOver; pressedOnTarget = false;
+            if (hitTarget.IsMouseCaptured) hitTarget.ReleaseMouseCapture();
+            if (restore) Restore(); e.Handled = true;
+        };
+        hitTarget.LostMouseCapture += (_, _) => pressedOnTarget = false;
         // Hover rises the tab only once armed; a click always restores immediately.
-        tab.MouseEnter += (_, _) => { if (!hover.CanRestore(true, Pressed(), app.CanShowOverlayShelf)) return; Expand(true); dwell.Stop(); dwell.Start(); };
-        tab.MouseLeave += (_, _) => { dwell.Stop(); if (!tab.IsKeyboardFocused) Expand(false); };
+        hitTarget.MouseEnter += (_, _) => { if (!hover.CanRestore(true, Pressed(), app.CanShowOverlayShelf)) return; Expand(true); dwell.Stop(); dwell.Start(); };
+        hitTarget.MouseLeave += (_, _) => { dwell.Stop(); if (!tab.IsKeyboardFocused) Expand(false); };
         tab.GotKeyboardFocus += (_, _) => Expand(true);
-        tab.LostKeyboardFocus += (_, _) => { if (!tab.IsMouseOver) Expand(false); };
+        tab.LostKeyboardFocus += (_, _) => { if (!hitTarget.IsMouseOver) Expand(false); };
         // Hover restores only after a short, deliberate dwell, and never while a button is held (e.g. dragging a file across it).
-        dwell.Tick += (_, _) => { dwell.Stop(); if (hover.CanRestore(tab.IsMouseOver, Pressed(), app.CanShowOverlayShelf)) Restore(); };
+        dwell.Tick += (_, _) => { dwell.Stop(); if (hover.CanRestore(hitTarget.IsMouseOver, Pressed(), app.CanShowOverlayShelf)) Restore(); };
         arming.Tick += (_, _) => { bool known = TryPointerInTabArea(out bool inside); hover.Observe(known, inside); if (hover.Armed) arming.Stop(); };
         // If the window is ever activated (not relied on as a keyboard route), focus lands on the tab.
         Activated += (_, _) => tab.Focus();
@@ -89,8 +92,7 @@ public sealed class OverlayShelfWindow : Window
         int hidden = Math.Max(1, app.HiddenOverlayCount);
         string name = hidden == 1 ? "Show 1 hidden capture" : $"Show {hidden:N0} hidden captures";
         AutomationProperties.SetName(tab, name); tip.Content = name;
-        count.Text = hidden.ToString("N0"); badge.Visibility = hidden > 1 ? Visibility.Visible : Visibility.Collapsed;
-        image.Source = app.OverlayShelfImage; hint.Visibility = image.Source is null ? Visibility.Collapsed : Visibility.Visible;
+        count.Text = hidden.ToString("N0"); count.Visibility = hidden > 1 ? Visibility.Visible : Visibility.Collapsed;
         if (!Place()) { Dismiss(); return; }
         if (IsVisible) return;
         Expand(false, true);
@@ -102,8 +104,9 @@ public sealed class OverlayShelfWindow : Window
 
     private void Dismiss()
     {
+        pressedOnTarget = false; if (hitTarget.IsMouseCaptured) hitTarget.ReleaseMouseCapture();
         dwell.Stop(); arming.Stop(); hover.Reset(); tip.IsOpen = false;
-        tab.BeginAnimation(HeightProperty, null); hint.BeginAnimation(OpacityProperty, null); badge.BeginAnimation(OpacityProperty, null); slide.BeginAnimation(TranslateTransform.YProperty, null);
+        tab.BeginAnimation(HeightProperty, null); slide.BeginAnimation(TranslateTransform.YProperty, null);
         Expand(false, true); slide.Y = 0;
         if (IsVisible) Hide();
     }
@@ -126,8 +129,10 @@ public sealed class OverlayShelfWindow : Window
         Placement = placed;
         var window = placed.Window; var body = placed.Body;
         Width = window.Width / scale; Height = window.Height / scale;
-        tab.Width = body.Width / scale; tab.Margin = new Thickness((body.Left - window.Left) / scale, 0, 0, 0);
-        restingHeight = placed.Resting.Height / scale; expandedHeight = body.Height / scale;
+        hitTarget.Width = tab.Width = body.Width / scale; hitTarget.Height = body.Height / scale;
+        hitTarget.Margin = new Thickness((body.Left - window.Left) / scale, 0, 0, 0);
+        restingHeight = placed.Resting.Height / scale;
+        expandedHeight = Math.Min(body.Height / scale, OverlayShelfLayout.ExpandedHeight);
         if (tab.HasAnimatedProperties) tab.BeginAnimation(HeightProperty, null);
         tab.Height = expanded ? expandedHeight : restingHeight;
         // HWND_TOPMOST, SWP_NOACTIVATE: position without taking focus from the user's app.
@@ -138,19 +143,14 @@ public sealed class OverlayShelfWindow : Window
     private void Expand(bool on, bool instant = false)
     {
         expanded = on;
-        bool hc = SystemParameters.HighContrast, motion = !instant && Appearance.Current.Policy.Animate && IsVisible;
+        bool motion = !instant && Appearance.Current.Policy.Animate && IsVisible;
         double height = on ? expandedHeight : restingHeight;
-        // High contrast: no image over text-bearing chrome; the count badge carries the information.
-        double hintOpacity = on && !hc ? (Appearance.Current.Policy.Frosting ? .62 : 1) : 0, badgeOpacity = on ? 1 : 0;
         if (!motion)
         {
-            tab.BeginAnimation(HeightProperty, null); hint.BeginAnimation(OpacityProperty, null); badge.BeginAnimation(OpacityProperty, null);
-            tab.Height = height; hint.Opacity = hintOpacity; badge.Opacity = badgeOpacity; return;
+            tab.BeginAnimation(HeightProperty, null); tab.Height = height; return;
         }
         var ease = new CubicEase { EasingMode = EasingMode.EaseOut };
         tab.BeginAnimation(HeightProperty, new DoubleAnimation(height, Rise) { EasingFunction = ease });
-        hint.BeginAnimation(OpacityProperty, new DoubleAnimation(hintOpacity, Rise));
-        badge.BeginAnimation(OpacityProperty, new DoubleAnimation(badgeOpacity, Rise));
     }
 
     // The tab slides up out of the taskbar edge, echoing the stack sliding down. Instant under reduced motion.
@@ -164,12 +164,11 @@ public sealed class OverlayShelfWindow : Window
     {
         bool hc = SystemParameters.HighContrast;
         tab.Style = TabStyle(hc);
-        tab.Effect = hc ? null : new DropShadowEffect { BlurRadius = 10, ShadowDepth = 1, Direction = 90, Opacity = .2 };
-        hint.Effect = hc || !Appearance.Current.Policy.Frosting ? null : new BlurEffect { Radius = 4 };
+        tab.Effect = hc ? null : new DropShadowEffect { BlurRadius = 8, ShadowDepth = 1, Direction = 90, Opacity = .18 };
         if (IsVisible) Expand(expanded, true);
     }
 
-    // Physical test against the full (expanded) tab body, so a pointer resting just above the short tab still counts as "there".
+    // Include the pointer target above the visible handle when arming hover restoration.
     private bool TryPointerInTabArea(out bool inside)
     {
         inside = true;
@@ -190,16 +189,14 @@ public sealed class OverlayShelfWindow : Window
 
     private void DisplaysChanged(object? sender, EventArgs e) => Dispatcher.BeginInvoke(() => { if (IsVisible && !Place()) Dismiss(); });
 
-    // Rounded top corners only; the bottom edge meets the taskbar edge squarely.
-    private static Brush? TopRounded(Size size)
+    // Shared with detached rendering checks so they exercise the production content, including count alignment.
+    internal static Grid CreateContent(TextBlock count)
     {
-        if (size.Width <= 0 || size.Height <= 0) return null;
-        double r = Math.Min(OverlayShelfLayout.Radius, Math.Min(size.Width, size.Height) / 2);
-        var shape = new GeometryGroup { FillRule = FillRule.Nonzero };
-        shape.Children.Add(new RectangleGeometry(new Rect(size), r, r)); shape.Children.Add(new RectangleGeometry(new Rect(0, r, size.Width, Math.Max(0, size.Height - r))));
-        var drawing = new GeometryDrawing(Brushes.White, null, shape); drawing.Freeze();
-        var mask = new DrawingBrush(drawing) { ViewboxUnits = BrushMappingMode.Absolute, Viewbox = new Rect(size), Stretch = Stretch.Fill }; mask.Freeze();
-        return mask;
+        count.FontSize = 11; count.FontWeight = FontWeights.SemiBold; count.Foreground = Ui.Ink;
+        count.VerticalAlignment = VerticalAlignment.Center; count.Margin = new Thickness(4, 0, 0, 0);
+        var row = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
+        row.Children.Add(new UiIcon("ChevronUp", 12, 2) { VerticalAlignment = VerticalAlignment.Center }); row.Children.Add(count);
+        var content = new Grid(); content.Children.Add(row); return content;
     }
 
     private static Style? standard, contrast;
@@ -216,6 +213,7 @@ public sealed class OverlayShelfWindow : Window
                 <Border x:Name='Outline' BorderBrush='{{TemplateBinding BorderBrush}}' BorderThickness='1,1,1,0' CornerRadius='{Radius}'/>
               </Grid><ControlTemplate.Triggers>
                 <Trigger Property='IsMouseOver' Value='True'><Setter TargetName='Outline' Property='BorderThickness' Value='2,2,2,0'/></Trigger>
+                <Trigger Property='IsKeyboardFocused' Value='True'><Setter TargetName='Outline' Property='BorderThickness' Value='2,2,2,0'/></Trigger>
               </ControlTemplate.Triggers></ControlTemplate>"
             : $@"<ControlTemplate TargetType='Button'><Grid>
                 <Border Background='{{TemplateBinding Background}}' CornerRadius='{Radius}'/>

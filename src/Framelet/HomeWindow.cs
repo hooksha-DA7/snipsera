@@ -42,14 +42,14 @@ public sealed class HomeWindow : Window
         columns.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(18) }); columns.ColumnDefinitions.Add(new ColumnDefinition());
         var left = new StackPanel();
         var capturePanel = new StackPanel();
-        capturePanel.Children.Add(Ui.Text("Capture", 13, Ui.Ink, true));
+        var captureTitle = Ui.Text("Capture", 13, Ui.Ink, true); captureTitle.Margin = new Thickness(0, 0, 0, 10); left.Children.Add(captureTitle);
         string[] labels = ["Select an area", "Choose a window", "Capture this display", "Repeat last area", "All-in-one capture"];
         // Opens the capture bar with every screenshot mode; its shortcut badge is the fifth binding.
         var barText = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
-        barText.Children.Add(Ui.Text(labels[4], 13, Ui.Ink, true)); barText.Children.Add(Ui.Text("Every screenshot mode in one bar", 11, Ui.Muted));
-        badges[4] = Ui.Text(app.Settings.Bindings[4], 11, Ui.Blue); badges[4].TextWrapping = TextWrapping.NoWrap; badges[4].VerticalAlignment = VerticalAlignment.Center; badges[4].Margin = new Thickness(10, 0, 0, 0);
+        barText.Children.Add(Ui.Text(labels[4], 13, Ui.Ink, true)); barText.Children.Add(Ui.Text("Every capture mode in one bar", 11, Ui.Muted));
+        badges[4] = Ui.Text(app.Settings.Bindings[4], 11, Ui.Blue); badges[4].TextWrapping = TextWrapping.NoWrap; badges[4].Margin = new Thickness(0, 4, 0, 0); barText.Children.Add(badges[4]);
         var barItem = new DockPanel(); var barIcon = CaptureBarVisuals.LauncherGlyph(); barIcon.Margin = new Thickness(0, 0, 14, 0); barIcon.VerticalAlignment = VerticalAlignment.Center;
-        DockPanel.SetDock(barIcon, Dock.Left); DockPanel.SetDock(badges[4], Dock.Right); barItem.Children.Add(barIcon); barItem.Children.Add(badges[4]); barItem.Children.Add(barText);
+        DockPanel.SetDock(barIcon, Dock.Left); barItem.Children.Add(barIcon); barItem.Children.Add(barText);
         var launcher = Ui.Button(labels[4], "ShowCaptureBar", () => app.ShowCaptureBar());
         launcher.Content = barItem; launcher.HorizontalContentAlignment = HorizontalAlignment.Stretch; launcher.HorizontalAlignment = HorizontalAlignment.Stretch; launcher.MinHeight = 56; launcher.Margin = new Thickness(0, 10, 0, 6);
         launcher.ToolTip = "Area, window, display, scrolling and last area, in one compact bar";
@@ -83,7 +83,7 @@ public sealed class HomeWindow : Window
         var recording = Ui.Button("Record screen", "CaptureRecording", app.OpenRecording);
         recording.Content = recordItem; recording.HorizontalContentAlignment = HorizontalAlignment.Left; recording.HorizontalAlignment = HorizontalAlignment.Stretch; recording.Background = Brushes.Transparent; recording.BorderBrush = Brushes.Transparent; recording.MinHeight = 64; recording.Margin = new Thickness(0, 4, 0, 0);
         capturePanel.Children.Add(recording);
-        left.Children.Add(Ui.Card(capturePanel));
+        left.Children.Add(LibraryPanel(capturePanel, new Thickness(16), "CapturePanel"));
         // Temporary hide/show for floating previews and pins; the same toggle as the tray item and the restore tab.
         var overlayLabel = Ui.Text("", 13, Ui.Ink, true); var overlayHint = Ui.Text("", 11, Ui.Muted); overlayHint.Margin = new Thickness(0, 4, 0, 0);
         var overlayText = new StackPanel(); overlayText.Children.Add(overlayLabel); overlayText.Children.Add(overlayHint);
@@ -136,18 +136,36 @@ public sealed class HomeWindow : Window
         {
             var empty = new StackPanel { Margin = new Thickness(14, 60, 14, 60) };
             empty.Children.Add(Ui.Text("No captures yet", 16, Ui.Ink, true));
-            empty.Children.Add(Ui.Text("Take a capture with a button or shortcut. It will appear here with copy, save and pin actions.", 14, Ui.Muted));
-            history.Children.Add(Ui.Card(empty)); return;
+            empty.Children.Add(Ui.Text("Take a capture with a button or shortcut. Open it here to edit, copy or keep it close.", 14, Ui.Muted));
+            history.Children.Add(LibraryPanel(empty, new Thickness(16), "EmptyHistory")); return;
         }
         foreach (var entry in app.History.Entries)
         {
             var row = new DockPanel();
-            var image = new Image { Width = 142, Height = 84, Stretch = Stretch.Uniform, Margin = new Thickness(0, 0, 16, 0) };
-            try { image.Source = app.History.LoadImage(entry, 280); }
+            var image = new Image { Width = 128, Height = 80, Stretch = Stretch.Uniform };
+            try
+            {
+                var source = app.History.LoadImage(entry, 280); image.Source = source;
+                double scale = Math.Min(128d / source.PixelWidth, 80d / source.PixelHeight);
+                image.Width = Math.Max(1, source.PixelWidth * scale); image.Height = Math.Max(1, source.PixelHeight * scale);
+                image.Clip = new RectangleGeometry(new Rect(0, 0, image.Width, image.Height), 6, 6);
+            }
             catch (Exception ex) when (ex is IOException or NotSupportedException or ArgumentException or FileFormatException or System.Text.Json.JsonException) { image.ToolTip = "Image or saved edits could not be opened. The local files are preserved."; }
-            DockPanel.SetDock(image, Dock.Left); row.Children.Add(image);
+            var imageFrame = new Border { Child = image, BorderBrush = Ui.Line, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(6),
+                HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
+            var thumbnail = new Grid { Width = 130, Height = 82, Margin = new Thickness(0, 0, 16, 0) }; thumbnail.Children.Add(imageFrame);
+            DockPanel.SetDock(thumbnail, Dock.Left); row.Children.Add(thumbnail);
             var text = new StackPanel(); text.Children.Add(Ui.Text(entry.Label, 12, Ui.Ink, true)); text.Children.Add(Ui.Text(entry.TimeLabel, 11, Ui.Muted));
             var actions = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 10, 0, 0) };
+            var edit = Ui.Button("Edit", "Edit" + entry.Id, () => app.EditEntry(entry));
+            edit.MinHeight = edit.Height = 28;
+            var editContent = new StackPanel { Orientation = Orientation.Horizontal };
+            editContent.Children.Add(new UiIcon("Pen", 15) { Margin = new Thickness(0, 0, 6, 0), VerticalAlignment = VerticalAlignment.Center });
+            editContent.Children.Add(Ui.Text("Edit", 12, Ui.Ink, true)); edit.Content = editContent;
+            edit.ToolTip = "Open in editor, including saved annotations";
+            System.Windows.Automation.AutomationProperties.SetName(edit, "Edit capture");
+            System.Windows.Automation.AutomationProperties.SetHelpText(edit, "Open this capture directly in the editor with its saved edits.");
+            actions.Children.Add(edit);
             actions.Children.Add(Ui.IconButton("Open", "Open preview", "Open" + entry.Id, () => app.OpenEntry(entry)));
             actions.Children.Add(Ui.IconButton("Copy", "Copy", "Copy" + entry.Id, async () =>
             { try { await CaptureService.Copy(app.History.LoadImage(entry)); SetStatus("Copied to clipboard"); } catch (Exception ex) { SetStatus(ex.Message, true); } }));
@@ -156,8 +174,33 @@ public sealed class HomeWindow : Window
                 if (ConfirmWindow.Ask(this, "Remove this capture?", "This removes the image from local history. Copies you saved elsewhere are kept.", "Remove") != Confirmation.Primary) return;
                 try { app.History.Remove(entry); RefreshHistory(); } catch (Exception ex) { SetStatus(ex.Message, true); }
             }));
+            for (int i = 1; i < actions.Children.Count; i++)
+            { var button = (Button)actions.Children[i]; button.MinWidth = button.Width = 28; button.MinHeight = button.Height = 28; button.Padding = new Thickness(5); }
+            ((Button)actions.Children[^1]).Margin = new Thickness(9, 1, 1, 1);
             text.Children.Add(actions); row.Children.Add(text);
-            var card = Ui.Card(row, new Thickness(12)); card.Margin = new Thickness(0, 0, 0, 10); history.Children.Add(card);
+            var card = LibraryPanel(row, new Thickness(12), "History" + entry.Id); card.Margin = new Thickness(0, 0, 0, 8); history.Children.Add(card);
         }
+    }
+
+    // The window owns the material; translucent cards follow it rather than painting opaque gray blocks over Mica.
+    private static Border LibraryPanel(UIElement child, Thickness padding, string id)
+    {
+        var panel = new Border { Background = Ui.CardMaterial, BorderBrush = Ui.CardStroke, BorderThickness = new Thickness(1),
+            CornerRadius = new CornerRadius(8), Padding = padding, Child = child };
+        if (id.StartsWith("History", StringComparison.Ordinal))
+        {
+            var hover = new Border { Background = Ui.Ink, Opacity = 0, IsHitTestVisible = false, CornerRadius = new CornerRadius(8),
+                Margin = new Thickness(-padding.Left, -padding.Top, -padding.Right, -padding.Bottom) };
+            var content = new Grid(); panel.Child = content; content.Children.Add(child); content.Children.Add(hover);
+            void Highlight(bool on)
+            {
+                double opacity = on && !SystemParameters.HighContrast ? .035 : 0;
+                if (Appearance.Current.Policy.Animate)
+                    hover.BeginAnimation(OpacityProperty, new System.Windows.Media.Animation.DoubleAnimation(opacity, TimeSpan.FromMilliseconds(80)));
+                else { hover.BeginAnimation(OpacityProperty, null); hover.Opacity = opacity; }
+            }
+            panel.MouseEnter += (_, _) => Highlight(true); panel.MouseLeave += (_, _) => Highlight(false);
+        }
+        System.Windows.Automation.AutomationProperties.SetAutomationId(panel, id); return panel;
     }
 }

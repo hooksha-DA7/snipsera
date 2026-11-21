@@ -18,7 +18,7 @@ public readonly record struct ScrollPreviewSlot(PixelRect Outer, ScrollGutter Si
 public static class ScrollCaptureLayout
 {
     // Logical (96 dpi) metrics, scaled by the selection monitor's DPI.
-    public const double Pad = 14, Clearance = 4, PreviewMaxWidth = 160, PreviewMinWidth = 64, PreviewMinHeight = 120, PreviewChromeX = 10, PreviewChromeY = 28;
+    public const double Pad = 14, Clearance = 4, PreviewMaxWidth = 160, PreviewMinWidth = 96, PreviewMinHeight = 120, PreviewChromeX = 14, PreviewChromeY = 38;
     // Conservative bar sizes for a pre-check before the overlay exists; the window measures its real bar.
     public static readonly LogicalSize NominalWide = new(640, 46), NominalCompact = new(350, 84);
     public const string NoRoom = "There's no room for the scrolling controls outside this selection. Select an area that leaves space above, below or beside it.";
@@ -87,16 +87,17 @@ public static class ScrollCaptureLayout
         return null;
     }
 
-    // Card body for the current image: never upscaled, anchored to the selection side and bottom of the slot.
+    // Keep a stable, readable width as the capture grows. Height grows to the safe
+    // gutter limit; the preview then scrolls, rather than becoming a thin sliver.
     public static PixelRect FitPreview(ScrollPreviewSlot slot, PixelSize image, double scale)
     {
         if (image.Width <= 0 || image.Height <= 0 || !(scale > 0) || !double.IsFinite(scale)) return PixelRect.Empty;
         int pad = Px(Pad, scale); var body = PixelRect.Inflate(slot.Outer, -pad, -pad);
         double chromeX = PreviewChromeX * scale, chromeY = PreviewChromeY * scale;
-        double k = Math.Min(1, Math.Min((body.Width - chromeX) / image.Width, (body.Height - chromeY) / image.Height));
+        double k = Math.Min(1, (body.Width - chromeX) / image.Width);
         if (!(k > 0)) return PixelRect.Empty;
         int width = Math.Min(body.Width, Math.Max(Math.Min(body.Width, Px(PreviewMinWidth, scale)), (int)Math.Ceiling(image.Width * k + chromeX)));
-        int height = Math.Min(body.Height, (int)Math.Ceiling(image.Height * k + chromeY));
+        int height = Math.Min(body.Height, Math.Max(Math.Min(body.Height, Px(PreviewMinHeight, scale)), (int)Math.Ceiling(image.Height * k + chromeY)));
         int x = slot.Side == ScrollGutter.Left ? body.Right - width : body.Left;
         return new PixelRect(x, body.Bottom - height, width, height);
     }

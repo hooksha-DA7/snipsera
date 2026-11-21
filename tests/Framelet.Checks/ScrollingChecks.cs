@@ -83,6 +83,45 @@ internal static class ScrollingChecks
     }
     public static void Run(Action<string, Action> test, Action<int> pump)
     {
+        test("Scrolling live preview preserves readable width and exact pixels across strip seams", () =>
+        {
+            var page = Page(160, 1600); var stitcher = new ScrollStitcher(new ScrollFrame(View(page, 0, 240)));
+            foreach (int top in new[] { 90, 180, 300, 450, 600, 750, 900 })
+                Require(stitcher.Add(new ScrollFrame(View(page, top, 240))) == ScrollAppendStatus.Added);
+            var preview = Task.Run(() => stitcher.Preview()).GetAwaiter().GetResult();
+            Require(preview.IsFrozen && preview.PixelWidth == 160 && preview.PixelHeight == 1140);
+            Require(Pixels(preview).SequenceEqual(Pixels(stitcher.Image())), "Preview has missing or duplicated strip rows");
+            var thumbnail = stitcher.Thumbnail(); Require(thumbnail.PixelWidth <= 180 && thumbnail.PixelHeight <= 320);
+        });
+        test("Scrolling preview geometry keeps its width as a tall image grows and never enters the capture", () =>
+        {
+            var slot = new ScrollPreviewSlot(new Rect(0, 0, 212, 800), ScrollGutter.Left);
+            var initial = ScrollCaptureLayout.FitPreview(slot, new System.Drawing.Size(1200, 800), 1);
+            var tall = ScrollCaptureLayout.FitPreview(slot, new System.Drawing.Size(1200, 16000), 1);
+            Require(initial.Width == tall.Width && tall.Height > initial.Height && slot.Outer.Contains(tall), "Tall preview collapsed to a thin strip");
+        });
+        test("Scrolling preview inspection holds position while new content arrives and Latest resumes following", () =>
+        {
+            var preview = new ScrollPreviewPanel { Width = 174, Height = 400 };
+            var page = Page(160, 1600);
+            void Layout() { preview.Measure(new System.Windows.Size(174, 400)); preview.Arrange(new System.Windows.Rect(0, 0, 174, 400)); preview.UpdateLayout(); pump(20); preview.UpdateLayout(); }
+            preview.SetImage(View(page, 0, 1000), 160, 1000, 5); Layout();
+            Require(preview.FollowLatest && !preview.FitAll && preview.Offset > 0, "Preview did not follow its latest rows");
+            preview.Inspect(-160); Layout(); double inspected = preview.Offset;
+            preview.SetImage(page, 160, 1600, 8); Layout();
+            Require(!preview.FollowLatest && Math.Abs(preview.Offset - inspected) < 1, "Live update stole the inspected position");
+            preview.ToggleFit(); Layout(); Require(preview.FitAll && preview.ImageHeight <= 376 && preview.Offset == 0);
+            preview.ShowLatest(); Layout(); Require(preview.FollowLatest && !preview.FitAll && preview.Offset > inspected);
+        });
+        test("Scrolling live preview catches the latest accepted frame even after scrolling stops", () =>
+        {
+            var page = Page(160, 900); int reads = 0;
+            using var session = new ScrollCaptureSession(new Rect(0, 0, 160, 240), _ => View(page, reads++ == 0 ? 0 : 90, 240), false);
+            session.Start(); for (int i = 0; i < 40 && session.Preview?.PixelHeight != 330; i++) pump(30);
+            Require(session.Preview?.PixelHeight == 330 && session.Height == 330, "Preview stopped at an older frame between refresh intervals");
+            session.Finish(); for (int i = 0; i < 50 && !session.Completion.IsCompleted; i++) pump(30);
+            Require(session.Completion.IsCompletedSuccessfully && Pixels(session.Preview!).SequenceEqual(Pixels(session.Completion.Result!)));
+        });
         test("Scrolling sparse article text matches exact offsets despite a small animated widget", () =>
         {
             var page = Article(); var stitcher = new ScrollStitcher(new ScrollFrame(WithWidget(View(page, 0, 480), 0)));
@@ -141,6 +180,14 @@ internal static class ScrollingChecks
         });
         test("Scrolling input uses the correct native INPUT structure size", () =>
             Require(System.Runtime.InteropServices.Marshal.SizeOf<ScrollCaptureInput.WheelInput>() == (IntPtr.Size == 8 ? 40 : 28)));
+        test("Auto-scroll adapts only from observed pixels and bounds changes to preserve overlap", () =>
+        {
+            Require(ScrollCaptureInput.NextWheelDelta(40, 30, 900) == 80, "A slow page did not speed up gradually");
+            Require(ScrollCaptureInput.NextWheelDelta(80, 500, 900) == 40, "A fast page did not slow down");
+            Require(ScrollCaptureInput.NextWheelDelta(240, 20, 900) == 240, "Wheel step exceeded its cap");
+            Require(ScrollCaptureInput.NextWheelDelta(40, 0, 900) == 40, "A stationary page changed the step");
+            Require(ScrollCaptureInput.NextWheelDelta(40, 200, 80) == 20, "Small selection retained an excessive step");
+        });
         test("Scrolling matcher rejects repeated line ambiguity and unrelated pages", () =>
         {
             var repeated = new byte[320 * 480 * 4];
@@ -233,6 +280,7 @@ internal static class ScrollingChecks
             session.Changed += () => { if (input.Calls.Count == 2 && session.Height == 480) session.Finish(); };
             session.SetAutoScroll(true); session.Start(); for (int i = 0; i < 160 && !session.Completion.IsCompleted; i++) pump(50);
             Require(!overshot && input.Calls.Count == 2 && session.Completion.IsCompletedSuccessfully, "Auto steps overlapped or did not complete");
+            Require(input.Observed.Contains(120), "Auto driver never received the actual movement for its completed step");
             Require(Pixels(session.Completion.Result!).SequenceEqual(Pixels(View(page, 0, 480))));
         });
         test("Auto-scroll retries the wheel route when a provider reports success without pixel movement", () =>
@@ -361,9 +409,11 @@ internal static class ScrollingChecks
     private sealed class FakeInput(Func<CancellationToken, bool, Task<bool>> scroll) : IScrollCaptureInput
     {
         public List<bool> Calls { get; } = [];
+        public List<int> Observed { get; } = [];
         public bool Available => true;
         public bool TargetMoved => false;
         public Task<bool> ScrollAsync(CancellationToken token, bool useWheel) { Calls.Add(useWheel); return scroll(token, useWheel); }
+        public void ObserveScroll(int capturedPixels) => Observed.Add(capturedPixels);
         public void StopAutoScroll() { }
         public void Dispose() { }
     }

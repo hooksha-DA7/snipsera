@@ -33,7 +33,7 @@ public sealed class ScrollCaptureSession : IDisposable
     private CancellationTokenSource? autoStep;
     private bool finishing, limited, disposed;
     private bool autoPending, wheelFallback;
-    private int noMovement, autoFrames, autoRevision;
+    private int noMovement, autoFrames, autoHeight, autoRevision;
     private long autoIssued, settledSince, mismatchSince;
     private (ScrollCapturePhase, bool, string, string?, int, int, BitmapSource?)? notified;
 
@@ -74,14 +74,19 @@ public sealed class ScrollCaptureSession : IDisposable
         var token = cancellation.Token; var elapsed = Stopwatch.StartNew();
         try
         {
-            var previousSample = new ScrollFrame(capture(Bounds)); stitcher = new ScrollStitcher(previousSample); Preview = stitcher.Thumbnail(); Notify();
+            var initial = CaptureFrozen();
+            var previousSample = await Task.Run(() => new ScrollFrame(initial), token);
+            token.ThrowIfCancellationRequested();
+            stitcher = new ScrollStitcher(previousSample);
+            Preview = await Task.Run(() => stitcher.Preview(), token); token.ThrowIfCancellationRequested(); Notify();
             long finishingSince = 0;
             long previewUpdated = 0;
+            int previewFrames = Frames;
             while (!token.IsCancellationRequested)
             {
                 if (AutoScroll && !autoPending && !finishing && !limited)
                 {
-                    autoPending = true; autoFrames = Frames; autoIssued = elapsed.ElapsedMilliseconds; settledSince = 0;
+                    autoPending = true; autoFrames = Frames; autoHeight = Height; autoIssued = elapsed.ElapsedMilliseconds; settledSince = 0;
                     int revision = autoRevision;
                     using var step = CancellationTokenSource.CreateLinkedTokenSource(token); step.CancelAfter(TimeSpan.FromSeconds(2)); autoStep = step;
                     bool sent;
@@ -97,21 +102,32 @@ public sealed class ScrollCaptureSession : IDisposable
                 { PauseAuto("Window moved. Choose Done to keep the captured portion, or Cancel to start again."); Warning = "The target window moved. The image ends at the last aligned view."; }
                 else if (!limited)
                 {
-                    var frame = new ScrollFrame(capture(Bounds)); bool stable = previousSample.IsStableComparedTo(frame); previousSample = frame;
+                    var sample = CaptureFrozen();
+                    bool refreshPreview = now - previewUpdated >= 200, finishRequested = finishing;
+                    // Pixel conversion, alignment and preview resampling are serialized on a
+                    // worker. Capturing the source still uses its owning dispatcher.
+                    var processed = await Task.Run(() =>
+                    {
+                        var processedFrame = new ScrollFrame(sample); bool isStable = previousSample.IsStableComparedTo(processedFrame);
+                        var appendStatus = stitcher.Add(processedFrame);
+                        if (finishRequested && isStable && appendStatus == ScrollAppendStatus.Unchanged) stitcher.RefreshLastView(processedFrame);
+                        var preview = refreshPreview && stitcher.Frames != previewFrames ? stitcher.Preview() : null;
+                        return (processedFrame, isStable, appendStatus, preview);
+                    }, token);
+                    token.ThrowIfCancellationRequested();
+                    var (frame, stable, result, updatedPreview) = processed; previousSample = frame;
+                    if (updatedPreview is not null) { Preview = updatedPreview; previewUpdated = now; previewFrames = Frames; }
                     if (stable) { if (settledSince == 0) settledSince = now; } else settledSince = 0;
                     // Collect identifiable intermediate positions too. Waiting for all motion to stop can lose an entire viewport during manual scrolling.
-                    var result = await Task.Run(() => stitcher.Add(frame), token); token.ThrowIfCancellationRequested();
                     switch (result)
                     {
                         case ScrollAppendStatus.Added:
                             noMovement = 0; mismatchSince = 0; Warning = null;
-                            if (now - previewUpdated >= 350) { Preview = stitcher.Thumbnail(); previewUpdated = now; }
                             Status = "Scroll down to capture more, or choose Done."; break;
                         case ScrollAppendStatus.Unchanged:
                             mismatchSince = 0;
                             if (Warning is not null) Status = "Scroll down to capture more, or choose Done.";
                             Warning = null;
-                            if (finishing && stable) stitcher.RefreshLastView(frame);
                             break;
                         case ScrollAppendStatus.Backwards:
                             mismatchSince = 0; Warning = null; PauseAuto("Scrolled back. Return to the last captured position, then continue down."); break;
@@ -128,7 +144,7 @@ public sealed class ScrollCaptureSession : IDisposable
                         long age = now - autoIssued;
                         if (settledSince > 0 && now - settledSince >= 160 && age >= 350 && result is (ScrollAppendStatus.Added or ScrollAppendStatus.Unchanged))
                         {
-                            if (Frames > autoFrames) autoPending = false;
+                            if (Frames > autoFrames) { input?.ObserveScroll(Height - autoHeight); autoPending = false; }
                             else if (age >= 900)
                             {
                                 // A driver result proves only that input was submitted. Require pixels to move before treating it as progress.
@@ -146,12 +162,19 @@ public sealed class ScrollCaptureSession : IDisposable
                 if (elapsed.Elapsed > TimeSpan.FromMinutes(10)) StopAtLimit();
             }
             token.ThrowIfCancellationRequested();
-            var image = await Task.Run(stitcher.Image, token); token.ThrowIfCancellationRequested();
+            var final = await Task.Run(() => (Image: stitcher.Image(), Preview: stitcher.Preview()), token); token.ThrowIfCancellationRequested();
+            var image = final.Image; Preview = final.Preview;
             Phase = ScrollCapturePhase.Completed; Status = "Scrolling capture ready"; completion.TrySetResult(image); Notify();
         }
         catch (OperationCanceledException) { }
         catch (Exception ex) { Phase = ScrollCapturePhase.Failed; AutoScroll = false; Status = ex.Message; completion.TrySetException(ex); Notify(); }
         finally { input?.Dispose(); }
+    }
+    private BitmapSource CaptureFrozen()
+    {
+        var image = capture(Bounds);
+        if (image.IsFrozen) return image;
+        var snapshot = image.Clone(); snapshot.Freeze(); return snapshot;
     }
     private void StopAtLimit()
     { limited = true; PauseAuto("Capture limit reached. Choose Done to keep it, or Cancel."); Warning = "Scrolling capture reached its length or time limit. The saved image contains the captured portion."; Notify(); }

@@ -24,6 +24,15 @@ internal static class ScrollAlignment
         int width = previous.Width, height = previous.Height;
         if (points.Count < 24) return null;
         int stride = Math.Max(1, (points.Count + 1535) / 1536);
+        // Filtering a sampled column once avoids repeating nine pixel reads for every
+        // candidate offset. Keep the same features, scores and ambiguity threshold.
+        var columns = new Dictionary<int, int>();
+        for (int p = 0; p < points.Count; p += stride)
+            if (!columns.ContainsKey(points[p].X)) columns.Add(points[p].X, columns.Count);
+        var oldSamples = FilterColumns(previous, columns);
+        var newSamples = FilterColumns(next, columns);
+        var features = new (int Y, int Column)[(points.Count + stride - 1) / stride];
+        for (int p = 0, f = 0; p < points.Count; p += stride, f++) features[f] = (points[p].Y, columns[points[p].X] * height * 3);
         int limit = height - Math.Max(48, height / 8);
         var coarse = new double[2 * limit + 1]; Array.Fill(coarse, double.PositiveInfinity);
         for (int shift = -limit; shift <= limit; shift++)
@@ -68,16 +77,36 @@ internal static class ScrollAlignment
         (double Cost, int Count, int Matched) Score(int shift, double fraction)
         {
             int count = 0, matched = 0; double sum = 0;
-            for (int p = 0; p < points.Count; p += stride)
+            foreach (var point in features)
             {
-                var point = points[p]; int nextY = point.Y - shift;
+                int nextY = point.Y - shift;
                 if (nextY < 1 || nextY >= height - 1) continue;
-                int a = (point.Y * width + point.X) * 4, b = (nextY * width + point.X) * 4;
-                double error = SmoothedDifference(previous.Pixels, a, next.Pixels, b, width * 4, fraction);
+                int a = point.Column + point.Y * 3, b = point.Column + nextY * 3;
+                double error;
+                if (fraction == 0)
+                    error = (Math.Abs(oldSamples[a] - newSamples[b]) + Math.Abs(oldSamples[a + 1] - newSamples[b + 1]) + Math.Abs(oldSamples[a + 2] - newSamples[b + 2])) / 12d;
+                else
+                {
+                    int adjacent = a + (fraction > 0 ? 3 : -3); double weight = Math.Abs(fraction);
+                    error = (Math.Abs(oldSamples[a] * (1 - weight) + oldSamples[adjacent] * weight - newSamples[b]) +
+                        Math.Abs(oldSamples[a + 1] * (1 - weight) + oldSamples[adjacent + 1] * weight - newSamples[b + 1]) +
+                        Math.Abs(oldSamples[a + 2] * (1 - weight) + oldSamples[adjacent + 2] * weight - newSamples[b + 2])) / 12d;
+                }
                 sum += Math.Min(48, error); count++; if (error <= 12) matched++;
             }
             return (count == 0 ? double.PositiveInfinity : sum / count, count, matched);
         }
+    }
+    private static ushort[] FilterColumns(ScrollFrame frame, Dictionary<int, int> columns)
+    {
+        var filtered = new ushort[checked(columns.Count * frame.Height * 3)]; int row = frame.Width * 4;
+        foreach (var column in columns)
+            for (int y = 1; y < frame.Height - 1; y++)
+            {
+                int p = y * row + column.Key * 4, output = (column.Value * frame.Height + y) * 3;
+                for (int c = 0; c < 3; c++) filtered[output + c] = (ushort)(frame.Pixels[p + c - row] + 2 * frame.Pixels[p + c] + frame.Pixels[p + c + row]);
+            }
+        return filtered;
     }
     private static List<(int X, int Y)> Points(ScrollFrame frame)
     {
@@ -99,21 +128,4 @@ internal static class ScrollAlignment
     }
     private static double Difference(byte[] a, int ai, byte[] b, int bi) =>
         (Math.Abs(a[ai] - b[bi]) + Math.Abs(a[ai + 1] - b[bi + 1]) + Math.Abs(a[ai + 2] - b[bi + 2])) / 3d;
-    private static double SmoothedDifference(byte[] a, int ai, byte[] b, int bi, int row, double fraction)
-    {
-        double error = 0;
-        for (int channel = 0; channel < 3; channel++)
-        {
-            int p = ai + channel, q = bi + channel;
-            double sample = a[p - row] + 2 * a[p] + a[p + row];
-            if (fraction != 0)
-            {
-                int adjacent = p + (fraction > 0 ? row : -row);
-                sample = sample * (1 - Math.Abs(fraction)) + (a[adjacent - row] + 2 * a[adjacent] + a[adjacent + row]) * Math.Abs(fraction);
-            }
-            error += Math.Abs(sample - b[q - row] - 2 * b[q] - b[q + row]);
-        }
-        // Matching only: retain original unfiltered pixels in the stitched output.
-        return error / 12d;
-    }
 }

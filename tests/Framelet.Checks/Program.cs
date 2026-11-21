@@ -52,6 +52,8 @@ internal static class Program
     [STAThread]
     public static int Main(string[] args)
     {
+        if (args.Length == 2 && args[0] == "--editor-refinement-check") return EditorRefinementChecks.Run(args[1]);
+        if (args.Length == 2 && args[0] == "--library-ui-check") return LibraryUiChecks.Run(args[1]);
         if (args.Length == 2 && args[0] == "--preview-dismissal-check") return PreviewDismissalChecks.Run(args[1]);
         if (args.Length == 2 && args[0] == "--preview-preferences-check") return PreviewPreferencesChecks.Run(args[1]);
         if (args.Length == 2 && args[0] == "--preview-stack-layout-check") return PreviewStackLayoutChecks.Run(args[1]);

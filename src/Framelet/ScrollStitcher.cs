@@ -111,20 +111,39 @@ public sealed class ScrollStitcher
         foreach (var strip in strips) { Buffer.BlockCopy(strip.Pixels, 0, pixels, offset, strip.Pixels.Length); offset += strip.Pixels.Length; }
         var image = BitmapSource.Create(Width, Height, 96, 96, PixelFormats.Bgra32, null, pixels, Width * 4); image.Freeze(); return image;
     }
-    public BitmapSource Thumbnail()
+    public BitmapSource Thumbnail() => Preview(180, 320);
+
+    // Read directly from retained strips. No full-resolution WPF surfaces, per-strip
+    // bitmap copies or UI-thread RenderTargetBitmap are needed for live inspection.
+    public BitmapSource Preview(int maximumWidth = 320, int maximumHeight = 8192)
     {
-        double scale = Math.Min(1, Math.Min(180d / Width, 320d / Height));
+        if (maximumWidth < 1 || maximumWidth > 1024 || maximumHeight < 1 || maximumHeight > MaxSide)
+            throw new ArgumentOutOfRangeException(nameof(maximumWidth));
+        double scale = Math.Min(1, Math.Min((double)maximumWidth / Width, (double)maximumHeight / Height));
         int width = Math.Max(1, (int)Math.Ceiling(Width * scale)), height = Math.Max(1, (int)Math.Ceiling(Height * scale));
-        var visual = new DrawingVisual();
-        using (var drawing = visual.RenderOpen())
+        var pixels = new byte[checked(width * height * 4)];
+        var rowData = new (byte[] Pixels, int Offset)[Height]; int row = 0;
+        foreach (var strip in strips)
+            for (int y = 0; y < strip.Height; y++) rowData[row++] = (strip.Pixels, y * Width * 4);
+        for (int y = 0; y < height; y++)
         {
-            double y = 0;
-            foreach (var strip in strips)
+            double sy = Math.Clamp((y + .5) * Height / height - .5, 0, Height - 1);
+            int y0 = (int)sy, y1 = Math.Min(Height - 1, y0 + 1); double fy = sy - y0;
+            var upper = rowData[y0]; var lower = rowData[y1];
+            for (int x = 0; x < width; x++)
             {
-                var source = BitmapSource.Create(Width, strip.Height, 96, 96, PixelFormats.Bgra32, null, strip.Pixels, Width * 4); source.Freeze();
-                drawing.DrawImage(source, new Rect(0, y * scale, Width * scale, strip.Height * scale)); y += strip.Height;
+                double sx = Math.Clamp((x + .5) * Width / width - .5, 0, Width - 1);
+                int x0 = (int)sx * 4, x1 = Math.Min(Width - 1, (int)sx + 1) * 4; double fx = sx - (int)sx;
+                int output = (y * width + x) * 4;
+                for (int c = 0; c < 4; c++)
+                {
+                    double top = upper.Pixels[upper.Offset + x0 + c] * (1 - fx) + upper.Pixels[upper.Offset + x1 + c] * fx;
+                    double bottom = lower.Pixels[lower.Offset + x0 + c] * (1 - fx) + lower.Pixels[lower.Offset + x1 + c] * fx;
+                    pixels[output + c] = (byte)Math.Round(top * (1 - fy) + bottom * fy);
+                }
             }
         }
-        var thumbnail = new RenderTargetBitmap(width, height, 96, 96, PixelFormats.Pbgra32); thumbnail.Render(visual); thumbnail.Freeze(); return thumbnail;
+        var image = BitmapSource.Create(width, height, 96, 96, PixelFormats.Bgra32, null, pixels, width * 4);
+        image.Freeze(); return image;
     }
 }

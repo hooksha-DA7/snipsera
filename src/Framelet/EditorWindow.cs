@@ -14,7 +14,7 @@ using Microsoft.Win32;
 
 namespace Framelet;
 
-public sealed class EditorWindow : Window
+public sealed partial class EditorWindow : Window
 {
     public EditDocument Document { get; }
     public EditCanvas Canvas { get; }
@@ -29,6 +29,7 @@ public sealed class EditorWindow : Window
     private readonly CheckBox aspect = new() { Content = "Keep aspect ratio", IsChecked = true, Margin = new Thickness(0, 5, 0, 8) };
     private readonly ComboBox colors = Choice("AnnotationColor"), strokes = Choice("StrokeWidth"), fonts = Choice("FontSize"), background = Choice("BackgroundColor"), zoom = Choice("CanvasZoom"), styles = Choice("AnnotationStyle"), arrows = Choice("ArrowStyle");
     private readonly StackPanel textOptions = new() { Orientation = Orientation.Horizontal };
+    private readonly StackPanel fontOptions = new() { Orientation = Orientation.Horizontal };
     private readonly Border inspector = new();
     private readonly Dictionary<string, Button> tools = [];
     private readonly Button undo, redo, remove;
@@ -51,28 +52,29 @@ public sealed class EditorWindow : Window
         this.transferCompleted = transferCompleted;
         Ui.Setup(this); Ui.UseSystemChrome(this); Width = 1120; Height = 780; MinWidth = 900; MinHeight = 560; WindowStartupLocation = WindowStartupLocation.CenterScreen;
         Canvas = new EditCanvas(document) { Report = ex => SetStatus(ex.Message, true) };
-        Canvas.MakeMark = (kind, points) => new Mark(kind, points, SelectedColor(colors), Number(strokes, 4), text.Text, Number(fonts, 24),
-            Math.Min(999, document.State.Marks.Where(m => m.Kind == MarkKind.Counter).Select(m => m.Number).DefaultIfEmpty(0).Max() + 1), SelectedStyle, kind == MarkKind.Arrow ? SelectedArrow : null, Smooth: kind == MarkKind.Pen && SelectedStyle == MarkStyle.Sketch);
-        var dock = new DockPanel { Background = Brushes.Transparent };
+        Canvas.MakeMark = (kind, points) => new Mark(kind, points, SelectedColor(colors), Number(strokes, 4), Canvas.Tool == "Stamp" ? (stamps.SelectedItem as string ?? "✓") : "", Number(fonts, 24),
+            Math.Min(999, document.State.Marks.Where(m => m.Kind == MarkKind.Counter).Select(m => m.Number).DefaultIfEmpty(0).Max() + 1), SelectedStyle, kind == MarkKind.Arrow ? SelectedArrow : null, Smooth: kind == MarkKind.Pen && SelectedStyle == MarkStyle.Sketch, TextPreset: Canvas.Tool == "Stamp" ? TextPreset.Plain : SelectedTextPreset);
+        var dock = new DockPanel { Background = Ui.Paper };
         var toolbar = new DockPanel { Background = Ui.Chrome, LastChildFill = false, Margin = new Thickness(0) };
         var files = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(10, 6, 5, 6) };
         files.Children.Add(Ui.IconButton("Open", "Open image or project", "EditorOpen", open));
+        files.Children.Add(Ui.IconButton("AddImage", "Add image to this composition", "EditorAddImage", AddImages));
         files.Children.Add(Ui.IconButton("Project", "Save editable project", "SaveProject", () => SaveProject()));
         toolbar.Children.Add(files);
         var toolRow = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(5, 6, 0, 6) };
-        (string tool, string label)[] definitions = [("Select", "Select / move"), ("Crop", "Crop"), ("Arrow", "Arrow"), ("Line", "Line"), ("Rectangle", "Rectangle"), ("Ellipse", "Ellipse"), ("Text", "Text"), ("Counter", "Counter"), ("Highlight", "Highlight"), ("Pen", "Freehand"), ("Blur", "Blur"), ("Pixelate", "Pixelate"), ("Redact", "Solid mask")];
-        foreach (var (tool, label) in definitions) { var button = Ui.IconButton(tool, label, "Tool" + tool, () => ChooseTool(tool)); tools.Add(tool, button); toolRow.Children.Add(button); }
+        (string tool, string label)[] definitions = [("Select", "Select / move"), ("Crop", "Crop"), ("Arrow", "Arrow"), ("Line", "Line"), ("Rectangle", "Rectangle"), ("Ellipse", "Ellipse"), ("Text", "Text"), ("Stamp", "Symbols / stamps"), ("Counter", "Counter"), ("Highlight", "Highlight"), ("Pen", "Freehand"), ("Blur", "Blur"), ("Pixelate", "Pixelate"), ("Redact", "Solid mask")];
+        foreach (var (tool, label) in definitions) { var button = Ui.IconButton(tool, tool == "Crop" ? "Crop original image" : label, "Tool" + tool, () => ChooseTool(tool)); tools.Add(tool, button); toolRow.Children.Add(button); }
         toolbar.Children.Add(new Border { Child = toolRow, BorderBrush = Ui.Line, BorderThickness = new Thickness(1, 0, 1, 0) });
         var edits = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(8, 6, 0, 6) };
         undo = Ui.IconButton("Undo", "Undo · Ctrl+Z", "EditorUndo", () => { Canvas.CancelGesture(); document.Undo(); });
         redo = Ui.IconButton("Redo", "Redo · Ctrl+Y", "EditorRedo", () => { Canvas.CancelGesture(); document.Redo(); });
         remove = Ui.IconButton("Delete", "Delete selected annotation", "RemoveAnnotation", RemoveSelected);
         edits.Children.Add(undo); edits.Children.Add(redo); edits.Children.Add(remove);
-        edits.Children.Add(Ui.IconButton("Settings", "Image size, background and layers", "ToggleInspector", () => inspector.Visibility = inspector.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible));
+        edits.Children.Add(Ui.Button("Background", "EditorBackground", () => ShowPanel("Background")));
         toolbar.Children.Add(edits); DockPanel.SetDock(toolbar, Dock.Top); dock.Children.Add(toolbar);
 
         AddColors(colors, false);
-        var context = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(14, 0, 10, 0), Height = 42, VerticalAlignment = VerticalAlignment.Center };
+        var context = new WrapPanel { Background = Ui.Chrome, Orientation = Orientation.Horizontal, Margin = new Thickness(14, 5, 10, 5), MinHeight = 32, VerticalAlignment = VerticalAlignment.Center };
         foreach (Swatch swatch in colors.Items)
         {
             var chip = Ui.Button(swatch.Name, "Color" + swatch.Name, () => colors.SelectedItem = swatch); chip.Content = new System.Windows.Shapes.Ellipse { Width = 14, Height = 14, Fill = Ui.Brush(swatch.Value), Stroke = Ui.Brush("#30000000"), StrokeThickness = 1 };
@@ -92,59 +94,48 @@ public sealed class EditorWindow : Window
         styles.Items.Add("Hand-drawn"); styles.Items.Add("Clean"); styles.SelectedIndex = 0;
         context.Children.Add(Label("Stroke")); strokes.Width = 68; context.Children.Add(strokes);
         styles.Width = 140; styles.ToolTip = "Annotation style"; context.Children.Add(styles);
-        context.Children.Add(Label("Text")); fonts.Width = 72; context.Children.Add(fonts);
-        AutomationProperties.SetAutomationId(text, "AnnotationText"); text.Width = 160; text.Padding = new Thickness(6, 4, 6, 4); text.Margin = new Thickness(4, 0, 5, 0); text.VerticalContentAlignment = VerticalAlignment.Center;
-        textOptions.Children.Add(text); context.Children.Add(textOptions);
-        var apply = Ui.IconButton("Check", "Update selected annotation", "UpdateAnnotation", UpdateSelected); context.Children.Add(apply);
+        fontOptions.Children.Add(Label("Text size")); fonts.Width = 72; fontOptions.Children.Add(fonts); context.Children.Add(fontOptions);
+        BuildTextOptions(); context.Children.Add(textOptions);
+        foreach (string symbol in new[] { "✓", "√", "×", "✕", "x", "!", "?", "★" }) stamps.Items.Add(symbol);
+        stamps.SelectedIndex = 0; stamps.Width = 68; stamps.FontSize = 22; stamps.ToolTip = "Choose a symbol, then click the image";
+        stamps.Visibility = Visibility.Collapsed; context.Children.Add(stamps);
         DockPanel.SetDock(context, Dock.Top); dock.Children.Add(context);
 
         var footer = new DockPanel { Background = Ui.Chrome, Height = 46 };
         var zoomRow = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(12, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center };
         foreach (string value in new[] { "Fit", "25%", "50%", "100%", "150%", "200%", "400%" }) zoom.Items.Add(value);
-        zoom.Width = 88; zoom.SelectedIndex = 0; zoom.Margin = new Thickness(0); zoomRow.Children.Add(zoom); dimensions.Margin = new Thickness(12, 0, 0, 0); dimensions.VerticalAlignment = VerticalAlignment.Center; zoomRow.Children.Add(dimensions); footer.Children.Add(zoomRow);
+        zoom.Width = 88; zoom.SelectedIndex = 0; zoom.Margin = new Thickness(0); zoomRow.Children.Add(zoom); dimensions.Margin = new Thickness(12, 0, 0, 0); dimensions.VerticalAlignment = VerticalAlignment.Center; var sizeButton = Ui.Button("Image size", "EditorImageSize", () => ShowPanel("Image size")); sizeButton.Content = dimensions; sizeButton.ToolTip = "Resize image"; zoomRow.Children.Add(sizeButton); zoomRow.Children.Add(Ui.Button("Layers", "ToggleInspector", () => ShowPanel("Layers"))); footer.Children.Add(zoomRow);
         var output = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(8, 0, 10, 0) };
-        output.Children.Add(Ui.IconButton("Pin", "Pin edited image", "EditorPin", () => pin(Canvas.Image)));
+        output.Children.Add(Ui.IconButton("Pin", "Pin edited image", "EditorPin", () => { if (Canvas.CommitText()) pin(Canvas.Image); }));
         output.Children.Add(Ui.IconButton("Copy", "Copy edited image · Ctrl+C", "EditorCopy", async () => await CopyImage()));
         var drag = Ui.IconButton("Drag", "Drag edited PNG to another app", "EditorDrag", () => SetStatus("Drag this handle to another app"));
         EditState? draggedState = null;
         DragExport.Attach(drag, (Application.Current as CaptureApp)?.History.Root ?? Path.Combine(Path.GetTempPath(), "Snipsera"),
             () => { draggedState = Document.State; return Canvas.Image; }, ex => SetStatus(ex.Message, true),
-            completed: () => { if (draggedState is not null) CompleteTransfer(draggedState); }); output.Children.Add(drag);
+            enabled: PrepareImageTransfer, completed: () => { if (draggedState is not null) CompleteTransfer(draggedState); }); output.Children.Add(drag);
         output.Children.Add(Action("JPEG…", "ExportJpeg", () => Export(true)));
         output.Children.Add(Action("Save image…", "ExportPng", () => Export(false), true));
         DockPanel.SetDock(output, Dock.Right); footer.Children.Insert(0, output); DockPanel.SetDock(footer, Dock.Bottom); dock.Children.Add(footer);
         status.Margin = new Thickness(14, 5, 14, 5); status.FontSize = 11; status.TextWrapping = TextWrapping.NoWrap; status.TextTrimming = TextTrimming.CharacterEllipsis; DockPanel.SetDock(status, Dock.Bottom); dock.Children.Add(status);
         var center = new DockPanel();
-        var right = new StackPanel { Margin = new Thickness(14) }; right.Children.Add(Ui.Text("Image size", 13, Ui.Ink, true)); right.Children.Add(Ui.Text("Width × height · pixels", 11, Ui.Muted));
-        var resize = new UniformGrid { Columns = 2 }; resize.Children.Add(width); resize.Children.Add(height); right.Children.Add(resize); right.Children.Add(aspect);
-        right.Children.Add(Action("Resize", "ApplyResize", () => Try(() => document.Resize(Parse(width, 1, 20000), Parse(height, 1, 20000)))));
-        var bgLabel = Ui.Text("Background", 13, Ui.Ink, true); bgLabel.Margin = new Thickness(0, 20, 0, 0); right.Children.Add(bgLabel);
-        AddColors(background, true); right.Children.Add(background); right.Children.Add(Ui.Text("Padding · pixels", 11, Ui.Muted)); right.Children.Add(padding);
-        right.Children.Add(Action("Apply background", "ApplyBackground", () => Try(() => document.Background(Parse(padding, 0, 500), SelectedColor(background)))));
-        var layersLabel = Ui.Text("Layers", 13, Ui.Ink, true); layersLabel.Margin = new Thickness(0, 20, 0, 0); right.Children.Add(layersLabel);
-        AutomationProperties.SetAutomationId(objects, "AnnotationObjects"); right.Children.Add(objects);
-        right.Children.Add(Ui.Text("Projects retain the original pixels. Share a flattened PNG or JPEG when hiding sensitive content.", 11, Ui.Muted));
-        inspector.Width = 218; inspector.Background = Ui.Paper; inspector.BorderBrush = Ui.Line; inspector.BorderThickness = new Thickness(1, 0, 0, 0); inspector.Visibility = Visibility.Collapsed;
-        inspector.Child = new ScrollViewer { Content = right, VerticalScrollBarVisibility = ScrollBarVisibility.Auto }; DockPanel.SetDock(inspector, Dock.Right); center.Children.Add(inspector);
+        BuildInspector(); DockPanel.SetDock(inspector, Dock.Left); center.Children.Add(inspector);
         var paper = new Border { Child = Canvas, Background = Checkerboard(), Margin = new Thickness(24), HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center,
             Effect = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 18, ShadowDepth = 3, Opacity = .15 } };
         viewport.Content = paper; center.Children.Add(viewport); dock.Children.Add(center); Content = dock;
+        AllowDrop = true; DragOver += ImagesDragOver; Drop += ImagesDrop;
+        Canvas.ToolRequested += ChooseTool;
 
-        objects.SelectionChanged += (_, _) => { if (!updating) Canvas.Select(objects.SelectedIndex); };
+        objects.SelectionChanged += (_, _) => { if (!updating) SelectLayer(objects.SelectedIndex); };
         Canvas.SelectionChanged += index =>
         {
-            if (objects.SelectedIndex != index) objects.SelectedIndex = index;
-            remove.IsEnabled = index >= 0;
-            if (index < 0) return;
+            updating = true; objects.SelectedIndex = index >= 0 ? index : Canvas.SelectedImage >= 0 ? Document.State.Marks.Length + Canvas.SelectedImage : -1; updating = false;
+            remove.IsEnabled = index >= 0 || Canvas.SelectedImage >= 0;
+            if (index < 0) { RefreshFontOptions(); return; }
             updating = true;
-            var mark = document.State.Marks[index]; SelectColor(colors, mark.Color); strokes.SelectedItem = mark.Width; fonts.SelectedItem = mark.FontSize;
-            arrows.Visibility = mark.Kind == MarkKind.Arrow ? Visibility.Visible : Visibility.Collapsed; styles.Visibility = mark.Kind == MarkKind.Arrow ? Visibility.Collapsed : Visibility.Visible;
-            styles.SelectedIndex = mark.Style == MarkStyle.Sketch ? 0 : 1;
-            arrows.SelectedIndex = (int)(mark.Arrow ?? (mark.Style == MarkStyle.Sketch ? ArrowStyle.Curved : ArrowStyle.Filled));
-            if (mark.Kind == MarkKind.Text) { text.Text = mark.Text; textOptions.Visibility = Visibility.Visible; }
+            SyncSelectedControls(document.State.Marks[index]);
             updating = false;
         };
-        foreach (var choice in new[] { colors, strokes, fonts, styles, arrows })
+        foreach (var choice in new[] { colors, strokes, fonts, styles, arrows, textPresets })
             choice.SelectionChanged += (_, _) => { if (!updating && Canvas.Selected >= 0) UpdateSelected(); };
         width.TextChanged += (_, _) => SyncRatio(true); height.TextChanged += (_, _) => SyncRatio(false);
         aspect.Checked += (_, _) => { if (int.TryParse(width.Text, out int w) && int.TryParse(height.Text, out int h) && h > 0) resizeRatio = (double)w / h; };
@@ -158,14 +149,27 @@ public sealed class EditorWindow : Window
         Refresh(); ChooseTool("Arrow");
     }
 
+    private void SyncSelectedControls(Mark mark)
+    {
+        SelectColor(colors, mark.Color); strokes.SelectedItem = mark.Width; fonts.SelectedItem = mark.FontSize;
+        arrows.Visibility = mark.Kind == MarkKind.Arrow ? Visibility.Visible : Visibility.Collapsed; styles.Visibility = mark.Kind == MarkKind.Arrow ? Visibility.Collapsed : Visibility.Visible;
+        styles.SelectedIndex = mark.Style == MarkStyle.Sketch ? 0 : 1;
+        arrows.SelectedIndex = (int)(mark.Arrow ?? (mark.Style == MarkStyle.Sketch ? ArrowStyle.Curved : ArrowStyle.Filled));
+        textOptions.Visibility = mark.Kind == MarkKind.Text ? Visibility.Visible : Visibility.Collapsed;
+        RefreshFontOptions();
+        if (mark.Kind == MarkKind.Text) { text.Text = mark.Text; textPresets.SelectedIndex = (int)mark.TextPreset; }
+    }
+
     private ArrowStyle SelectedArrow => arrows.SelectedItem is ComboBoxItem { Tag: ArrowStyle style } ? style : ArrowStyle.Classic;
+    private void RefreshFontOptions() => fontOptions.Visibility = Canvas.Tool is "Text" or "Counter" or "Stamp" ||
+        (Canvas.Selected >= 0 && Document.State.Marks[Canvas.Selected].Kind is MarkKind.Text or MarkKind.Counter) ? Visibility.Visible : Visibility.Collapsed;
     private MarkStyle SelectedStyle => styles.SelectedIndex == 0 ? MarkStyle.Sketch : MarkStyle.Clean;
     private static TextBlock Label(string value) { var label = Ui.Text(value, 11, Ui.Muted); label.VerticalAlignment = VerticalAlignment.Center; label.Margin = new Thickness(8, 0, 5, 0); return label; }
     private static Button Action(string label, string id, Action action, bool accent = false) => Ui.Button(label, id, action, accent);
     private static TextBox Field(string id)
     { var box = new TextBox { FontSize = 12, Padding = new Thickness(7), Margin = new Thickness(0, 6, 5, 6) }; AutomationProperties.SetAutomationId(box, id); return box; }
     private static ComboBox Choice(string id)
-    { var box = new ComboBox { FontSize = 12, Padding = new Thickness(5), Margin = new Thickness(0, 0, 5, 0), MinHeight = 28, VerticalAlignment = VerticalAlignment.Center }; AutomationProperties.SetAutomationId(box, id); return box; }
+    { var box = new ComboBox { FontSize = 12, Background = Ui.Surface, Foreground = Ui.Ink, BorderBrush = Ui.Line, Padding = new Thickness(5), Margin = new Thickness(0, 0, 5, 0), MinHeight = 28, VerticalAlignment = VerticalAlignment.Center }; AutomationProperties.SetAutomationId(box, id); return box; }
     private static void AddColors(ComboBox combo, bool transparent)
     {
         combo.DisplayMemberPath = "Name";
@@ -198,10 +202,12 @@ public sealed class EditorWindow : Window
         var state = Document.State; objects.Items.Clear();
         for (int i = 0; i < state.Marks.Length; i++)
         { var mark = state.Marks[i]; objects.Items.Add($"{i + 1}. {mark.Kind}" + (mark.Kind == MarkKind.Text ? " · " + mark.Text.Replace('\n', ' ')[..Math.Min(mark.Text.Length, 30)] : mark.Kind == MarkKind.Counter ? " " + mark.Number : "")); }
-        objects.SelectedIndex = selected < state.Marks.Length ? selected : -1;
+        for (int i = 0; i < state.Images.Length; i++) objects.Items.Add($"Image {i + 1} · {state.Images[i].Width:N0} × {state.Images[i].Height:N0}");
+        objects.SelectedIndex = selected >= 0 && selected < state.Marks.Length ? selected : Canvas.SelectedImage >= 0 ? state.Marks.Length + Canvas.SelectedImage : -1;
         width.Text = state.Width.ToString(); height.Text = state.Height.ToString(); resizeRatio = (double)state.Width / state.Height;
-        padding.Text = state.Padding.ToString(); SelectColor(background, state.Background);
-        undo.IsEnabled = Document.CanUndo; redo.IsEnabled = Document.CanRedo; remove.IsEnabled = Canvas.Selected >= 0;
+        padding.Text = state.Padding.ToString(); SelectColor(background, state.Background); RefreshBackground();
+        undo.IsEnabled = Document.CanUndo; redo.IsEnabled = Document.CanRedo; remove.IsEnabled = Canvas.Selected >= 0 || Canvas.SelectedImage >= 0;
+        if (selected >= 0 && selected < state.Marks.Length) SyncSelectedControls(state.Marks[selected]);
         dimensions.Text = $"{state.CanvasWidth:N0} × {state.CanvasHeight:N0} px";
         Title = "Snipsera — editor · " + name + (Document.IsDirty ? " *" : ""); updating = false; UpdateZoom();
     }
@@ -221,25 +227,28 @@ public sealed class EditorWindow : Window
     }
     private void ChooseTool(string tool)
     {
-        Canvas.CancelGesture(); Canvas.Tool = tool; Canvas.Cursor = tool == "Select" ? Cursors.SizeAll : Cursors.Cross;
+        if (!Canvas.CommitText()) return; Canvas.CancelGesture(); Canvas.Tool = tool; Canvas.Cursor = tool == "Select" ? Cursors.Arrow : tool == "Text" ? Cursors.IBeam : Cursors.Cross;
         foreach (var (key, button) in tools) { button.Background = key == tool ? Ui.Blue : Brushes.Transparent; button.Foreground = key == tool ? Ui.OnAccent : Ui.Ink; }
         arrows.Visibility = tool == "Arrow" ? Visibility.Visible : Visibility.Collapsed; styles.Visibility = tool == "Arrow" ? Visibility.Collapsed : Visibility.Visible;
-        textOptions.Visibility = tool == "Text" ? Visibility.Visible : Visibility.Collapsed;
-        SetStatus(tool switch { "Text" => "Type a note in the toolbar, then click the image to place it.", "Arrow" => "Drag an arrow. Drag its round endpoints to refine it; Curved also has a bend handle.", "Counter" => "Click to place the next numbered counter.", "Select" => "Click an annotation to select it, then drag to move. Remove is undoable.", "Crop" => "Drag the part of the image to keep. Undo restores the full crop.", "Redact" => "Drag a solid black mask. Projects still contain the original; share a flattened export.", "Blur" or "Pixelate" => "Drag to obscure an area. Use Solid mask for sensitive text; blur and pixelation are not secure redaction.", _ => "Drag on the image to add " + tool.ToLowerInvariant() + ". Esc cancels the current stroke." });
+        textOptions.Visibility = tool == "Text" || (Canvas.Selected >= 0 && Document.State.Marks[Canvas.Selected].Kind == MarkKind.Text) ? Visibility.Visible : Visibility.Collapsed;
+        stamps.Visibility = tool == "Stamp" ? Visibility.Visible : Visibility.Collapsed;
+        RefreshFontOptions();
+        SetStatus(tool switch { "Text" => "Click the image and type. Enter finishes; Shift+Enter adds a line. Double-click text to edit it.", "Arrow" => "Drag an arrow. Drag its round endpoints to refine it; Curved also has a bend handle.", "Counter" => "Click to place the next numbered counter.", "Stamp" => "Choose a symbol, then click to place it. Drag it to move; use the corners to resize.", "Select" => "Drag an object to move it. Drag handles to resize. Double-click text to edit; drop an image to combine.", "Crop" => "Drag the part of the original image to keep. Added images stay unchanged. Undo restores the crop.", "Redact" => "Drag a solid black mask. Projects still contain the original; share a flattened export.", "Blur" or "Pixelate" => "Drag to obscure an area. Use Solid mask for sensitive text; blur and pixelation are not secure redaction.", _ => "Drag on the image to add " + tool.ToLowerInvariant() + ". Esc cancels the current stroke." });
     }
     private void UpdateSelected()
     {
         if (Canvas.Selected < 0) { SetStatus("Select an annotation in the image or Objects list first."); return; }
-        Try(() => { var mark = Document.State.Marks[Canvas.Selected]; Document.Replace(Canvas.Selected, mark with { Color = SelectedColor(colors), Width = Number(strokes, mark.Width), Style = SelectedStyle, Arrow = mark.Kind == MarkKind.Arrow ? SelectedArrow : mark.Arrow, Smooth = mark.Kind == MarkKind.Pen ? SelectedStyle == MarkStyle.Sketch : mark.Smooth, FontSize = Number(fonts, mark.FontSize), Text = mark.Kind == MarkKind.Text ? text.Text : mark.Text }); });
+        Try(() => { var mark = Document.State.Marks[Canvas.Selected]; Document.Replace(Canvas.Selected, mark with { Color = SelectedColor(colors), Width = Number(strokes, mark.Width), Style = SelectedStyle, Arrow = mark.Kind == MarkKind.Arrow ? SelectedArrow : mark.Arrow, Smooth = mark.Kind == MarkKind.Pen ? SelectedStyle == MarkStyle.Sketch : mark.Smooth, FontSize = Number(fonts, mark.FontSize), TextPreset = mark.Kind == MarkKind.Text ? SelectedTextPreset : mark.TextPreset }); });
     }
-    private void RemoveSelected() { if (Canvas.Selected >= 0) Try(() => { Document.Remove(Canvas.Selected); Canvas.Select(-1); }); }
+    private void RemoveSelected() { if (Canvas.Selected >= 0) Try(() => { Document.Remove(Canvas.Selected); Canvas.Select(-1); }); else if (Canvas.SelectedImage >= 0) Try(() => { Document.RemoveImage(Canvas.SelectedImage); Canvas.Select(-1); }); }
     private void SetStatus(string value, bool error = false) { status.Text = value; status.Foreground = error ? Ui.Brush("#A33E16") : Ui.Muted; }
-    private void Try(Action action) { try { Canvas.CancelGesture(); action(); SetStatus("Edit applied"); } catch (Exception ex) { SetStatus(ex.Message, true); } }
+    private void Try(Action action) { try { if (!Canvas.CommitText()) return; Canvas.CancelGesture(); action(); SetStatus("Edit applied"); } catch (Exception ex) { SetStatus(ex.Message, true); } }
 
     public bool SaveProject()
     {
+        if (!Canvas.CommitText()) return false;
         bool legacyProject = projectPath is not null && Path.GetExtension(projectPath).Equals(".framelet", StringComparison.OrdinalIgnoreCase);
-        var dialog = new SaveFileDialog { Title = "Save editable project — includes original image", Filter = "Snipsera project (*.snipsera)|*.snipsera|Legacy Framelet project (*.framelet)|*.framelet", FilterIndex = legacyProject ? 2 : 1, DefaultExt = legacyProject ? ".framelet" : AppIdentity.ProjectExtension, AddExtension = true,
+        var dialog = new SaveFileDialog { Title = "Save editable project — includes original image", Filter = "Snipsera project (*.snipsera)|*.snipsera|Editable project with .framelet extension (*.framelet)|*.framelet", FilterIndex = legacyProject ? 2 : 1, DefaultExt = legacyProject ? ".framelet" : AppIdentity.ProjectExtension, AddExtension = true,
             FileName = projectPath is null ? name + AppIdentity.ProjectExtension : Path.GetFileName(projectPath), InitialDirectory = projectPath is null ? imageFolder() : Path.GetDirectoryName(projectPath) };
         if (dialog.ShowDialog(this) != true) return false;
         try { EditFiles.SaveProject(Document, dialog.FileName); projectPath = dialog.FileName; SetStatus("Editable project saved, including the original image"); return true; }
@@ -247,6 +256,7 @@ public sealed class EditorWindow : Window
     }
     private void Export(bool jpeg)
     {
+        if (!Canvas.CommitText()) return;
         var dialog = new SaveFileDialog { Title = jpeg ? "Export JPEG" : "Export PNG", Filter = jpeg ? "JPEG image (*.jpg)|*.jpg" : "PNG image (*.png)|*.png", DefaultExt = jpeg ? ".jpg" : ".png", AddExtension = true,
             FileName = name + "-edited" + (jpeg ? ".jpg" : ".png"), InitialDirectory = imageFolder() };
         if (dialog.ShowDialog(this) != true) return;
@@ -255,6 +265,7 @@ public sealed class EditorWindow : Window
     }
     public bool ConfirmClose()
     {
+        if (!Canvas.CommitText()) return false;
         if (saveHistory is not null) { Canvas.CancelGesture(); return FlushHistory(); }
         if (!Document.IsDirty) return true;
         var choice = ConfirmWindow.Ask(this, "Save your edits?", "Save an editable Snipsera project to keep your annotations and original image. PNG and JPEG exports contain the flattened image only.", "Save project…", "Discard edits");
@@ -287,17 +298,20 @@ public sealed class EditorWindow : Window
     }
     private void HandleKey(object sender, KeyEventArgs e)
     {
-        if (e.Key == Key.Escape) { Canvas.CancelGesture(); e.Handled = true; return; }
+        if (e.Key == Key.Escape) { Canvas.CancelText(); Canvas.CancelGesture(); e.Handled = true; return; }
         if (Keyboard.Modifiers == ModifierKeys.Control && e.Key == Key.S) { SaveProject(); e.Handled = true; return; }
         if (Keyboard.FocusedElement is TextBoxBase or ComboBox) return;
         if (Keyboard.Modifiers == ModifierKeys.Control && e.Key == Key.Z) { Canvas.CancelGesture(); Document.Undo(); e.Handled = true; }
         else if (Keyboard.Modifiers == ModifierKeys.Control && e.Key == Key.Y) { Canvas.CancelGesture(); Document.Redo(); e.Handled = true; }
         else if (Keyboard.Modifiers == ModifierKeys.Control && e.Key == Key.C)
         { _ = CopyImage(); e.Handled = true; }
+        else if (Keyboard.Modifiers == ModifierKeys.Control && e.Key == Key.V) { PasteImage(); e.Handled = true; }
         else if (e.Key == Key.Delete) { RemoveSelected(); e.Handled = true; }
     }
     private async System.Threading.Tasks.Task CopyImage()
-    { try { var state = Document.State; await CaptureService.Copy(Canvas.Image); if (CompleteTransfer(state)) SetStatus("Edited image copied to clipboard"); } catch (Exception ex) { SetStatus(ex.Message, true); } }
+    { try { if (!Canvas.CommitText()) return; var state = Document.State; await CaptureService.Copy(Canvas.Image); if (CompleteTransfer(state)) SetStatus("Edited image copied to clipboard"); } catch (Exception ex) { SetStatus(ex.Message, true); } }
+
+    internal bool PrepareImageTransfer() => Canvas.CommitText();
 
     internal bool CompleteTransfer(EditState state)
     {

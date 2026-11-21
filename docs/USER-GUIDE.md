@@ -2,7 +2,7 @@
 
 [Back to Snipsera](../README.md) · [Downloads](../RELEASES.md)
 
-The screenshot stack, **Dismiss after sharing** setting and **Reopen last dismissed capture** shortcut described below are available in the current local build. They have not been published yet.
+The editor and preview refinements described for **1.0.8-preview.1** are an unpublished local candidate. The current official release remains **1.0.7**.
 
 ## Run
 
@@ -116,24 +116,22 @@ For an isolated history/settings folder, launch `Snipsera.exe --data-dir "C:\pat
 
 ## Annotate and edit
 
-Open **Annotate** from a preview or pin, or use **Open image / project…** on the home window. PNG, JPEG, `.snipsera` and legacy `.framelet` files are supported. JPEG orientation metadata is applied on import.
+The **1.0.8-preview.1 local candidate** adds direct **Edit** buttons in History, inline text, richer annotation selection, combined images and backgrounds. See the [editor guide](EDITOR.md) for the full workflow and [verification status](EDITOR-REFINEMENT-VERIFICATION.md) for remaining acceptance checks.
 
-- **Arrows:** choose **Classic** (tapered solid), **Filled** (uniform shaft and solid head), **Open** (straight with open head) or **Curved** (editable curve and open head). Select an arrow and drag its round endpoint handles; Curved also has a bend handle. Each completed drag is one undo step. New arrows default to Classic.
-- Draw lines, rectangles, ellipses, highlighting or freehand strokes by dragging over the image. **Hand-drawn** gives ellipses a gently irregular outline and smooths newly drawn freehand paths. **Clean** keeps regular ellipses and the sampled freehand path. Existing version 1/2 arrows and pens retain their original appearance until you explicitly restyle them.
-- For text, choose **Text**, enter your note in the toolbar, then click the image. **Counter** places the next numbered circle with a click.
-- Choose **Select / move** and drag an existing annotation to reposition it. The Layers list selects annotations too. Color, stroke width, font size and style changes apply immediately to a selected annotation and can be undone. Edit a selected text note in the toolbar and click the checkmark to apply its text. The trash icon removes the selected annotation.
-- **Crop**: drag the rectangle to keep. It resets image output dimensions to that crop's source pixels. **Undo** restores the previous crop. Hidden objects remain editable in the project.
-- Open the sliders icon for image size, background and layers. Set output width/height and choose **Resize**. The aspect-ratio checkbox keeps the current ratio while you edit either field. Image dimensions exclude padding; the size in the bottom bar includes it.
-- Choose a background and padding, then **Apply background**. Transparent padding shows a checkerboard. Use Fit or a percentage to zoom; scroll at larger zoom levels. Zoom changes only the view.
-- Undo/redo covers annotations, movement, restyling, removal, crop, resize and backgrounds. The latest 100 operations are available during the current editing session. **Esc** cancels an in-progress stroke; it does not close the editor.
+Open **Edit** from a History row, **Annotate** from a preview or pin, or **Open image / project…** on Home. PNG, JPEG, `.snipsera` and legacy `.framelet` files are supported. JPEG orientation is applied on import.
 
-**Solid mask** covers a region with opaque black in flattened output. **Blur** and **Pixelate** soften or obscure content and should not be used as secure redaction. Exported images contain the rendered result; the editable project retains the original image and reversible layers, including masked pixels. Share a flattened PNG/JPEG when masking sensitive content.
+- **Select / move** selects and moves an annotation or added image. Corner handles resize supported objects. Arrows have endpoint handles; Curved arrows also have a bend handle. Toolbar changes apply to the selection and can be undone.
+- **Text** lets you type where you click on the image. Enter finishes, Shift+Enter adds a line, and Esc cancels the current text edit. Double-click a note to edit it. Choose Plain, Outline, Shadow, Label, Soft label, Callout or Marker. **Stamp** adds symbols such as ✓, √ and ×.
+- **Add image**, file drops onto the canvas, Ctrl+V and **Layers > From history…** add images to a composition. Move and resize them independently or change their overlap order. The base screenshot stays anchored; **Crop** affects that original image only.
+- **Background**, **Layers** and **Image size** open named sections in the side panel. Background offers 15 gradients, solid colors, padding, alignment, aspect ratio, rounded corners and shadow. **Auto-balance** trims uneven plain margins and centers the content; it can be undone. It does not rearrange added images.
 
-**Save project…** writes a self-contained `.snipsera` file (or keeps an opened legacy `.framelet` filename) with the original pixels, layers and image settings. New projects use version 3 for arrow styles, bend geometry and freehand smoothing and are readable by Snipsera and Framelet 0.5.0 or newer. This version reads versions 1, 2 and 3, preserving legacy rendering. Reopen it using Open; it does not depend on the screenshot remaining in history. Undo history is not stored in the project. Edits save automatically to local history after a short pause and before the editor closes or the app quits. Closing the editor does not ask you to save or discard. If saving fails, it stays open with an error so you can retry or export a copy. Changes made just before a crash may not have reached disk.
+Edits save automatically to local History after a short pause and before closing. Closing normally needs no save-or-discard prompt. If saving fails, the editor stays open with an error so you can retry or export. History retains the latest 100 captures; export anything you need to keep permanently. Changes just before a crash may not have reached disk.
 
-**PNG…** and **JPEG…** export a flattened image. JPEG uses quality 95 and fills transparency with white. **Copy** and **Pin** use the same edited result. Reopening a history capture for annotation restores its original pixels and saved layers. Edits update that history entry rather than adding duplicates; imported images enter history when first edited. An external project or exported copy stays separate from automatic history saves and is outside the 100-capture retention policy.
+**Save project…** writes the original pixels, added images and editable annotations into one file. New saves use **project version 4**, even with a `.framelet` filename. This candidate reads versions 1–4, but **Snipsera 1.0.7 and earlier cannot reopen version 4 projects**. Save a separate copy if you need to retain an older project for an older app. Session undo history is not stored.
 
-Editor shortcuts: **Ctrl+Z** undo, **Ctrl+Y** redo, **Ctrl+S** save project, **Ctrl+C** copy the edited image, **Delete** remove the selected object. Text fields retain their own copy/undo behavior. Save project opens a filename dialog, including for an already saved project.
+PNG, JPEG, Copy, Pin and drag sharing use the rendered result. JPEG fills transparency with white. A solid mask hides content in flattened output; editable projects still retain the original pixels. Blur and pixelation are not secure redaction. Reopening a History capture restores saved editable layers and updates the same entry.
+
+Editor shortcuts: **Ctrl+Z** undo, **Ctrl+Y** redo, **Ctrl+S** save project, **Ctrl+C** copy the edited image, **Ctrl+V** add a clipboard image and **Delete** remove a selected object. Text fields retain their own text shortcuts. Save project opens a filename dialog, including for an already saved project.
 
 ## Capture and platform limits
 
@@ -141,6 +139,6 @@ Editor shortcuts: **Ctrl+Z** undo, **Ctrl+Y** redo, **Ctrl+S** save project, **C
 - Screenshots use GDI to copy visible screen pixels. Minimized, hidden, off-screen and protected content are not reconstructed. Other always-on-top applications can still cover a selected window.
 - Output is a static SDR PNG. HDR color fidelity, game/exclusive-fullscreen capture and secure desktops are not certified. The pointer itself is not deliberately composited into the screenshot.
 - Full display means one monitor, not a stitched all-monitor export. Area selection spans the virtual desktop. Coordinate tests cover negative origins and scaled layouts; mixed-DPI multi-monitor hardware still needs a separate acceptance pass.
-- The editor supports images/output up to 20,000 pixels per side and 40 million total pixels, up to 500 annotations and 50,000 total freehand points. Padding is 0–500 pixels; project metadata is capped at 4 MB and embedded image data at 160 MB. An image can remain capturable/viewable under Phase 1 limits even if it exceeds editor limits.
+- The editor supports images/output up to 20,000 pixels per side and 40 million total pixels, up to 500 annotations and 50,000 total freehand points. The 1.0.8 candidate supports 32 added image layers and an 80-million-pixel decoded asset budget, including assets retained for undo. Padding is 0–500 pixels; project metadata is capped at 4 MB and embedded image data at 160 MB. An image can remain capturable/viewable under Phase 1 limits even if it exceeds editor limits.
 - Scrolling capture requires overlapping, stable views of one vertical scroll region. Sticky elements, animations, horizontal movement, large jumps, changing window geometry and repeating/blank content can prevent reliable alignment. Exclude fixed elements when selecting the region. Auto-scroll uses a native accessibility scroll action when available, with guarded native wheel input as a fallback. Applications that support neither can be scrolled manually.
-- No OCR, upload links, persistent pins, autostart or updater. Screen recording is supported as described above. The app/package is unsigned. Project files are Snipsera's own format; `.cleanshot` files are not supported.
+- No OCR, upload links or persistent pins. Screen recording, optional Windows startup and update notifications are supported as described above. GitHub installers remain unsigned; Microsoft Store packages use Store distribution and signing. Project files are Snipsera's own format; `.cleanshot` files are not supported.

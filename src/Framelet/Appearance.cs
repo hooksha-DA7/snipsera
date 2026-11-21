@@ -24,6 +24,8 @@ public sealed class Appearance : INotifyPropertyChanged
     public Color OnAccent { get; private set; } = Colors.White;
     public Color Paper { get; private set; } = Colors.WhiteSmoke;
     public Color Surface { get; private set; } = Colors.White;
+    public Color Card { get; private set; } = Colors.White;
+    public Color CardStroke { get; private set; } = Colors.LightGray;
     public Color Chrome { get; private set; } = Colors.WhiteSmoke;
     public Color Line { get; private set; } = Colors.LightGray;
     public Color Canvas { get; private set; } = Colors.LightGray;
@@ -63,6 +65,12 @@ public sealed class Appearance : INotifyPropertyChanged
         Muted = hc ? SystemColors.WindowTextColor : C(Dark ? "#B6B6B6" : "#616161");
         Paper = hc ? SystemColors.WindowColor : C(Dark ? "#202020" : "#F3F3F3");
         Surface = hc ? SystemColors.WindowColor : C(Dark ? "#2D2D2D" : "#FFFFFF");
+        Color Resource(string key, Color fallback) => Application.Current?.TryFindResource(key) switch
+        { SolidColorBrush brush => brush.Color, Color color => color, _ => fallback };
+        Card = hc ? SystemColors.WindowColor : !Policy.Frosting ? Surface
+            : Resource("CardBackgroundFillColorDefaultBrush", C(Dark ? "#0DFFFFFF" : "#B3FFFFFF"));
+        CardStroke = hc ? SystemColors.WindowTextColor
+            : Resource("CardStrokeColorDefaultBrush", C(Dark ? "#19000000" : "#0F000000"));
         Chrome = hc ? SystemColors.WindowColor : C(Dark ? "#902B2B2B" : "#A6FFFFFF");
         Line = hc ? SystemColors.WindowTextColor : C(Dark ? "#28FFFFFF" : "#16000000");
         Canvas = hc ? SystemColors.WindowColor : C(Dark ? "#181818" : "#E9E9E9");

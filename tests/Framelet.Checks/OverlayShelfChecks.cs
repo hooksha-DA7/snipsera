@@ -37,5 +37,16 @@ internal static class OverlayShelfChecks
             }
             Require(OverlayShelfLayout.Place(Rect.Empty, [], 1) is null);
         });
+        test("Compact restore handle keeps a usable hit area without expanding into an image card", () =>
+        {
+            foreach (double scale in new[] { 1d, 1.25, 1.5, 2 })
+            {
+                var work = new Rect(0, 0, 1920, 1040); var placed = OverlayShelfLayout.Place(work, [work], scale)!.Value;
+                Require(placed.Body.Width <= Math.Ceiling(64 * scale), "Handle became wider than the compact design.");
+                Require(placed.Body.Height >= Math.Ceiling(28 * scale), "Pointer target is too short.");
+                Require(placed.Resting.Height <= Math.Ceiling(16 * scale) && OverlayShelfLayout.ExpandedHeight <= 22, "Visible handle grew back into a large preview.");
+                Require(placed.Resting.Bottom == work.Bottom && placed.Body.Bottom == work.Bottom, "Restore handle drifted from the taskbar edge.");
+            }
+        });
     }
 }

@@ -39,6 +39,8 @@ public sealed class UiIcon : FrameworkElement
             "Save" => "M12 3 L12 15 M7 10 L12 15 L17 10 M4 16 L4 21 L20 21 L20 16",
             "Project" => "M4 3 L17 3 L21 7 L21 21 L4 21 Z M8 3 L8 9 L16 9 L16 3 M8 21 L8 14 L17 14 L17 21",
             "Open" => "M3 7 L3 20 L19 20 L22 10 L8 10 L5 20 M3 7 L9 7 L11 4 L20 4 L20 8",
+            "AddImage" => "M3 5 L14 5 M3 5 L3 21 L21 21 L21 14 M5 17 L9 12 L14 17 M16 6 L22 6 M19 3 L19 9",
+            "Stamp" => "M5 12 L10 17 L20 6",
             "History" => "M4 8 A9 9 0 1 1 3 15 M3 3 L3 9 L9 9 M12 7 L12 13 L16 15",
             "Undo" => "M8 5 L3 10 L8 15 M3 10 L14 10 C22 10 22 20 15 20",
             "Redo" => "M16 5 L21 10 L16 15 M21 10 L10 10 C2 10 2 20 9 20",

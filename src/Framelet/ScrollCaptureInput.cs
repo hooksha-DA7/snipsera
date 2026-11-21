@@ -13,6 +13,7 @@ internal interface IScrollCaptureInput : IDisposable
     bool Available { get; }
     bool TargetMoved { get; }
     Task<bool> ScrollAsync(CancellationToken token, bool useWheel);
+    void ObserveScroll(int capturedPixels) { }
     void StopAutoScroll();
 }
 
@@ -33,6 +34,7 @@ internal sealed class ScrollCaptureInput : IScrollCaptureInput
     private readonly ScrollAutomation? automation;
     private readonly bool browser;
     private bool wheelActive;
+    private int wheelDelta = 40;
     public bool Available => target != IntPtr.Zero;
     public bool TargetMoved => root != IntPtr.Zero && (!Native.IsWindowVisible(root) || Native.IsIconic(root) || Native.Bounds(root) != windowBounds);
     public ScrollCaptureInput(Rectangle area, Action cancel)
@@ -78,9 +80,22 @@ internal sealed class ScrollCaptureInput : IScrollCaptureInput
         }
         if (Native.GetAncestor(WindowFromPoint(cursor), 2) != root) return false;
         wheelActive = true;
-        var input = new WheelInput { Mouse = new MouseInput { Data = unchecked((uint)-40), Flags = 0x0800 } };
+        var input = new WheelInput { Mouse = new MouseInput { Data = unchecked((uint)-wheelDelta), Flags = 0x0800 } };
         return SendInput(1, [input], Marshal.SizeOf<WheelInput>()) == 1;
     }
-    public void StopAutoScroll() { wheelActive = false; }
+    public void ObserveScroll(int capturedPixels)
+    {
+        if (wheelActive) wheelDelta = NextWheelDelta(wheelDelta, capturedPixels, area.Height);
+    }
+    internal static int NextWheelDelta(int current, int capturedPixels, int viewportHeight)
+    {
+        if (capturedPixels <= 0 || viewportHeight < 80) return current;
+        // Learn the app's real pixels per wheel unit instead of assuming Windows line
+        // settings or browser zoom. Preserve roughly 72% overlap and grow gradually.
+        double target = viewportHeight * .28;
+        int next = (int)Math.Round(current * target / capturedPixels);
+        return Math.Clamp(next, Math.Max(10, current / 2), Math.Min(240, current * 2));
+    }
+    public void StopAutoScroll() { wheelActive = false; wheelDelta = 40; }
     public void Dispose() { automation?.Dispose(); if (escape is not null) { Native.UnregisterHotKey(escape.Handle, 3901); escape.Dispose(); escape = null; } }
 }

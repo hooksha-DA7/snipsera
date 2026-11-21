@@ -1,6 +1,9 @@
 using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -9,52 +12,147 @@ namespace Framelet;
 
 public static class EditRenderer
 {
-    public static BitmapSource Render(EditDocument document, int replacementIndex = -1, Mark? replacement = null)
+    // Weak document ownership releases cached masks when an editor is discarded.
+    // A bounded LRU avoids retaining a separate full canvas for every undo state.
+    internal const long ObscureCacheByteLimit = 32L * 1024 * 1024;
+    private static readonly ConditionalWeakTable<EditDocument, ObscureCache> obscureCaches = new();
+    private static ObscureCache CacheFor(EditDocument document) => obscureCaches.GetValue(document, static _ => new ObscureCache());
+    internal static (int Entries, long Bytes, long Hits, long Misses) ObscureCacheMetrics(EditDocument document) => CacheFor(document).Metrics;
+
+    public static BitmapSource Render(EditDocument document, int replacementIndex = -1, Mark? replacement = null, EditState? stateOverride = null)
     {
-        var state = document.State;
+        var state = stateOverride ?? document.State;
+        var output = new DrawingVisual();
+        using (var dc = output.RenderOpen()) DrawDocument(dc, document, state, replacementIndex, replacement);
+        return Rasterize(output, state.CanvasWidth, state.CanvasHeight);
+    }
+
+    // Drawing directly avoids allocating a full-size bitmap on every pointer movement.
+    public static void DrawDocument(DrawingContext dc, EditDocument document, EditState? stateOverride = null,
+        int replacementIndex = -1, Mark? replacement = null, EditState? layoutState = null)
+    {
+        var state = stateOverride ?? document.State;
+        var layout = layoutState ?? state;
+        var frame = CompositionLayout.Calculate(layout);
+        var contentBounds = layout.ContentBounds;
+        var originalBounds = new Rect(0, 0, document.Original.PixelWidth, document.Original.PixelHeight);
+        dc.DrawRectangle(CompositionLayout.BackgroundBrush(state), null, new Rect(0, 0, frame.Width, frame.Height));
+        if (state.Backdrop?.Shadow == true)
+        {
+            DrawShadow(dc, Map(state.Crop, layout), state.Backdrop.CornerRadius);
+            foreach (var layer in state.Images) DrawShadow(dc, Map(layer.Bounds, layout), state.Backdrop.CornerRadius);
+        }
         var drawing = new DrawingGroup();
-        drawing.Children.Add(new ImageDrawing(document.Original, new Rect(0, 0, document.Original.PixelWidth, document.Original.PixelHeight)));
+        using (var imageDrawing = drawing.Open())
+        {
+            double radius = (state.Backdrop?.CornerRadius ?? 0) / Math.Max(.01, state.ScaleX);
+            imageDrawing.PushClip(new RectangleGeometry(state.IsComposition || radius > 0 ? state.Crop : originalBounds, radius, radius));
+            imageDrawing.DrawImage(document.Original, originalBounds);
+            imageDrawing.Pop();
+            foreach (var layer in state.Images)
+            {
+                imageDrawing.PushClip(new RectangleGeometry(layer.Bounds, radius, radius));
+                imageDrawing.DrawImage(document.GetImage(layer.Id), layer.Bounds);
+                imageDrawing.Pop();
+            }
+        }
         for (int index = 0; index < state.Marks.Length; index++)
         {
             var mark = index == replacementIndex && replacement is not null ? replacement : state.Marks[index];
             if (mark.Kind is MarkKind.Blur or MarkKind.Pixelate)
             {
-                var bounds = PixelBounds(mark.Bounds, document.Original.PixelWidth, document.Original.PixelHeight);
-                if (bounds.Width == 0 || bounds.Height == 0) continue;
-                var region = new DrawingVisual();
-                using (var dc = region.RenderOpen()) { dc.PushTransform(new TranslateTransform(-bounds.X, -bounds.Y)); dc.DrawDrawing(drawing); }
-                var bitmap = Rasterize(region, bounds.Width, bounds.Height);
-                drawing.Children.Add(new ImageDrawing(Obscure(bitmap, mark.Kind == MarkKind.Pixelate), new Rect(bounds.X, bounds.Y, bounds.Width, bounds.Height)));
+                Rect regionBounds = mark.Bounds; regionBounds.Intersect(state.IsComposition ? contentBounds : originalBounds);
+                if (regionBounds.IsEmpty || regionBounds.Width < 1 || regionBounds.Height < 1) continue;
+                int x = (int)Math.Floor(regionBounds.X), y = (int)Math.Floor(regionBounds.Y);
+                int width = (int)Math.Ceiling(regionBounds.Right) - x, height = (int)Math.Ceiling(regionBounds.Bottom) - y;
+                var rectangle = new Rect(x, y, width, height);
+                double radius = (state.Backdrop?.CornerRadius ?? 0) / Math.Max(.01, state.ScaleX);
+                var prefix = state.Marks.Take(index).ToImmutableArray();
+                if (replacement is not null && replacementIndex >= 0 && replacementIndex < index) prefix = prefix.SetItem(replacementIndex, replacement);
+                var key = new ObscureKey(rectangle, mark.Kind == MarkKind.Pixelate,
+                    state.IsComposition || radius > 0 ? state.Crop : originalBounds,
+                    state.IsComposition ? contentBounds : originalBounds, radius, state.Images, prefix);
+                var cache = CacheFor(document);
+                if (!cache.TryGet(key, out var obscured))
+                {
+                    var region = new DrawingVisual();
+                    using (var regionDc = region.RenderOpen()) { regionDc.PushTransform(new TranslateTransform(-x, -y)); regionDc.DrawDrawing(drawing); }
+                    var bitmap = Rasterize(region, width, height);
+                    obscured = Obscure(bitmap, mark.Kind == MarkKind.Pixelate); cache.Add(key, obscured);
+                }
+                drawing.Children.Add(new ImageDrawing(obscured, rectangle));
             }
             else
             {
-                var visual = new DrawingVisual(); using (var dc = visual.RenderOpen()) DrawMark(dc, mark);
+                var visual = new DrawingVisual(); using (var markDc = visual.RenderOpen()) DrawMark(markDc, mark);
                 drawing.Children.Add(visual.Drawing);
             }
         }
-        var output = new DrawingVisual();
-        using (var dc = output.RenderOpen())
+        dc.PushClip(new RectangleGeometry(layoutState is null ? frame.Content : new Rect(0, 0, frame.Width, frame.Height)));
+        dc.PushTransform(new TranslateTransform(frame.Content.X, frame.Content.Y));
+        dc.PushTransform(new ScaleTransform(layout.ScaleX, layout.ScaleY));
+        dc.PushTransform(new TranslateTransform(-contentBounds.X, -contentBounds.Y));
+        dc.DrawDrawing(drawing);
+        dc.Pop(); dc.Pop(); dc.Pop(); dc.Pop();
+    }
+
+    private sealed record ObscureKey(Rect Region, bool Pixelate, Rect OriginalClip, Rect EffectClip, double Radius,
+        ImmutableArray<ImageLayer> Images, ImmutableArray<Mark> Prefix)
+    {
+        public bool Matches(ObscureKey other) => Region == other.Region && Pixelate == other.Pixelate &&
+            OriginalClip == other.OriginalClip && EffectClip == other.EffectClip && Radius == other.Radius &&
+            Images.SequenceEqual(other.Images) && Prefix.SequenceEqual(other.Prefix);
+    }
+    private sealed class ObscureCache
+    {
+        private sealed record Entry(ObscureKey Key, BitmapSource Bitmap, long Bytes);
+        private readonly LinkedList<Entry> entries = new();
+        private readonly object gate = new();
+        private long bytes, hits, misses;
+        public (int Entries, long Bytes, long Hits, long Misses) Metrics { get { lock (gate) return (entries.Count, bytes, hits, misses); } }
+        public bool TryGet(ObscureKey key, out BitmapSource bitmap)
         {
-            if (state.Background != "Transparent") dc.DrawRectangle(Brush(state.Background), null, new Rect(0, 0, state.CanvasWidth, state.CanvasHeight));
-            dc.PushClip(new RectangleGeometry(new Rect(state.Padding, state.Padding, state.Width, state.Height)));
-            dc.PushTransform(new TranslateTransform(state.Padding, state.Padding));
-            dc.PushTransform(new ScaleTransform((double)state.Width / state.CropWidth, (double)state.Height / state.CropHeight));
-            dc.PushTransform(new TranslateTransform(-state.CropX, -state.CropY));
-            dc.DrawDrawing(drawing);
+            lock (gate)
+            {
+                for (var node = entries.First; node is not null; node = node.Next)
+                {
+                    if (!node.Value.Key.Matches(key)) continue;
+                    bitmap = node.Value.Bitmap; entries.Remove(node); entries.AddFirst(node); hits++; return true;
+                }
+                misses++; bitmap = null!; return false;
+            }
         }
-        return Rasterize(output, state.CanvasWidth, state.CanvasHeight);
+        public void Add(ObscureKey key, BitmapSource bitmap)
+        {
+            long size = (long)bitmap.PixelWidth * bitmap.PixelHeight * 4;
+            if (size > ObscureCacheByteLimit) return;
+            lock (gate)
+            {
+                // Concurrent detached renders can finish the same mask independently.
+                for (var node = entries.First; node is not null; node = node.Next)
+                    if (node.Value.Key.Matches(key)) return;
+                while (entries.Count >= 8 || bytes + size > ObscureCacheByteLimit)
+                { bytes -= entries.Last!.Value.Bytes; entries.RemoveLast(); }
+                entries.AddFirst(new Entry(key, bitmap, size)); bytes += size;
+            }
+        }
+    }
+
+    private static Rect Map(Rect rectangle, EditState state) => new(state.ToCanvas(rectangle.TopLeft),
+        new Size(rectangle.Width * state.ScaleX, rectangle.Height * state.ScaleY));
+
+    private static void DrawShadow(DrawingContext dc, Rect rectangle, double radius)
+    {
+        for (int i = 8; i >= 1; i--)
+        {
+            Rect shadow = rectangle; shadow.Inflate(i, i); shadow.Offset(0, 3);
+            dc.DrawRoundedRectangle(new SolidColorBrush(Color.FromArgb(5, 0, 0, 0)), null, shadow, radius + i, radius + i);
+        }
     }
 
     private static RenderTargetBitmap Rasterize(Visual visual, int width, int height)
     { var bitmap = new RenderTargetBitmap(width, height, 96, 96, PixelFormats.Pbgra32); bitmap.Render(visual); bitmap.Freeze(); return bitmap; }
     private static SolidColorBrush Brush(string hex) => new((Color)ColorConverter.ConvertFromString(hex));
-    private static Int32Rect PixelBounds(Rect bounds, int width, int height)
-    {
-        int x = (int)Math.Clamp(Math.Floor(bounds.Left), 0, width), y = (int)Math.Clamp(Math.Floor(bounds.Top), 0, height);
-        int right = (int)Math.Clamp(Math.Ceiling(bounds.Right), x, width), bottom = (int)Math.Clamp(Math.Ceiling(bounds.Bottom), y, height);
-        return new Int32Rect(x, y, right - x, bottom - y);
-    }
-
     public static void DrawMark(DrawingContext dc, Mark mark)
     {
         Point start = mark.Points[0].Point, end = mark.Points[^1].Point;
@@ -82,7 +180,7 @@ public static class EditRenderer
                 break;
             case MarkKind.Highlight: brush.Opacity = 0.35; dc.DrawRectangle(brush, null, bounds); break;
             case MarkKind.Redact: dc.DrawRectangle(Brushes.Black, null, bounds); break;
-            case MarkKind.Text: dc.DrawText(Text(mark.Text, mark.FontSize, brush), start); break;
+            case MarkKind.Text: TextAnnotation.Draw(dc, mark); break;
             case MarkKind.Counter:
                 dc.DrawEllipse(brush, null, start, mark.FontSize, mark.FontSize);
                 var number = Text(mark.Number.ToString(CultureInfo.InvariantCulture), mark.FontSize, Brushes.White);

@@ -17,7 +17,7 @@ public sealed class UpdateNotice : Border
     public UpdateNotice(AppPreferencesController controller, Action open)
     {
         this.controller = controller;
-        Background = Ui.Surface; BorderBrush = Ui.Blue; BorderThickness = new Thickness(1); CornerRadius = new CornerRadius(8);
+        Background = Ui.CardMaterial; BorderBrush = Ui.Blue; BorderThickness = new Thickness(1); CornerRadius = new CornerRadius(8);
         Padding = new Thickness(14, 10, 10, 10); Margin = new Thickness(0, 0, 0, 14);
         AutomationProperties.SetAutomationId(this, "HomeUpdateNotice"); AutomationProperties.SetLiveSetting(title, AutomationLiveSetting.Polite);
         AutomationProperties.SetAutomationId(title, "HomeUpdateTitle");

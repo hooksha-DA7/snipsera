@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Collections.Generic;
 using System.IO.Compression;
 using System.Linq;
 using System.Text.Json;
@@ -27,11 +28,12 @@ public static class EditFiles
         if (stream.Length > ImageLimit) throw new InvalidDataException("Choose a PNG or JPEG smaller than 160 MB.");
         return ReadImage(stream);
     }
-    private static BitmapSource ReadImage(Stream stream)
+    private static BitmapSource ReadImage(Stream stream, long remainingPixels = EditDocument.MaximumPixels)
     {
         var decoder = BitmapDecoder.Create(stream, BitmapCreateOptions.DelayCreation | BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.None);
         if (decoder is not PngBitmapDecoder and not JpegBitmapDecoder) throw new InvalidDataException("Choose a PNG or JPEG image.");
         var frame = decoder.Frames[0]; EditDocument.ValidateSize(frame.PixelWidth, frame.PixelHeight);
+        if ((long)frame.PixelWidth * frame.PixelHeight > remainingPixels) throw new InvalidDataException("The project images exceed the decoded memory limit.");
         int orientation = 1;
         if (decoder is JpegBitmapDecoder && frame.Metadata is BitmapMetadata metadata)
         {
@@ -50,7 +52,7 @@ public static class EditFiles
     public static void SaveProject(EditDocument document, string path, bool markSaved = true)
     {
         EditDocument.Validate(document.State, document.Original.PixelWidth, document.Original.PixelHeight);
-        byte[] metadata = JsonSerializer.SerializeToUtf8Bytes(new ProjectData(3, document.Original.PixelWidth, document.Original.PixelHeight, document.State), Json);
+        byte[] metadata = JsonSerializer.SerializeToUtf8Bytes(new ProjectData(4, document.Original.PixelWidth, document.Original.PixelHeight, document.State with { Layers = document.State.Images }), Json);
         if (metadata.Length > JsonLimit) throw new InvalidDataException("This project has too much annotation data. Split it into smaller projects.");
         using var png = new MemoryStream();
         CaptureService.WritePng(document.Original, png);
@@ -59,8 +61,17 @@ public static class EditFiles
         {
             using var archive = new ZipArchive(stream, ZipArchiveMode.Create, true);
             using (var json = archive.CreateEntry("project.json", CompressionLevel.Optimal).Open()) json.Write(metadata);
-            using var original = archive.CreateEntry("original.png", CompressionLevel.NoCompression).Open();
-            png.Position = 0; png.CopyTo(original);
+            using (var original = archive.CreateEntry("original.png", CompressionLevel.NoCompression).Open())
+            { png.Position = 0; png.CopyTo(original); }
+            long imageBytes = png.Length;
+            foreach (var layer in document.State.Images)
+            {
+                using var embedded = new MemoryStream(); CaptureService.WritePng(document.GetImage(layer.Id), embedded);
+                imageBytes += embedded.Length;
+                if (imageBytes > ImageLimit) throw new InvalidDataException("The project's embedded images exceed 160 MB.");
+                using var destination = archive.CreateEntry("images/" + layer.Id + ".png", CompressionLevel.NoCompression).Open();
+                embedded.Position = 0; embedded.CopyTo(destination);
+            }
         });
         if (markSaved) document.MarkSaved();
     }
@@ -69,19 +80,34 @@ public static class EditFiles
         using var source = File.OpenRead(path);
         if (source.Length > ImageLimit + JsonLimit + 65536) throw new InvalidDataException("This project exceeds the supported file size.");
         using var archive = new ZipArchive(source, ZipArchiveMode.Read);
-        if (archive.Entries.Count != 2 || archive.Entries.Select(e => e.FullName).Distinct().Count() != 2 ||
-            archive.Entries.Any(e => e.FullName != "project.json" && e.FullName != "original.png"))
-            throw new InvalidDataException("This project must contain only project.json and original.png.");
+        if (archive.Entries.Count < 2 || archive.Entries.Count > EditDocument.MaximumImages + 2 ||
+            archive.Entries.Select(e => e.FullName).Distinct(StringComparer.Ordinal).Count() != archive.Entries.Count ||
+            archive.GetEntry("project.json") is null || archive.GetEntry("original.png") is null ||
+            archive.Entries.Sum(e => e.Length) > ImageLimit + JsonLimit)
+            throw new InvalidDataException("This project contains missing, duplicate or oversized components.");
         using var json = ReadEntry(archive.GetEntry("project.json")!, JsonLimit);
         var data = JsonSerializer.Deserialize<ProjectData>(json, Json) ?? throw new InvalidDataException("The project is empty.");
-        if (data.Version is not (1 or 2 or 3) || data.State is null) throw new InvalidDataException("This project version is not supported.");
+        if (data.Version is not (1 or 2 or 3 or 4) || data.State is null) throw new InvalidDataException("This project version is not supported.");
         EditDocument.ValidateSize(data.OriginalWidth, data.OriginalHeight);
         EditDocument.Validate(data.State, data.OriginalWidth, data.OriginalHeight);
+        var expected = data.State.Images.Select(layer => "images/" + layer.Id + ".png")
+            .Append("project.json").Append("original.png").ToHashSet(StringComparer.Ordinal);
+        if (archive.Entries.Count != expected.Count || archive.Entries.Any(e => !expected.Contains(e.FullName)))
+            throw new InvalidDataException("This project contains an unexpected or missing embedded file.");
         using var png = ReadEntry(archive.GetEntry("original.png")!, ImageLimit);
         var original = ReadImage(png);
         if (original.PixelWidth != data.OriginalWidth || original.PixelHeight != data.OriginalHeight)
             throw new InvalidDataException("The project image dimensions do not match its metadata.");
-        return new EditDocument(original, data.State);
+        long remainingPixels = EditDocument.MaximumAssetPixels - (long)original.PixelWidth * original.PixelHeight;
+        var assets = new Dictionary<string, BitmapSource>(StringComparer.Ordinal);
+        foreach (var layer in data.State.Images)
+        {
+            using var embedded = ReadEntry(archive.GetEntry("images/" + layer.Id + ".png")!, ImageLimit);
+            var image = ReadImage(embedded, remainingPixels);
+            remainingPixels -= (long)image.PixelWidth * image.PixelHeight;
+            assets.Add(layer.Id, image);
+        }
+        return new EditDocument(original, data.State, assets);
     }
     private static MemoryStream ReadEntry(ZipArchiveEntry entry, long maximum)
     {
