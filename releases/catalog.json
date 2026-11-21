@@ -3,7 +3,7 @@
   "repository": "hooksha-DA7/snipsera",
   "imported_on": "2026-11-01",
   "verified_baseline": "v1.0.7-preview.2",
-  "latest_preview": null,
+  "latest_preview": "v1.0.8-preview.1",
   "releases": [
     {
       "version": "0.1.0",
@@ -1207,6 +1207,85 @@
         "verified_date": "2026-11-19",
         "source_url": "https://partner.microsoft.com/en-us/dashboard/products/9NFL9VHL8GKV/overview"
       }
+    },
+    {
+      "version": "1.0.8-preview.1",
+      "tag": "v1.0.8-preview.1",
+      "product": "Snipsera",
+      "build_date": "2026-11-21",
+      "title": "A more capable screenshot editor",
+      "status": "preview",
+      "prerelease": true,
+      "latest": false,
+      "notes": "releases/notes/v1.0.8-preview.1.md",
+      "release_url": "https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.8-preview.1",
+      "kind": "Preview",
+      "intro": "Write directly on screenshots, rearrange annotations, combine images and add a background without leaving the editor.",
+      "changes": {
+        "Added": [
+          "Text editing directly on the image, with seven styles and check, cross and other symbol stamps.",
+          "Image layers: drop or paste another screenshot into the editor, or add one from History, then move, resize and reorder it.",
+          "A Background panel with 15 gradients, solid colors, padding, aspect ratios, alignment, rounded corners and soft shadows. Auto-balance trims matching empty margins and centers the result.",
+          "An Edit button beside each screenshot in History, opening its saved editable version directly."
+        ],
+        "Improved": [
+          "Select and move existing annotations directly. Resize with handles, adjust arrow endpoints and bends, or double-click text to change its words.",
+          "Inspect a scrolling capture as it grows: scroll or drag its preview, fit the whole image or follow the latest content. Scrolling image processing and preview generation do less work on the UI thread.",
+          "Clearer Background, Layers and Image size controls, consistent library surfaces, and a smaller handle for restoring hidden previews.",
+          "Unchanged blur and pixelation regions are reused while editing other annotations, reducing repeated rendering work."
+        ],
+        "Fixed": [
+          "Undo restores the correct text controls and selected image after restyling or changing image order.",
+          "Text still being typed is included when an edited screenshot is dragged to another app.",
+          "Failed image imports are rejected, and canceled or rejected resizing does not create an unwanted edit.",
+          "Background alignment shows the selected position and explains when the chosen aspect ratio leaves no space to align."
+        ]
+      },
+      "notice": "**This is a preview. The GitHub installer and portable ZIP are unsigned.** Windows may warn when downloading or starting them. Its Microsoft Store submission is being prepared. Store signing does not sign the GitHub installer. Live desktop capture/input, Chrome scrolling, native drag-and-drop, clipboard transfer, material/DPI appearance and final clean Windows 11/installed-MSIX acceptance remain pending. The unsigned MSIX is for Store submission only. New editable projects and History edits require Snipsera 1.0.8; older versions cannot reopen them. Original capture images remain preserved. The original image stays anchored, and Crop affects that image only; added image layers remain editable.",
+      "verification": "599 automated/offscreen checks passed (538 C# across 25 modes and 61 Python) in the exact hosted build, with zero compiler warnings/errors. Package/source parity, archive hashes and safe paths, MSIX identity/resource/block-map validation, and EXE installation, synthetic launch, reinstall, increasing-version fixture upgrade, owned startup cleanup and uninstall passed on Windows Server 2025. Downloaded artifact validation is recorded separately. Live desktop/Chrome interaction and clean Windows 11/installed-MSIX acceptance remain pending.",
+      "signing_status": "unsigned-preview",
+      "source_commit": "d60a47c5e7c5a114c40a682d4530d54640ad2045",
+      "build_workflow": "https://github.com/hooksha-DA7/snipsera/actions/runs/44866999910",
+      "assets": [
+        {
+          "name": "Snipsera-1.0.8-preview.1-setup-win-x64.exe",
+          "bytes": 134081509,
+          "sha256": "d5bccf37198763bfbb945020e7c9f13972d8f13627464a3ea60ab7b7843a1a81",
+          "role": "installer-x64",
+          "url": "https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.8-preview.1/Snipsera-1.0.8-preview.1-setup-win-x64.exe"
+        },
+        {
+          "name": "Snipsera-1.0.8-preview.1-source.zip",
+          "bytes": 3210216,
+          "sha256": "03c64b3004263f88a4d9526d6142c2d86f8f6983cbd8d5aab376239675724819",
+          "role": "source",
+          "url": "https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.8-preview.1/Snipsera-1.0.8-preview.1-source.zip"
+        },
+        {
+          "name": "Snipsera-1.0.8-preview.1-win-x64.zip",
+          "bytes": 159505685,
+          "sha256": "386e72c0954f68709b9e1baa53db6c10c1dd576b3c8400b55901f9d3baf30cda",
+          "role": "windows-x64",
+          "url": "https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.8-preview.1/Snipsera-1.0.8-preview.1-win-x64.zip"
+        }
+      ],
+      "store_submission": {
+        "name": "Snipsera-1.0.8-preview.1-store-submission-x64.msix",
+        "bytes": 159045459,
+        "sha256": "306f89cd753759ae9e6b54fca7ba4cfa7a2855bbd6ae173a941797a024b99358"
+      },
+      "store_submission_status": {
+        "status": "draft",
+        "stage": "Draft; listing updated; exact package upload pending",
+        "product_id": "9NFL9VHL8GKV",
+        "submission_id": "1152921505702465950",
+        "submission_number": 7,
+        "package_version": "1.0.8.0",
+        "verified_date": "2026-11-21",
+        "publishing": "automatic after certification",
+        "source_url": "https://partner.microsoft.com/en-us/dashboard/products/9NFL9VHL8GKV/overview"
+      },
+      "store_url": "https://apps.microsoft.com/detail/9NFL9VHL8GKV"
     }
   ],
   "product": "Snipsera",

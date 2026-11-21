@@ -2,7 +2,7 @@
 
 ## 1.0.8-preview.1: editor and capture refinements
 
-Release candidate prepared on 21 November 2026. This build remains a preview until Microsoft approves its matching Store submission. The current official release remains 1.0.7, with its existing tag and downloads unchanged.
+Release candidate verified on 2026-11-21. Store Submission 7 is a draft with automatic publication selected; it has not been submitted for certification. This build remains a preview until Microsoft approves the matching update. The official 1.0.7 release and its downloads remain unchanged.
 
 The editor now supports direct object selection and resize handles, inline text, seven text styles, symbol stamps and combined PNG/JPEG image layers. Named Background, Layers and Image size panels replace the combined settings control. Backgrounds include 15 gradients, solid fills, padding, alignment, aspect ratio, rounded corners, shadow and reversible trimming of uniform outer margins. The original image stays anchored and Crop applies to that image only.
 
@@ -10,7 +10,7 @@ Scrolling preview work adds off-UI-thread processing and interactive inspection 
 
 New editable saves use project version 4, readable by this candidate but not by 1.0.7 or earlier. Original pixels and embedded added images are retained. Automatic History edits use the new format too; keep copies of older projects if they must remain editable in an older app.
 
-The source passed **599 automated/offscreen checks** (538 C# checks across 25 modes and 61 Python checks), with zero compiler warnings or errors. Private EXE/MSIX, portable and source packages retain their own artifact and source-snapshot receipts. Native desktop/input, capture/audio, installation and clean Windows 11 acceptance remain paused; synthetic, detached and static package checks do not establish those behaviors. See the [editor guide](docs/EDITOR.md) and [verification record](docs/EDITOR-REFINEMENT-VERIFICATION.md).
+The exact [hosted build](https://github.com/hooksha-DA7/snipsera/actions/runs/44866999910) from source `d60a47c5e7c5a114c40a682d4530d54640ad2045` passed **599 automated/offscreen checks** (538 C# checks across 25 modes and 61 Python checks), with zero compiler warnings or errors. Package verification and EXE installation, synthetic launch, reinstall, increasing-version fixture upgrade, owned startup cleanup and uninstall passed on Windows Server 2025. Local desktop/input, live Chrome/clipboard/drag-and-drop, material/DPI appearance and final clean Windows 11/installed-MSIX acceptance remain paused or pending. The EXE remains unsigned; the unsigned MSIX is submission-only. See the [editor guide](docs/EDITOR.md) and [verification record](docs/EDITOR-REFINEMENT-VERIFICATION.md).
 
 
 ## 1.0.7 release: layered screenshots and preview controls
