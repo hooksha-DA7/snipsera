@@ -222,7 +222,8 @@ public sealed partial class EditorWindow : Window
     private void UpdateZoom()
     {
         string mode = zoom.SelectedItem as string ?? "Fit";
-        double scale = mode == "Fit" ? Math.Min((Math.Max(70, viewport.ActualWidth) - 50) / Document.State.CanvasWidth, (Math.Max(70, viewport.ActualHeight) - 50) / Document.State.CanvasHeight) : double.Parse(mode.TrimEnd('%')) / 100;
+        var view = Canvas.ViewState;
+        double scale = mode == "Fit" ? Math.Min((Math.Max(70, viewport.ActualWidth) - 50) / view.CanvasWidth, (Math.Max(70, viewport.ActualHeight) - 50) / view.CanvasHeight) : double.Parse(mode.TrimEnd('%')) / 100;
         Canvas.SetZoom(Math.Min(mode == "Fit" ? 1 : 4, scale));
     }
     private void ChooseTool(string tool)
@@ -298,7 +299,7 @@ public sealed partial class EditorWindow : Window
     }
     private void HandleKey(object sender, KeyEventArgs e)
     {
-        if (e.Key == Key.Escape) { Canvas.CancelText(); Canvas.CancelGesture(); e.Handled = true; return; }
+        if (e.Key == Key.Escape) { if (CancelBackgroundPreview()) { e.Handled = true; return; } Canvas.CancelText(); Canvas.CancelGesture(); e.Handled = true; return; }
         if (Keyboard.Modifiers == ModifierKeys.Control && e.Key == Key.S) { SaveProject(); e.Handled = true; return; }
         if (Keyboard.FocusedElement is TextBoxBase or ComboBox) return;
         if (Keyboard.Modifiers == ModifierKeys.Control && e.Key == Key.Z) { Canvas.CancelGesture(); Document.Undo(); e.Handled = true; }

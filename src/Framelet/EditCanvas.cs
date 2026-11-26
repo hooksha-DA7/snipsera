@@ -37,6 +37,10 @@ public sealed class EditCanvas : Grid
     private int textIndex = -1;
     private bool finishingText;
     private EditState renderedState = null!;
+    private EditState? previewState;
+    /// <summary>The state on screen: an uncommitted preview while a panel control is being dragged, otherwise the document state.</summary>
+    public EditState ViewState => previewState ?? Document.State;
+    public bool IsPreviewing => previewState is not null;
     private readonly Pen selectionPen = new(Ui.Blue, 1.5);
 
     public EditCanvas(EditDocument document)
@@ -45,11 +49,11 @@ public sealed class EditCanvas : Grid
         AutomationProperties.SetName(this, "Image editing canvas"); AutomationProperties.SetAutomationId(this, "EditCanvas");
         Image = EditRenderer.Render(document); renderedState = document.State; UpdateSize();
         RenderOptions.SetBitmapScalingMode(this, BitmapScalingMode.HighQuality);
-        document.Changed += Refresh;
+        document.Changed += DocumentChanged;
         MouseLeftButtonDown += Begin; MouseMove += Drag; MouseLeftButtonUp += Finish;
         LostMouseCapture += (_, _) => CancelGesture();
     }
-    public void Dispose() => Document.Changed -= Refresh;
+    public void Dispose() => Document.Changed -= DocumentChanged;
     public void Select(int index)
     {
         Selected = index >= 0 && index < Document.State.Marks.Length ? index : -1;
@@ -61,10 +65,21 @@ public sealed class EditCanvas : Grid
         SelectionChanged?.Invoke(-1); InvalidateVisual();
     }
     public void SetZoom(double zoom) { Zoom = Math.Clamp(zoom, .02, 4); UpdateSize(); }
+    /// <summary>Shows <paramref name="state"/> without committing it, so undo history and the saved document stay unchanged.
+    /// Any later document change replaces the preview.</summary>
+    public void Preview(EditState state)
+    {
+        if (state == Document.State) { EndPreview(); return; }
+        var image = EditRenderer.Render(Document, stateOverride: state);
+        previewState = state; Image = image; renderedState = state; UpdateSize();
+    }
+    public void EndPreview() { if (previewState is null) return; previewState = null; Refresh(); }
+    private void DocumentChanged() { previewState = null; Refresh(); }
     public void Refresh()
     {
         string? selectedImageId = SelectedImage >= 0 && SelectedImage < renderedState.Images.Length ? renderedState.Images[SelectedImage].Id : null;
-        if (renderedState != Document.State) { Image = EditRenderer.Render(Document); renderedState = Document.State; }
+        var view = ViewState;
+        if (renderedState != view) { Image = EditRenderer.Render(Document, stateOverride: previewState); renderedState = view; }
         if (Selected >= Document.State.Marks.Length) Selected = -1;
         if (selectedImageId is not null) SelectedImage = Array.FindIndex(Document.State.Images.ToArray(), image => image.Id == selectedImageId);
         UpdateSize();
@@ -83,7 +98,7 @@ public sealed class EditCanvas : Grid
     protected override void OnRender(DrawingContext dc)
     {
         base.OnRender(dc); dc.PushTransform(new ScaleTransform(Zoom, Zoom));
-        var state = Document.State;
+        var state = ViewState;
         // Keep layout stable during dragging; the composition expands once the gesture commits.
         if (changedMark is not null || textInput is not null)
             EditRenderer.DrawDocument(dc, Document, replacementIndex: textInput is null ? Selected : textIndex,
@@ -116,7 +131,7 @@ public sealed class EditCanvas : Grid
         }
         dc.Pop(); dc.Pop(); dc.Pop();
     }
-    public Point DocumentPoint(Point view) => Document.State.ToOriginal(new Point(view.X / Zoom, view.Y / Zoom));
+    public Point DocumentPoint(Point view) => ViewState.ToOriginal(new Point(view.X / Zoom, view.Y / Zoom));
     private void Begin(object sender, MouseButtonEventArgs e)
     {
         if (textInput is not null && textInput.IsMouseOver) return;
@@ -265,9 +280,9 @@ public sealed class EditCanvas : Grid
     {
         if (textInput is null || textMark is null) return;
         var inset = TextAnnotation.Insets(textMark);
-        var at = Document.State.ToCanvas(textMark.Points[0].Point + new Vector(inset.Left, inset.Top));
+        var at = ViewState.ToCanvas(textMark.Points[0].Point + new Vector(inset.Left, inset.Top));
         textInput.Margin = new Thickness(at.X * Zoom, at.Y * Zoom, 0, 0);
-        textInput.FontSize = Math.Max(1, textMark.FontSize * Document.State.ScaleX * Zoom);
+        textInput.FontSize = Math.Max(1, textMark.FontSize * ViewState.ScaleX * Zoom);
         textInput.MaxWidth = Math.Max(100, Width - at.X * Zoom);
     }
     public bool CommitText()

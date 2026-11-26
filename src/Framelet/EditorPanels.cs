@@ -8,6 +8,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 using Microsoft.Win32;
 
 namespace Framelet;
@@ -25,6 +26,8 @@ public sealed partial class EditorWindow
     private readonly System.Collections.Generic.List<Button> alignmentButtons = [];
     private readonly TextBlock alignmentHint = Ui.Text("Choose an aspect ratio to align the image.", 11, Ui.Muted);
     private string backgroundPreset = "Solid";
+    private bool backgroundPreviewQueued, sliderChanged;
+    private Thumb? draggingThumb;
     private double alignmentX = .5, alignmentY = .5;
     private sealed record Ratio(string Name, double Value);
     private TextPreset SelectedTextPreset => textPresets.SelectedItem is ComboBoxItem { Tag: TextPreset preset } ? preset : TextPreset.Plain;
@@ -110,17 +113,63 @@ public sealed partial class EditorWindow
         help.Margin = new Thickness(0, 6, 0, 12); backgroundPanel.Children.Add(help);
         backgroundPanel.Children.Add(Action("Remove background", "RemoveBackground", () => Try(() => Document.SetBackground(0, "Transparent", new BackgroundOptions()))));
     }
+    // Sliders preview every value on the canvas while held and commit once on release, so a drag is one undo step.
     private void CommitSlider(Slider slider)
     {
-        slider.AddHandler(Thumb.DragCompletedEvent, new DragCompletedEventHandler((_, _) => ApplyBackgroundOptions()));
-        slider.PreviewMouseLeftButtonUp += (_, _) => ApplyBackgroundOptions();
-        slider.KeyUp += (_, _) => ApplyBackgroundOptions();
+        slider.ValueChanged += (_, _) => QueueBackgroundPreview();
+        slider.AddHandler(Thumb.DragStartedEvent, new DragStartedEventHandler((sender, e) => draggingThumb = e.OriginalSource as Thumb));
+        slider.AddHandler(Thumb.DragCompletedEvent, new DragCompletedEventHandler((_, e) =>
+        {
+            draggingThumb = null;
+            if (e.Canceled) CancelBackgroundPreview(); else CommitSliderChange();
+        }));
+        slider.PreviewMouseLeftButtonUp += (_, _) => CommitSliderChange();
+        slider.KeyUp += (_, _) => CommitSliderChange();
     }
+    // Release and key-up commit only a value the user actually moved, so a click, a stray key or a release after Escape adds no undo step.
+    private void CommitSliderChange() { if (sliderChanged) ApplyBackgroundOptions(); }
+    private BackgroundOptions CurrentBackgroundOptions() => new(backgroundPreset,
+        (ratios.SelectedItem as Ratio)?.Value ?? 0, alignmentX, alignmentY, corners.Value, shadow.IsChecked == true);
     private void ApplyBackgroundOptions()
     {
         if (updating) return;
-        Try(() => Document.SetBackground((int)backgroundPadding.Value, SelectedColor(background), new BackgroundOptions(backgroundPreset,
-            (ratios.SelectedItem as Ratio)?.Value ?? 0, alignmentX, alignmentY, corners.Value, shadow.IsChecked == true)));
+        backgroundPreviewQueued = false; sliderChanged = false;
+        Try(() => Document.SetBackground((int)backgroundPadding.Value, SelectedColor(background), CurrentBackgroundOptions()));
+        // A rejected or unchanged commit raises no document change, so the preview is dismissed here.
+        if (Canvas.IsPreviewing) { Canvas.EndPreview(); Refresh(); }
+    }
+    // Coalesces rapid slider movement into one render per dispatcher pass. Input priority keeps the preview from waiting
+    // behind a continuous stream of mouse moves, which would starve a Background-priority callback.
+    private void QueueBackgroundPreview()
+    {
+        if (updating) return;
+        sliderChanged = true;
+        if (backgroundPreviewQueued) return;
+        backgroundPreviewQueued = true;
+        Dispatcher.BeginInvoke(DispatcherPriority.Input, () => { if (backgroundPreviewQueued) PreviewBackgroundOptions(); });
+    }
+    /// <summary>Renders the current slider values on the canvas without committing them.</summary>
+    internal void PreviewBackgroundOptions()
+    {
+        backgroundPreviewQueued = false;
+        if (updating) return;
+        var state = Document.State with { Padding = (int)backgroundPadding.Value, Background = SelectedColor(background), Backdrop = CurrentBackgroundOptions() };
+        try { EditDocument.Validate(state, Document.Original.PixelWidth, Document.Original.PixelHeight); }
+        catch (ArgumentException) { return; } // The release commit reports the problem.
+        Canvas.Preview(state);
+        paddingValue.Text = $"{state.Padding:N0} px";
+        dimensions.Text = $"{state.CanvasWidth:N0} × {state.CanvasHeight:N0} px";
+        UpdateZoom();
+    }
+    /// <summary>Discards an in-progress slider preview and restores the committed values. Returns whether anything was cancelled.</summary>
+    internal bool CancelBackgroundPreview()
+    {
+        bool active = Canvas.IsPreviewing || backgroundPreviewQueued || sliderChanged || draggingThumb is not null;
+        backgroundPreviewQueued = false; sliderChanged = false;
+        if (draggingThumb is { } thumb) { draggingThumb = null; thumb.CancelDrag(); }
+        if (!active) return false;
+        Canvas.EndPreview(); Refresh();
+        return true;
     }
     private void RefreshBackground()
     {

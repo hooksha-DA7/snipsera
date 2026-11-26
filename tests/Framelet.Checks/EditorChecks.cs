@@ -5,6 +5,10 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text.Json.Nodes;
 using System.Windows;
+using System.Windows.Automation;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Framelet;
@@ -37,6 +41,14 @@ internal static class EditorChecks
         }
         if (extra is not null) { using var writer = new StreamWriter(write.CreateEntry(extra).Open()); writer.Write("untrusted"); }
     }
+    private static T Logical<T>(DependencyObject root, string id) where T : DependencyObject
+    {
+        static System.Collections.Generic.IEnumerable<DependencyObject> All(DependencyObject node)
+        { yield return node; foreach (var child in LogicalTreeHelper.GetChildren(node).OfType<DependencyObject>()) foreach (var nested in All(child)) yield return nested; }
+        return All(root).OfType<T>().Single(c => AutomationProperties.GetAutomationId(c) == id);
+    }
+    private static void Release(Slider slider, bool canceled = false) => slider.RaiseEvent(new DragCompletedEventArgs(0, 0, canceled));
+    private static void Key(Window window, UIElement target, Key key, RoutedEvent routed) => target.RaiseEvent(new KeyEventArgs(Keyboard.PrimaryDevice, PresentationSource.FromVisual(window)!, 0, key) { RoutedEvent = routed });
     public static void Run(string output, Action<string, Action> test, Action<int> pump)
     {
         test("Editor preserves original pixels and normalizes output DPI", () =>
@@ -108,6 +120,57 @@ internal static class EditorChecks
         { string folder = Folder(output); var store = new HistoryStore(folder); var entry = store.Add(Pattern(), CaptureKind.Window); var original = File.ReadAllBytes(store.ImagePath(entry)); var doc = new EditDocument(CaptureService.Load(store.ImagePath(entry))); doc.Add(Box(MarkKind.Arrow)); doc.Crop(new Rect(5, 5, 80, 60)); EditFiles.SaveProject(doc, Path.Combine(folder, "edits.framelet")); EditFiles.Export(doc, Path.Combine(folder, "export.png"), false); Require(original.SequenceEqual(File.ReadAllBytes(store.ImagePath(entry)))); var reloaded = new HistoryStore(folder); Require(reloaded.Entries.Single() == entry); });
         test("Failed edited PNG and JPEG exports preserve the destination", () =>
         { string folder = Folder(output); var doc = new EditDocument(Pattern()); foreach (bool jpeg in new[] { false, true }) { string path = Path.Combine(folder, jpeg ? "old.jpg" : "old.png"); EditFiles.Export(doc, path, jpeg); byte[] before = File.ReadAllBytes(path); doc.Add(Box(MarkKind.Rectangle)); using (File.Open(path, FileMode.Open, FileAccess.Read, FileShare.None)) { bool failed = false; try { EditFiles.Export(doc, path, jpeg); } catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { failed = true; } Require(failed); } Require(before.SequenceEqual(File.ReadAllBytes(path)) && !Directory.GetFiles(folder, "*.tmp").Any()); } });
+        test("Editor canvas previews background padding live while dragging and commits one undo step on release", () =>
+        {
+            var doc = new EditDocument(Pattern()); var window = new EditorWindow(doc, _ => { }, () => { }, saveHistory: _ => { }); window.Show();
+            try
+            {
+                var padding = Logical<Slider>(window, "BackgroundPaddingSlider"); var before = doc.State; double fitZoom = window.Canvas.Zoom;
+                padding.Value = 20; pump(80); padding.Value = 40; pump(80);
+                Require(doc.State == before && !doc.CanUndo && !doc.IsDirty, "Preview committed to the document");
+                Require(window.Canvas.IsPreviewing && window.Canvas.Image.PixelWidth == before.CanvasWidth + 80 && window.Canvas.Image.PixelHeight == before.CanvasHeight + 80, "Canvas did not show the dragged padding");
+                Require(window.Canvas.ViewState.Padding == 40 && Math.Abs(window.Canvas.Width - window.Canvas.Image.PixelWidth * window.Canvas.Zoom) < .01, "Canvas layout ignored the preview size");
+                Require(window.Canvas.Zoom <= fitZoom, "Fit zoom did not follow the larger preview");
+                var preview = Pixels(window.Canvas.Image);
+                Release(padding); padding.RaiseEvent(new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Left) { RoutedEvent = UIElement.PreviewMouseLeftButtonUpEvent });
+                Require(doc.State.Padding == 40 && !window.Canvas.IsPreviewing && preview.SequenceEqual(Pixels(window.Canvas.Image)), "Release did not commit the previewed padding");
+                doc.Undo(); Require(doc.State == before && !doc.CanUndo, "Drag produced more than one undo step");
+                Require(padding.Value == 0 && window.Canvas.Image.PixelWidth == before.CanvasWidth, "Undo did not restore the slider and canvas");
+            }
+            finally { window.Close(); }
+        });
+        test("Editor canvas previews background corners without committing; keyboard steps still commit", () =>
+        {
+            var doc = new EditDocument(Pattern()); var window = new EditorWindow(doc, _ => { }, () => { }, saveHistory: _ => { }); window.Show();
+            try
+            {
+                var corners = Logical<Slider>(window, "BackgroundCorners"); var committed = Pixels(window.Canvas.Image);
+                corners.Value = 30; window.PreviewBackgroundOptions();
+                Require(!doc.CanUndo && window.Canvas.IsPreviewing && !committed.SequenceEqual(Pixels(window.Canvas.Image)), "Corner preview missing or committed");
+                Release(corners); Require(doc.State.Backdrop?.CornerRadius == 30 && Pixels(EditRenderer.Render(doc)).SequenceEqual(Pixels(window.Canvas.Image)), "Corner release did not commit the preview");
+                doc.Undo(); Require(!doc.CanUndo, "Corner drag produced more than one undo step"); doc.Redo();
+                corners.Value = 31; Key(window, corners, System.Windows.Input.Key.Right, Keyboard.KeyUpEvent);
+                Require(doc.State.Backdrop?.CornerRadius == 31 && !window.Canvas.IsPreviewing, "Keyboard step did not commit"); doc.Undo(); Require(doc.State.Backdrop?.CornerRadius == 30, "Keyboard step was not one undo step");
+            }
+            finally { window.Close(); }
+        });
+        test("Editor canvas discards background previews on Escape and cancelled drags", () =>
+        {
+            var doc = new EditDocument(Pattern()); var window = new EditorWindow(doc, _ => { }, () => { }, saveHistory: _ => { }); window.Show(); var before0 = doc.State;
+            try
+            {
+                var padding = Logical<Slider>(window, "BackgroundPaddingSlider"); var before = doc.State; var committed = Pixels(window.Canvas.Image);
+                padding.Value = 90; window.PreviewBackgroundOptions(); Require(window.Canvas.IsPreviewing, "Preview not shown");
+                Key(window, padding, System.Windows.Input.Key.Escape, Keyboard.KeyDownEvent);
+                Require(!window.Canvas.IsPreviewing && padding.Value == 0 && committed.SequenceEqual(Pixels(window.Canvas.Image)), "Escape kept the preview");
+                Release(padding); Require(doc.State == before && !doc.CanUndo, "Release after Escape committed");
+                padding.Value = 70; window.PreviewBackgroundOptions(); Release(padding, canceled: true);
+                Require(!window.Canvas.IsPreviewing && padding.Value == 0 && doc.State == before && !doc.CanUndo, "Cancelled drag kept or committed the preview");
+                padding.Value = 50; pump(80);
+            }
+            finally { window.Close(); }
+            Require(doc.State == before0 && !doc.CanUndo, "Closing committed a preview");
+        });
         test("Editor canvas follows document edits and releases subscriptions on close", () =>
         { var doc = new EditDocument(Pattern()); var window = new EditorWindow(doc, _ => { }, () => { }); window.Show(); doc.Resize(80, 60); Require(window.Canvas.Image.PixelWidth == 80); doc.MarkSaved(); Require(window.ConfirmClose()); window.Close(); doc.Resize(40, 30); Require(window.Canvas.Image.PixelWidth == 80); });
     }
