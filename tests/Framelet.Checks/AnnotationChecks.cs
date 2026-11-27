@@ -17,7 +17,7 @@ internal static class AnnotationChecks
     private static byte[] Bytes(BitmapSource image) { var bytes = new byte[image.PixelWidth * image.PixelHeight * 4]; image.CopyPixels(bytes, image.PixelWidth * 4, 0); return bytes; }
     public static void Run(string output, Action<string, Action> test, Action<int> pump)
     {
-        test("Four arrow styles are distinct and version-three projects preserve their geometry", () =>
+        test("Four arrow styles are distinct and current-version projects preserve their geometry", () =>
         {
             var signatures = new System.Collections.Generic.HashSet<string>();
             foreach (ArrowStyle style in Enum.GetValues<ArrowStyle>())
@@ -27,7 +27,7 @@ internal static class AnnotationChecks
                 string path = Path.Combine(output, style + ".framelet"); EditFiles.SaveProject(doc, path); var loaded = EditFiles.LoadProject(path);
                 Require(loaded.State.Marks[0].Arrow == style && loaded.State.Marks[0].Bend == -.25, "Arrow metadata lost");
                 Require(Bytes(EditRenderer.Render(loaded)).SequenceEqual(before), "Arrow pixels changed on round trip"); CaptureService.Save(EditRenderer.Render(doc), Path.Combine(output, "arrow-" + style + ".png"));
-                using var zip = ZipFile.OpenRead(path); using var data = zip.GetEntry("project.json")!.Open(); Require(JsonNode.Parse(data)!["Version"]!.GetValue<int>() == 3, "Wrong project version");
+                using var zip = ZipFile.OpenRead(path); using var data = zip.GetEntry("project.json")!.Open(); Require(JsonNode.Parse(data)!["Version"]!.GetValue<int>() == 4, "Wrong project version"); // version 4 since image compositions (d60a47c)
             }
             Require(signatures.Count == 4, "Arrow choices render identically");
         });

@@ -60,7 +60,11 @@ internal static class UiChecks
                 var mark = window.Canvas.MakeMark(MarkKind.Ellipse, [new(20, 20), new(200, 150)]); Require(mark.Style == MarkStyle.Sketch, "New marks not hand drawn");
                 doc.Add(mark); window.Canvas.Select(0); Find<Button>(window, "ColorBlue").RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); Require(doc.State.Marks[0].Color == "#087FF5", "Color not applied");
                 Find<ComboBox>(window, "AnnotationStyle").SelectedIndex = 1; Require(doc.State.Marks[0].Style == MarkStyle.Clean, "Style not applied"); doc.Undo(); Require(doc.State.Marks[0].Style == MarkStyle.Sketch, "Style undo failed");
-                Find<Button>(window, "ToggleInspector").RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); window.UpdateLayout(); Require(Find<TextBox>(window, "ResizeWidth").IsVisible, "Inspector not available");
+                // Since image compositions (d60a47c) the footer's Layers button opens the Layers panel and the size label opens Image size.
+                Find<Button>(window, "ToggleInspector").RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); window.UpdateLayout();
+                Require(Find<ListBox>(window, "AnnotationObjects").IsVisible && !Find<TextBox>(window, "ResizeWidth").IsVisible, "Layers panel not available");
+                Find<Button>(window, "EditorImageSize").RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); window.UpdateLayout();
+                Require(Find<TextBox>(window, "ResizeWidth").IsVisible && !Find<ListBox>(window, "AnnotationObjects").IsVisible, "Image size panel not available");
             }
             finally { doc.MarkSaved(); window.Close(); }
         });

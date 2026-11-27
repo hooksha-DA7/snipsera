@@ -79,7 +79,10 @@ internal static class CaptureLifecycle
                 timer.Tick += async (_, _) => { timer.Stop(); await app.CaptureAsync(CaptureKind.Screen); waited = app.History.Entries.Count == 3 && modal.IsVisible; modal.Close(); };
                 timer.Start(); modal.ShowDialog(); await Until(() => app.History.Entries.Count == 4);
                 if (!waited || !editor.IsEnabled || !editor.IsVisible) throw new Exception("Modal capture queue did not recover");
-                var currentPreview = app.Windows.Cast<Window>().OfType<ImageWindow>().Single(w => !w.IsPinned);
+                // Since the 1.0.7 screenshot stack, unpinned captures stay as cards; the front card is the newest capture.
+                var currentPreview = app.VisibleScreenshotPreviews.FirstOrDefault()
+                    ?? throw new Exception("No screenshot preview after the modal capture");
+                if (currentPreview.Entry?.Id != app.History.Entries[0].Id /* history is newest-first */) throw new Exception("Front preview is not the newest capture");
                 currentPreview.RevealActions(true);
                 object Foreground()
                 {
@@ -98,16 +101,20 @@ internal static class CaptureLifecycle
                 if (tray is null || !tray.IsKeyboardFocusWithin) throw new Exception("Tray menu did not remain open with keyboard focus");
                 var traySource = (HwndSource)PresentationSource.FromVisual(tray);
                 CaptureService.Save(CaptureService.Capture(Native.Bounds(traySource.Handle)), Path.Combine(output, "tray-native.png"));
-                ((MenuItem)tray.Items[5]).RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent)); await Task.Delay(80);
+                // Find History by label: the screenshot deck (8772983) added "Reopen last dismissed capture" above it.
+                tray.Items.OfType<MenuItem>().Single(i => i.Header as string == "History").RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent)); await Task.Delay(80);
                 if (tray.IsOpen || app.MainWindow?.IsVisible != true) throw new Exception("Tray history command did not dismiss the menu and show history");
                 app.Pin(pixels, entry); await Task.Delay(80);
                 var retainedPins = app.Windows.Cast<Window>().OfType<ImageWindow>().Where(w => w.IsPinned).Select(w =>
                     (Window: w, Handle: new WindowInteropHelper(w).Handle, Bounds: Native.Bounds(new WindowInteropHelper(w).Handle))).ToArray();
                 if (retainedPins.Length != 2) throw new Exception("Expected two native pins for hidden-group integration");
+                // The hidden group is every floating capture window on screen: the two pins plus the stacked previews.
+                int floatingBeforeHide = app.Windows.Cast<Window>().OfType<ImageWindow>().Count(w => w.IsVisible);
+                if (floatingBeforeHide <= retainedPins.Length) throw new Exception("No stacked preview visible before hiding overlays");
                 app.HideOverlays(currentPreview);
                 await Task.Delay(240);
                 var shelf = app.Windows.Cast<Window>().OfType<OverlayShelfWindow>().Single();
-                if (!app.OverlaysHidden || app.HiddenOverlayCount != 3 || !shelf.IsVisible ||
+                if (!app.OverlaysHidden || app.HiddenOverlayCount != floatingBeforeHide || !shelf.IsVisible ||
                     app.Windows.Cast<Window>().OfType<ImageWindow>().Any(w => Native.IsWindowVisible(new WindowInteropHelper(w).Handle)))
                     throw new Exception("Hidden group left a floating native window visible or lost its restore shelf");
                 if (!editor.IsVisible || !doc.IsDirty) throw new Exception("Temporarily hiding overlays affected the editor");
@@ -116,8 +123,11 @@ internal static class CaptureLifecycle
                 inspectHiddenCapture = false;
                 if (!hiddenCaptureExcludedWindows || !app.OverlaysHidden || app.History.Entries.Count != 5)
                     throw new Exception("Hidden-group capture failed to hide native overlays before the capture callback");
-                var hiddenPreview = app.Windows.Cast<Window>().OfType<ImageWindow>().Single(w => !w.IsPinned);
-                if (hiddenPreview.IsVisible || app.HiddenOverlayCount != 3 || !shelf.IsVisible)
+                var hiddenPreview = app.VisibleScreenshotPreviews.FirstOrDefault()
+                    ?? throw new Exception("Hidden-group capture produced no preview");
+                if (hiddenPreview.Entry?.Id != app.History.Entries[0].Id /* history is newest-first */) throw new Exception("Hidden-group capture is not the front preview");
+                // The new card joins the hidden group (the oldest may move to overflow), so the group is pins plus current cards.
+                if (hiddenPreview.IsVisible || app.HiddenOverlayCount != retainedPins.Length + app.VisibleScreenshotPreviews.Count || !shelf.IsVisible)
                     throw new Exception("A new capture escaped the hidden group or lost restoration");
                 app.RestoreOverlays(); await Task.Delay(240);
                 if (app.OverlaysHidden || shelf.IsVisible || !hiddenPreview.IsVisible)
