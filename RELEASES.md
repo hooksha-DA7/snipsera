@@ -1,6 +1,25 @@
 # Releases
 
-The official Snipsera release is [1.0.8](https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.8).
+The official Snipsera release is [1.0.8](https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.8). The latest preview is [1.0.9](https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.9).
+
+## 1.0.9: Live background preview
+
+2026-11-27 · Preview · [Release page](https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.9)
+
+See padding and rounded corners take shape while you adjust them.
+
+### Improved
+
+- The Background panel's Padding and Corners sliders now update the image while you drag them. The image size shown at the bottom of the editor follows along.
+- Releasing a slider saves the change as a single undo step. Press Esc during a drag to return to the previous value.
+
+**Preview with an unsigned GitHub installer and portable ZIP.** Windows may warn when downloading or starting them. This build stays a preview until Microsoft approves its matching 1.0.9 update. The [Microsoft Store](https://apps.microsoft.com/detail/9NFL9VHL8GKV) offers the current approved version. Store signing does not sign the GitHub installer. Live desktop capture/input, a hands-on slider drag in the installed app, Chrome scrolling, native drag-and-drop, clipboard transfer, material/DPI appearance and final clean Windows 11/installed-MSIX acceptance remain pending. The unsigned MSIX is for Store submission only.
+
+### Download
+
+[EXE installer](https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.9/Snipsera-1.0.9-setup-win-x64.exe) · [Portable ZIP](https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.9/Snipsera-1.0.9-win-x64.zip) · [Source ZIP](https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.9/Snipsera-1.0.9-source.zip) · [Microsoft Store](https://apps.microsoft.com/detail/9NFL9VHL8GKV) · [Checksums](https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.9/SHA256SUMS.txt)
+
+Run the EXE installer, or extract the portable ZIP and open **Snipsera.exe**. Windows 11 x64 is required; .NET is included. Quit an older copy from its tray menu first. The installer checks the Visual C++ x64 runtime needed for recording.
 
 ## 1.0.8: A more capable screenshot editor
 
