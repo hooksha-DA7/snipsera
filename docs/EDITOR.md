@@ -1,6 +1,6 @@
 # Editing screenshots
 
-These instructions cover **Snipsera 1.0.8**. Earlier versions have fewer editing controls.
+These instructions cover **Snipsera 1.0.9**. Earlier versions have fewer editing controls.
 
 Open **Edit** beside a capture in History, or **Annotate** on a preview or pin. History opens the original image with its saved edits. **Open image / project…** also accepts PNG, JPEG, `.snipsera` and legacy `.framelet` projects.
 
@@ -30,7 +30,7 @@ The original screenshot stays anchored. **Crop** crops that original image only;
 
 **Background**, **Layers** and **Image size** each open a named section in the editor's side panel. They replace the former combined settings control.
 
-Background offers **15 gradients**, solid colors and transparent padding. Adjust padding, rounded corners, soft shadow, alignment and aspect ratio. Ratios include Automatic, square, landscape and portrait choices; extra space is added without stretching the content. Alignment is enabled when a chosen fixed aspect ratio adds spare space. It is disabled for Automatic, or when the image already fills the chosen ratio. Click **Remove background** to return to an unframed composition.
+Background offers **15 gradients**, solid colors and transparent padding. Adjust padding, rounded corners, soft shadow, alignment and aspect ratio. Since 1.0.9 the image updates while you drag the **Padding** or **Corners** slider; releasing it saves the change as one undo step, and **Esc** during the drag restores the previous value. Ratios include Automatic, square, landscape and portrait choices; extra space is added without stretching the content. Alignment is enabled when a chosen fixed aspect ratio adds spare space. It is disabled for Automatic, or when the image already fills the chosen ratio. Click **Remove background** to return to an unframed composition.
 
 **Auto-balance** trims uneven, plain outer margins on the original screenshot and centers the result. It works best on a uniform background. It preserves annotations and the original pixels, and can be undone. It does not identify subjects or rearrange added images.
 

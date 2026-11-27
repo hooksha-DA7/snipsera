@@ -2,7 +2,7 @@
 
 [Back to Snipsera](../README.md) · [Downloads](../RELEASES.md)
 
-These instructions cover **Snipsera 1.0.8**, the current official release, including its editor and capture refinements.
+These instructions cover **Snipsera 1.0.9**, including its live background preview and the 1.0.8 editor and capture refinements.
 
 ## Run
 
@@ -123,7 +123,7 @@ Open **Edit** from a History row, **Annotate** from a preview or pin, or **Open 
 - **Select / move** selects and moves an annotation or added image. Corner handles resize supported objects. Arrows have endpoint handles; Curved arrows also have a bend handle. Toolbar changes apply to the selection and can be undone.
 - **Text** lets you type where you click on the image. Enter finishes, Shift+Enter adds a line, and Esc cancels the current text edit. Double-click a note to edit it. Choose Plain, Outline, Shadow, Label, Soft label, Callout or Marker. **Stamp** adds symbols such as ✓, √ and ×.
 - **Add image**, file drops onto the canvas, Ctrl+V and **Layers > From history…** add images to a composition. Move and resize them independently or change their overlap order. The base screenshot stays anchored; **Crop** affects that original image only.
-- **Background**, **Layers** and **Image size** open named sections in the side panel. Background offers 15 gradients, solid colors, padding, alignment, aspect ratio, rounded corners and shadow. **Auto-balance** trims uneven plain margins and centers the content; it can be undone. It does not rearrange added images.
+- **Background**, **Layers** and **Image size** open named sections in the side panel. Background offers 15 gradients, solid colors, padding, alignment, aspect ratio, rounded corners and shadow. Padding and corners update the image live while you drag their sliders; the change is saved when you release. **Auto-balance** trims uneven plain margins and centers the content; it can be undone. It does not rearrange added images.
 
 Edits save automatically to local History after a short pause and before closing. Closing normally needs no save-or-discard prompt. If saving fails, the editor stays open with an error so you can retry or export. History retains the latest 100 captures; export anything you need to keep permanently. Changes just before a crash may not have reached disk.
 

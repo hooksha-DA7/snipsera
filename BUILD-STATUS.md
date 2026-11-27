@@ -1,5 +1,13 @@
 # Snipsera build status
 
+## 1.0.9 preview: live background preview
+
+The editor's **Padding** and **Corners** sliders now update the image while you drag them. Releasing the slider saves the change as a single undo step; arrow keys still save on key-up, and Esc or a cancelled drag restores the saved values. Fit zoom, layout and the size label follow the in-progress size. A click or release that does not move the slider adds no undo step.
+
+Three automated checks that predated 1.0.7/1.0.8 behavior were updated: the Layers and Image size panels, project format version 4, and the capture lifecycle with stacked screenshot previews. The Store submission package is now named `Snipsera-1.0.9.msix`.
+
+This build is a preview until Microsoft approves the matching Store update. The official 1.0.8 release and its downloads remain unchanged. Before tagging, the full local suite passed (134 checks and the capture lifecycle) with zero compiler warnings. Hosted build, package and installer results are recorded with the release. Local desktop/input, live Chrome/clipboard/drag-and-drop, material/DPI appearance and final clean Windows 11/installed-MSIX acceptance remain pending. The EXE remains unsigned; the unsigned MSIX is submission-only.
+
 ## 1.0.8 release: editor refinements and numeric version labels
 
 Application metadata, download filenames, update notices and the installed-version label use plain version numbers. Internal version comparison and links retain exact build identifiers, including historical preview tags. GitHub prerelease status still controls availability.

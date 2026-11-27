@@ -144,7 +144,8 @@ def main():
     manifest.write(msix_root / "AppxManifest.xml", encoding="utf-8", xml_declaration=True)
     resource_index = build_resource_index(makepri, msix_root, output)
     suffix = "development" if args.development_msix else "store-submission"
-    msix = output / f"Snipsera-{version}-{suffix}-x64.msix"
+    # The Store package keeps the short name Partner Center shows; a development identity stays visibly marked.
+    msix = output / (f"Snipsera-{version}-development-x64.msix" if args.development_msix else f"Snipsera-{version}.msix")
     subprocess.run([str(args.makeappx.resolve()), "pack", "/d", str(msix_root), "/p", str(msix), "/h", "SHA256"], check=True)
     files = sorted(p for p in output.iterdir() if p.suffix in {".exe", ".msix", ".zip"})
     artifacts = [{"name": p.name, "bytes": p.stat().st_size, "sha256": hashlib.sha256(p.read_bytes()).hexdigest()} for p in files]
