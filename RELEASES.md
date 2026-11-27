@@ -1,10 +1,10 @@
 # Releases
 
-The official Snipsera release is [1.0.8](https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.8). The latest preview is [1.0.9](https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.9).
+The official Snipsera release is [1.0.9](https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.9).
 
 ## 1.0.9: Live background preview
 
-2026-11-27 · Preview · [Release page](https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.9)
+2026-11-27 · Release · [Release page](https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.9)
 
 See padding and rounded corners take shape while you adjust them.
 
@@ -13,7 +13,7 @@ See padding and rounded corners take shape while you adjust them.
 - The Background panel's Padding and Corners sliders now update the image while you drag them. The image size shown at the bottom of the editor follows along.
 - Releasing a slider saves the change as a single undo step. Press Esc during a drag to return to the previous value.
 
-**Preview with an unsigned GitHub installer and portable ZIP.** Windows may warn when downloading or starting them. This build stays a preview until Microsoft approves its matching 1.0.9 update. The [Microsoft Store](https://apps.microsoft.com/detail/9NFL9VHL8GKV) offers the current approved version. Store signing does not sign the GitHub installer. Live desktop capture/input, a hands-on slider drag in the installed app, Chrome scrolling, native drag-and-drop, clipboard transfer, material/DPI appearance and final clean Windows 11/installed-MSIX acceptance remain pending. The unsigned MSIX is for Store submission only.
+**The GitHub installer and portable ZIP are unsigned.** Windows may warn when downloading or starting them. The matching update is available from [Microsoft Store](https://apps.microsoft.com/detail/9NFL9VHL8GKV). Store signing does not sign the GitHub installer. Live desktop capture/input, a hands-on slider drag in the installed app, Chrome scrolling, native drag-and-drop, clipboard transfer, material/DPI appearance and final clean Windows 11/installed-MSIX acceptance remain pending. The unsigned MSIX is for Store submission only.
 
 ### Download
 

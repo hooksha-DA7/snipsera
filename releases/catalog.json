@@ -2,8 +2,8 @@
   "schema_version": 1,
   "repository": "hooksha-DA7/snipsera",
   "imported_on": "2026-11-01",
-  "verified_baseline": "v1.0.8",
-  "latest_preview": "v1.0.9",
+  "verified_baseline": "v1.0.9",
+  "latest_preview": null,
   "releases": [
     {
       "version": "0.1.0",
@@ -1295,7 +1295,7 @@
       "title": "A more capable screenshot editor",
       "status": "release",
       "prerelease": false,
-      "latest": true,
+      "latest": false,
       "notes": "releases/notes/v1.0.8.md",
       "release_url": "https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.8",
       "kind": "Release",
@@ -1384,12 +1384,12 @@
       "product": "Snipsera",
       "build_date": "2026-11-27",
       "title": "Live background preview",
-      "status": "preview",
-      "prerelease": true,
-      "latest": false,
+      "status": "release",
+      "prerelease": false,
+      "latest": true,
       "notes": "releases/notes/v1.0.9.md",
       "release_url": "https://github.com/hooksha-DA7/snipsera/releases/tag/v1.0.9",
-      "kind": "Preview",
+      "kind": "Release",
       "intro": "See padding and rounded corners take shape while you adjust them.",
       "changes": {
         "Improved": [
@@ -1397,9 +1397,9 @@
           "Releasing a slider saves the change as a single undo step. Press Esc during a drag to return to the previous value."
         ]
       },
-      "notice": "**Preview with an unsigned GitHub installer and portable ZIP.** Windows may warn when downloading or starting them. This build stays a preview until Microsoft approves its matching 1.0.9 update. The [Microsoft Store](https://apps.microsoft.com/detail/9NFL9VHL8GKV) offers the current approved version. Store signing does not sign the GitHub installer. Live desktop capture/input, a hands-on slider drag in the installed app, Chrome scrolling, native drag-and-drop, clipboard transfer, material/DPI appearance and final clean Windows 11/installed-MSIX acceptance remain pending. The unsigned MSIX is for Store submission only.",
+      "notice": "**The GitHub installer and portable ZIP are unsigned.** Windows may warn when downloading or starting them. The matching update is available from [Microsoft Store](https://apps.microsoft.com/detail/9NFL9VHL8GKV). Store signing does not sign the GitHub installer. Live desktop capture/input, a hands-on slider drag in the installed app, Chrome scrolling, native drag-and-drop, clipboard transfer, material/DPI appearance and final clean Windows 11/installed-MSIX acceptance remain pending. The unsigned MSIX is for Store submission only.",
       "verification": "In the exact hosted build, 602 automated/offscreen checks passed (541 C# and 61 Python) with zero compiler warnings/errors. Package/source parity, archive hashes and safe paths, MSIX identity/resource/block-map validation, and EXE installation, synthetic launch, reinstall, increasing-version fixture upgrade, owned startup cleanup and uninstall passed on Windows Server 2025. The downloaded artifacts were re-verified locally against the tagged source. Live desktop/Chrome interaction, a hands-on slider drag in the installed app, and clean Windows 11/installed-MSIX acceptance remain pending.",
-      "signing_status": "unsigned-preview",
+      "signing_status": "unsigned",
       "source_commit": "579b8e254b68e5e96930924d5508e3c016459a0b",
       "build_workflow": "https://github.com/hooksha-DA7/snipsera/actions/runs/45921948254",
       "assets": [
@@ -1431,8 +1431,8 @@
         "sha256": "c619570998c4b2ad0b69abfb123410f27130da2df0ceacc977a32f1cbf99be40"
       },
       "store_submission_status": {
-        "status": "in-certification",
-        "stage": "pre-processing",
+        "status": "published",
+        "stage": "Published; available in Microsoft Store",
         "product_id": "9NFL9VHL8GKV",
         "submission_id": "1152921505702519867",
         "submission_number": 8,
@@ -1442,7 +1442,17 @@
         "source_url": "https://partner.microsoft.com/en-us/dashboard/products/9NFL9VHL8GKV/overview",
         "submitted_date": "2026-11-27"
       },
-      "store_url": "https://apps.microsoft.com/detail/9NFL9VHL8GKV"
+      "store_url": "https://apps.microsoft.com/detail/9NFL9VHL8GKV",
+      "store_approval": {
+        "status": "approved",
+        "product_id": "9NFL9VHL8GKV",
+        "submission_id": "1152921505702519867",
+        "package_version": "1.0.9.0",
+        "package_sha256": "c619570998c4b2ad0b69abfb123410f27130da2df0ceacc977a32f1cbf99be40",
+        "source_commit": "579b8e254b68e5e96930924d5508e3c016459a0b",
+        "verified_date": "2026-11-27",
+        "source_url": "https://partner.microsoft.com/en-us/dashboard/products/9NFL9VHL8GKV/overview"
+      }
     }
   ],
   "product": "Snipsera",

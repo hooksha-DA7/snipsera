@@ -40,7 +40,7 @@ Open **Image size** from the dimensions control to change output dimensions. Kee
 
 Edits save automatically to the capture's local History after a short pause and before closing. Closing normally needs no save-or-discard prompt. If saving fails, the editor stays open so you can retry or export. History retains the latest 100 captures; export anything you need to keep permanently.
 
-**Save project** keeps the original image, added images and editable annotations in one file. New saves use **project version 4**, including files with a `.framelet` extension. Snipsera 1.0.8 reads versions 1–4, but **Snipsera 1.0.7 and earlier cannot reopen version 4 projects**. Save a separate copy when an older installation still needs the original project. Session undo history is not saved.
+**Save project** keeps the original image, added images and editable annotations in one file. New saves use **project version 4**, including files with a `.framelet` extension. Snipsera 1.0.8 and later read versions 1–4, but **Snipsera 1.0.7 and earlier cannot reopen version 4 projects**. Save a separate copy when an older installation still needs the original project. Session undo history is not saved.
 
 PNG, JPEG, Copy, Pin and drag sharing use the rendered result. JPEG fills transparency with white. A solid mask hides pixels in flattened output, but editable projects retain the original pixels. Blur and pixelation are not secure redaction.
 
