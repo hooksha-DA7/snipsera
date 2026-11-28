@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Help and support
+    url: https://snipsera.com/support/
+    about: Quick answers and the user guide on snipsera.com.
+  - name: Report a security problem privately
+    url: https://github.com/hooksha-DA7/snipsera/security/advisories/new
+    about: Please don't post security problems in a public issue.
