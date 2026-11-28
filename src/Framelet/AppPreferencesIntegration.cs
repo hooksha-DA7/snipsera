@@ -15,6 +15,13 @@ public sealed partial class CaptureApp
         var item = new MenuItem { Header = "Settings", Icon = new UiIcon("Settings", 16) { Ink = Ui.Ink } };
         item.Click += (_, _) => { trayMenu.IsOpen = false; Dispatcher.BeginInvoke(OpenPreferences); };
         trayMenu.Items.Insert(trayMenu.Items.Count - 1, item);
+        // Help opens the website's support page; About shows the version and the other public pages.
+        var help = new MenuItem { Header = "Help and support", Icon = new UiIcon("Help", 16) { Ink = Ui.Ink } };
+        help.Click += (_, _) => { trayMenu.IsOpen = false; Dispatcher.BeginInvoke(() => OpenLink(WebLinks.Support)); };
+        trayMenu.Items.Insert(trayMenu.Items.Count - 1, help);
+        var about = new MenuItem { Header = "About Snipsera" };
+        about.Click += (_, _) => { trayMenu.IsOpen = false; Dispatcher.BeginInvoke(OpenAbout); };
+        trayMenu.Items.Insert(trayMenu.Items.Count - 1, about);
         tray!.BalloonTipClicked += (_, _) => Dispatcher.BeginInvoke(OpenPreferences);
         Preferences.Changed += NotifyUpdateWhenIdle;
         preferencesTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(15) };
@@ -43,6 +50,16 @@ public sealed partial class CaptureApp
     {
         OpenPreferences();
         preferencesWindow?.ShowPage(SettingsPage.KeyboardShortcuts);
+    }
+    public void OpenAbout()
+    {
+        OpenPreferences();
+        preferencesWindow?.ShowPage(SettingsPage.About);
+    }
+    internal void OpenLink(string url)
+    {
+        try { WebLinks.Open(url); }
+        catch (Exception ex) { Report(ex); }
     }
     private void NotifyUpdateWhenIdle()
     {

@@ -37,6 +37,8 @@ public sealed class HomeWindow : Window
         // Stays until the update is installed, even if the Windows notification was missed or turned off.
         var notice = new UpdateNotice(app.Preferences, app.OpenPreferences); DockPanel.SetDock(notice, Dock.Top); dock.Children.Add(notice);
         app.Preferences.Changed += notice.Refresh; Closed += (_, _) => app.Preferences.Changed -= notice.Refresh;
+        // First run only: the essentials in three lines, then it stays dismissed.
+        if (app.Welcome.ShouldShow) { var welcome = WelcomeCard(); DockPanel.SetDock(welcome, Dock.Top); dock.Children.Add(welcome); }
         status.Margin = new Thickness(0, 16, 0, 0); DockPanel.SetDock(status, Dock.Bottom); dock.Children.Add(status);
         var columns = new Grid(); columns.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(260) });
         columns.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(18) }); columns.ColumnDefinitions.Add(new ColumnDefinition());
@@ -113,6 +115,7 @@ public sealed class HomeWindow : Window
         {
             if (!Dispatcher.CheckAccess()) { Dispatcher.BeginInvoke(new Action(Badges)); return; }
             for (int i = 0; i < badges.Length; i++) badges[i].Text = app.Settings.Bindings[i];
+            if (welcomeShortcut is not null) welcomeShortcut.Text = WelcomeShortcutText();
         }
         app.SettingsChanged += Badges; Closed += (_, _) => app.SettingsChanged -= Badges;
         var leftScroll = new ScrollViewer { Content = left, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
@@ -126,6 +129,36 @@ public sealed class HomeWindow : Window
         Grid.SetColumn(recent, 2); columns.Children.Add(recent); dock.Children.Add(columns); shell.Children.Add(dock); Content = shell;
         Closing += (_, e) => { if (!app.Quitting) { e.Cancel = true; Hide(); } };
         RefreshHistory();
+    }
+
+    private TextBlock? welcomeShortcut;
+    private string WelcomeShortcutText() => $"Press {app.Settings.Bindings[0]} to select an area, or use the buttons below.";
+
+    private Border WelcomeCard()
+    {
+        var body = new StackPanel();
+        var title = Ui.Text("Welcome to Snipsera", 15, Ui.Ink, true);
+        System.Windows.Automation.AutomationProperties.SetHeadingLevel(title, System.Windows.Automation.AutomationHeadingLevel.Level2);
+        body.Children.Add(title);
+        welcomeShortcut = Ui.Text(WelcomeShortcutText(), 13); welcomeShortcut.Margin = new Thickness(0, 6, 0, 0);
+        System.Windows.Automation.AutomationProperties.SetAutomationId(welcomeShortcut, "WelcomeShortcut");
+        body.Children.Add(welcomeShortcut);
+        var preview = Ui.Text("Each capture appears at the bottom left. Hover over it to copy, save, pin or annotate.", 13, Ui.Muted); preview.Margin = new Thickness(0, 2, 0, 0);
+        body.Children.Add(preview);
+        var tip = Ui.Text("Tip: set Print Screen to open the all-in-one capture bar.", 13, Ui.Muted); tip.Margin = new Thickness(0, 2, 0, 0);
+        body.Children.Add(tip);
+        Border card = null!;
+        void Dismiss() { app.Welcome.Dismiss(); card.Visibility = Visibility.Collapsed; }
+        var setUp = Ui.Button("Set up Print Screen…", "WelcomeSetUpPrintScreen", () => { Dismiss(); app.OpenKeyboardShortcuts(); }, true);
+        var gotIt = Ui.Button("Got it", "WelcomeDismiss", Dismiss);
+        var actions = new WrapPanel { Margin = new Thickness(0, 12, 0, 0) };
+        setUp.Margin = new Thickness(0, 0, 8, 0); actions.Children.Add(setUp); actions.Children.Add(gotIt);
+        body.Children.Add(actions);
+        card = Ui.Card(body, new Thickness(16));
+        card.BorderBrush = Ui.Blue; card.Margin = new Thickness(0, 0, 0, 16);
+        System.Windows.Automation.AutomationProperties.SetAutomationId(card, "WelcomeCard");
+        System.Windows.Automation.AutomationProperties.SetName(card, "Welcome to Snipsera");
+        return card;
     }
 
     public void SetStatus(string message, bool error = false) { status.Text = message; status.Foreground = error ? Ui.Brush("#A33E16") : Ui.Muted; }

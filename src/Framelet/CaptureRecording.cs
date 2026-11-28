@@ -118,6 +118,26 @@ public sealed partial class CaptureApp
         }
         catch (Exception ex) { Report(ex); }
     }
+    // Selects the screenshot's automatically saved PNG in File Explorer. Without that file (automatic saving off, or the
+    // folder changed since the capture), opens the screenshot folder and says why the file isn't there.
+    public void ShowScreenshotFolder(CaptureEntry? entry)
+    {
+        try
+        {
+            string? file = entry is null ? null : Storage.ImagePath(entry);
+            var start = new ProcessStartInfo("explorer.exe") { UseShellExecute = true };
+            if (file is not null && File.Exists(file)) { start.ArgumentList.Add("/select,"); start.ArgumentList.Add(file); }
+            else
+            {
+                Directory.CreateDirectory(Storage.ImageFolder); start.ArgumentList.Add(Storage.ImageFolder);
+                home.SetStatus(Storage.AutomaticImageSaving
+                    ? "This capture isn't in your screenshot folder. Use Save to keep a copy."
+                    : "Automatic saving is off, so this capture has no file yet. Use Save to keep a copy.");
+            }
+            Process.Start(start)?.Dispose();
+        }
+        catch (Exception ex) { Report(ex); }
+    }
     internal async Task<RecordingTarget?> SelectRecordingTargetAsync(RecordingTargetKind kind, int width, int height)
     {
         if (capturing || Recording.IsActive || ComponentDispatcher.IsThreadModal) throw new InvalidOperationException("Finish the current capture or dialog before selecting a recording area.");

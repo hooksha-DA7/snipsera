@@ -9,7 +9,7 @@ using static Framelet.SettingsUi;
 
 namespace Framelet;
 
-public enum SettingsPage { General, SaveLocations, KeyboardShortcuts, Updates, Appearance }
+public enum SettingsPage { General, SaveLocations, KeyboardShortcuts, Updates, Appearance, About }
 
 // Settings, in separate sections like Windows Settings: a section list beside the selected page, or above it in a narrow
 // window. Changes apply at once, except shortcuts, which are saved together. Building the window only reads state; Windows
@@ -19,15 +19,16 @@ public sealed class PreferencesWindow : Window
 {
     // Below this content width the section list moves above the page.
     private const double CompactBelow = 640;
-    private static readonly string[] PageNames = ["General", "Save locations", "Keyboard shortcuts", "Updates", "Appearance"];
-    private static readonly string[] PageIds = ["SettingsGeneral", "SettingsSaveLocations", "SettingsKeyboardShortcuts", "SettingsUpdates", "SettingsAppearance"];
+    private static readonly string[] PageNames = ["General", "Save locations", "Keyboard shortcuts", "Updates", "Appearance", "About"];
+    private static readonly string[] PageIds = ["SettingsGeneral", "SettingsSaveLocations", "SettingsKeyboardShortcuts", "SettingsUpdates", "SettingsAppearance", "SettingsAbout"];
     private static readonly string[] PageGlyphs =
     [
         "M4 6 L20 6 M4 12 L20 12 M4 18 L20 18 M8 3 L8 9 M16 9 L16 15 M10 15 L10 21",
         "M3 7 L3 20 L19 20 L22 10 L8 10 L5 20 M3 7 L9 7 L11 4 L20 4 L20 8",
         "M3 6 L21 6 L21 18 L3 18 Z M7 10 L7.1 10 M11 10 L11.1 10 M15 10 L15.1 10 M7 14 L17 14",
         "M20 12 A8 8 0 1 1 17.7 6.3 M20 3 L20 8 L15 8",
-        "M12 3 A9 9 0 1 0 12.01 3 M12 3 L12 21 M12 7 L16 7 M12 11 L18 11 M12 15 L17 15"
+        "M12 3 A9 9 0 1 0 12.01 3 M12 3 L12 21 M12 7 L16 7 M12 11 L18 11 M12 15 L17 15",
+        "M12 3 A9 9 0 1 0 12.01 3 M12 11 L12 17 M12 7.5 L12.01 7.5"
     ];
     private readonly AppPreferencesController controller;
     private readonly ShortcutSettingsPanel? shortcutPanel;
@@ -118,11 +119,12 @@ public sealed class PreferencesWindow : Window
         var checkRow = new DockPanel(); DockPanel.SetDock(check, Dock.Right); checkRow.Children.Add(check); checkRow.Children.Add(result);
         updates.Children.Add(checkRow);
         offerAction = Ui.Button(UpdateNotice.ActionLabel(controller.IsStoreInstall), "OpenUpdate", () => Run(controller.OpenUpdate, false), true);
-        offerAction.HorizontalAlignment = HorizontalAlignment.Left; offerAction.Margin = new Thickness(0, 10, 0, 0);
+        var whatsNew = Ui.Button("See what's new", "OpenReleaseNotes", () => Run(() => WebLinks.Open(WebLinks.ReleaseNotes), false));
+        var offerActions = Actions(offerAction, whatsNew);
         Describe(offerTitle, "UpdateOfferTitle", AutomationLiveSetting.Polite); offerDetail.Margin = new Thickness(0, 4, 0, 0);
         offerDetail.Text = controller.IsStoreInstall ? "Microsoft Store downloads and installs the update."
             : "Opens the release page in your browser. Download and run the installer when you're ready.";
-        var offerBody = new StackPanel(); offerBody.Children.Add(offerTitle); offerBody.Children.Add(offerDetail); offerBody.Children.Add(offerAction);
+        var offerBody = new StackPanel(); offerBody.Children.Add(offerTitle); offerBody.Children.Add(offerDetail); offerBody.Children.Add(offerActions);
         offer = new Border { BorderBrush = Ui.Blue, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(6), Padding = new Thickness(12), Margin = new Thickness(0, 12, 0, 0), Child = offerBody };
         AutomationProperties.SetAutomationId(offer, "UpdateOffer"); updates.Children.Add(offer);
         updateError.Margin = new Thickness(0, 8, 0, 0); Describe(updateError, "UpdateError", AutomationLiveSetting.Assertive); updates.Children.Add(updateError);
@@ -134,6 +136,26 @@ public sealed class PreferencesWindow : Window
         if (app is not null) appearancePanel = new AppearanceSettingsPanel(app.ToolbarAppearance);
         pages[4] = Page(SettingsPage.Appearance, "Choose how Snipsera's capture and recording controls look.",
             appearancePanel ?? Unavailable("Appearance can be changed from Settings in the running Snipsera app."));
+
+        // About: the version and the public pages. Links open in the browser; nothing is sent from the app.
+        var about = new StackPanel();
+        var version = Ui.Text($"Snipsera {controller.InstalledDisplayVersion}", 14, Ui.Ink, true); Describe(version, "AboutVersion", AutomationLiveSetting.Off);
+        var aboutSummary = Ui.Text("Screenshots, annotations and screen recording for Windows 11. Free and open source under the MIT license.", 13, Ui.Muted);
+        aboutSummary.Margin = new Thickness(0, 4, 0, 0); about.Children.Add(version); about.Children.Add(aboutSummary);
+        var linkError = Ui.Text("", 12); linkError.Margin = new Thickness(0, 8, 0, 0); Describe(linkError, "AboutLinkError", AutomationLiveSetting.Assertive);
+        Button Link(string label, string id, string url) => Ui.Button(label, id, () =>
+        {
+            try { WebLinks.Open(url); SettingsUi.Show(linkError, null); }
+            catch (Exception ex) { SettingsUi.Show(linkError, ex.Message); linkError.Foreground = UpdateNotice.Error; }
+        });
+        var links = new StackPanel();
+        links.Children.Add(Actions(Link("Website", "OpenWebsite", WebLinks.Website), Link("What's new", "OpenWhatsNew", WebLinks.ReleaseNotes),
+            Link("Help and support", "OpenSupport", WebLinks.Support)));
+        var more = Actions(Link("Privacy policy", "OpenPrivacy", WebLinks.Privacy), Link("Source code", "OpenSource", WebLinks.Source),
+            Link("License", "OpenLicense", WebLinks.License));
+        more.Margin = new Thickness(0); links.Children.Add(more);
+        SettingsUi.Show(linkError, null); links.Children.Add(linkError);
+        pages[5] = Page(SettingsPage.About, "Version, help and the Snipsera website.", Group("Snipsera", about), Group("Help and links", links));
 
         // Every page stays in the tree and only the selected one is shown, so each keeps its state while another is open.
         var stack = new Grid { Margin = new Thickness(24, 20, 24, 24) };

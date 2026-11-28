@@ -23,6 +23,7 @@ public sealed partial class CaptureApp : Application
     public StorageLocations Storage { get; }
     public ToolbarAppearanceSettings ToolbarAppearance { get; }
     public PreviewPreferences PreviewPreferences { get; }
+    public WelcomeState Welcome { get; }
     public event Action? SettingsChanged;
     public bool Quitting { get; private set; }
     private readonly List<ImageWindow> pins = [];
@@ -61,6 +62,7 @@ public sealed partial class CaptureApp : Application
         Storage = new StorageLocations(History.Root);
         ToolbarAppearance = new ToolbarAppearanceSettings(History.Root);
         PreviewPreferences = new PreviewPreferences(History.Root);
+        Welcome = new WelcomeState(History.Root, History.Entries.Count > 0);
         presentNativeOverlays = presentOverlay is null;
         this.overlayPlacement = overlayPlacement ?? (() => { var work = Native.MonitorAtCursor(true); return (work, ScrollCaptureLayout.ScaleFor(work)); });
         Preferences = preferences ?? AppPreferencesController.Create(History.Root);

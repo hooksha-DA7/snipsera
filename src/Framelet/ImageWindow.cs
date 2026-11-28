@@ -193,6 +193,7 @@ public sealed class ImageWindow : Window
         Menu("Scrolling capture", () => _ = app.CaptureAsync(CaptureKind.Scrolling)); menu.Items.Add(new Separator());
         pinMenu = Menu("Pin", Toggle); Menu("Copy", Copy).InputGestureText = "Ctrl+C"; Menu("Save…", Save).InputGestureText = "Ctrl+S"; Menu("History", app.ShowHome); Menu(recording is null ? "Annotate" : "Play recording", EditOrPlay);
         if (recording is not null) Menu("Show in folder", () => app.ShowRecordingFolder(recording));
+        else Menu("Show in folder", () => app.ShowScreenshotFolder(entry));
         // Keyboard-discoverable alternative to the wheel-down gesture.
         Menu("Temporarily hide overlays", () => app.HideOverlays(this)).InputGestureText = "Scroll down";
         opacity = new Slider { Minimum = .2, Maximum = 1, Value = 1, Width = 150, TickFrequency = .05, Margin = new Thickness(8, 5, 8, 8), ToolTip = "Pinned image opacity" };
