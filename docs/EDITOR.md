@@ -1,6 +1,6 @@
 # Editing screenshots
 
-These instructions cover **Snipsera 1.0.9**. Earlier versions have fewer editing controls.
+These instructions cover **Snipsera 2.0.0**. Earlier versions have fewer editing controls.
 
 Open **Edit** beside a capture in History, or **Annotate** on a preview or pin. History opens the original image with its saved edits. **Open image / project…** also accepts PNG, JPEG, `.snipsera` and legacy `.framelet` projects.
 

@@ -2,7 +2,7 @@
 
 [Back to Snipsera](../README.md) · [Downloads](../RELEASES.md)
 
-These instructions cover **Snipsera 1.0.9**, the current official release, including its live background preview and the 1.0.8 editor and capture refinements.
+These instructions cover **Snipsera 2.0.0**, including its About page, help links, first-run welcome and **Show in folder** for screenshots, plus the 1.0.9 live background preview.
 
 ## Run
 
@@ -11,6 +11,8 @@ Install Snipsera from [Microsoft Store](https://apps.microsoft.com/detail/9NFL9V
 Historical Framelet downloads use **Framelet.exe** and require the .NET 10 Desktop Runtime x64. Close earlier copies through their tray menu before launching a new build. New projects use `.snipsera`; legacy `.framelet` projects continue to open.
 
 Closing the home window keeps Snipsera running in the notification area. Double-click its tray icon or launch Snipsera again to reopen history. Use **Quit Snipsera** in the tray menu to exit and release the hotkeys. Startup with Windows is off by default. In version 1.0.5, open **Settings → General → Start with Windows** to turn it on or off. Startup opens quietly in the tray. If Windows or your administrator has disabled it, Settings explains the restriction and links to Windows Startup apps. Keep a portable copy in the same folder after enabling startup.
+
+On first launch, Home shows a short **Welcome to Snipsera** card with the area shortcut, where captures appear, and a button to set Print Screen for the all-in-one bar. Choose **Got it** to hide it; it doesn't return, and installations that already have captures never show it. **Settings → About** shows the installed version with links to the [Snipsera website](https://snipsera.com), release notes, support, the privacy policy, the source code and the licence. **Help and support** in the tray menu opens the website's support page. Links open in your browser; the app sends nothing.
 
 ## Updates
 
@@ -72,6 +74,7 @@ Hover for controls **on the image**: Pin/Unpin and Close in the top corners, Ann
 - **Save…** exports a PNG to a location you choose. **Ctrl+S** opens the same dialog. The native dialog asks before overwriting an existing file.
 - **Pin** turns the same preview window into an always-on-top reference. **Unpin** returns that window to the compact pending stack without replacing another screenshot. Options are available by right-clicking the image. Up to eight pins stack at the left above the previews; crowded stacks can fit smaller cards or use more columns. Drag the image to move it independently; use its bottom-right grip to resize it. Double-click to toggle a larger view. Manually moved/resized pins leave the automatic stack; unpinning returns them to its compact size and position. Remaining docked pins reflow as captures are added or closed. Pins last for the current session; the underlying capture remains in history until removed or expired.
 - **History** in the right-click menu opens the home window. Select **Open** on an older capture to copy, save or pin it again.
+- **Show in folder** in the right-click menu selects the screenshot's automatically saved PNG in File Explorer (recordings already had this). If automatic saving is off, or the screenshot folder changed after the capture, it opens the current screenshot folder and Home explains why the file isn't there.
 - **Annotate** (pencil icon) opens an independent document in the image editor. The original capture stays in history. The floating preview hides to give you room to edit; a new capture still produces a preview.
 - **Drag & drop:** drag the preview image, or use its Drag button, to send an original-resolution PNG to another compatible Windows app. Pins themselves drag to move; their Drag action exports. Drag stays visible when other actions fold into More. On an exceptionally tiny manually resized pin, the other actions remain in the right-click menu. The editor has its own drag handle for the flattened edited PNG.
 - **Pin opacity:** right-click for the opacity slider, or use Ctrl+wheel for 5% steps. Opacity affects the on-screen image only; copy/save/drag retain full opacity and resolution. Arrow keys move a focused pin by one logical pixel; Shift+arrow moves ten.
@@ -106,6 +109,7 @@ Default folder: `%LOCALAPPDATA%\Snipsera`
 - `history.json` and `history.json.bak`: capture metadata and previous committed index.
 - `settings.json`: shortcuts after saving custom settings.
 - `preview-preferences.json`: the saved **Dismiss after sharing** choice; it does not store the pending stack.
+- `welcome.json`: records that the first-run welcome card was dismissed.
 - `drag-exports\<owned-id>.png`: local PNGs staged for file drag-and-drop. Targets can read them after the gesture ends. Owned files older than seven days are cleaned on a later drag; unrelated files are kept. These are unencrypted local copies, like capture history.
 
 History retains the latest **100 captures**, pruning older owned PNGs and their automatic edit projects after the new history index is committed. Export anything you need to keep permanently. **Remove** asks for confirmation and removes that history image and its automatic edit project; exported copies elsewhere remain. Screenshots are unencrypted local files. Snipsera does not upload captures or send telemetry. Optional update checks retrieve version information from GitHub or Microsoft Store; see [privacy](../PRIVACY.md).

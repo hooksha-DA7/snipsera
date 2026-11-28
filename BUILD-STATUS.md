@@ -1,5 +1,15 @@
 # Snipsera build status
 
+## 2.0.0 preview: About, help links and first-run welcome
+
+**Settings → About** shows the installed version with links to snipsera.com, release notes, support, the privacy policy, source code and licence. The tray menu adds **Help and support** and **About Snipsera**, and an update notice in Settings adds **See what's new**. Links are fixed HTTPS addresses opened in the default browser; the app sends nothing.
+
+A fresh installation shows a one-time **Welcome to Snipsera** card on Home with the saved area shortcut, where previews appear and a button that opens the keyboard shortcuts to assign Print Screen to the all-in-one bar. Dismissal is stored in `welcome.json`; installations that already have captures never show it, and an unreadable file keeps it hidden without being replaced.
+
+Screenshot previews gain **Show in folder** in their right-click menu, selecting the automatically saved PNG in File Explorer or opening the screenshot folder with an explanation when no file exists. The on-image controls are unchanged.
+
+This build is a preview until Microsoft approves the matching Store update. The official 1.0.9 release and its downloads remain unchanged. Before tagging, the full local suite passed (134 checks and the capture lifecycle) and the new about-welcome checks passed (7) with zero compiler warnings. Local desktop/input, live Chrome/clipboard/drag-and-drop, material/DPI appearance and final clean Windows 11/installed-MSIX acceptance remain pending. The EXE remains unsigned; the unsigned MSIX is submission-only.
+
 ## 1.0.9 release: live background preview
 
 The editor's **Padding** and **Corners** sliders now update the image while you drag them. Releasing the slider saves the change as a single undo step; arrow keys still save on key-up, and Esc or a cancelled drag restores the saved values. Fit zoom, layout and the size label follow the in-progress size. A click or release that does not move the slider adds no undo step.
