@@ -26,7 +26,7 @@
 ## Download
 
 <!-- FRAMELET_DOWNLOADS_START -->
-[Get Snipsera from Microsoft Store](https://apps.microsoft.com/detail/9NFL9VHL8GKV) · [Download Snipsera (1.0.9)](https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.9/Snipsera-1.0.9-setup-win-x64.exe) · [Portable ZIP](https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.9/Snipsera-1.0.9-win-x64.zip) · [All releases](RELEASES.md)
+[Get Snipsera from Microsoft Store](https://apps.microsoft.com/detail/9NFL9VHL8GKV) · [Download Snipsera (1.0.9)](https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.9/Snipsera-1.0.9-setup-win-x64.exe) · [Portable ZIP](https://github.com/hooksha-DA7/snipsera/releases/download/v1.0.9/Snipsera-1.0.9-win-x64.zip) · [Try the preview (2.0.0)](https://github.com/hooksha-DA7/snipsera/releases/tag/v2.0.0) · [All releases](RELEASES.md)
 <!-- FRAMELET_DOWNLOADS_END -->
 
 **Microsoft Store** is the simplest way to install and keep Snipsera updated. The **EXE installer** from GitHub includes .NET; screen recording needs the [Microsoft Visual C++ x64 runtime](https://aka.ms/vs/17/release/vc_redist.x64.exe), and setup offers it if it's missing. For the portable version, extract the whole ZIP and open **Snipsera.exe**.

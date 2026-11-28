@@ -2,6 +2,23 @@
 
 [Downloads and release notes](RELEASES.md)
 
+## 2.0.0 — 2026-11-28
+
+Preview. Snipsera now has a home at [snipsera.com](https://snipsera.com), and the app makes it easier to find help, get started and find your files.
+
+### Added
+
+- Settings has a new About page with the installed version and links to the Snipsera website, release notes, support, the privacy policy, the source code and the licence.
+- The tray menu adds Help and support and About Snipsera.
+- On first launch, Home shows a short welcome with the area shortcut, where captures appear, and a button to set Print Screen for the all-in-one capture bar. It appears once and never for installations that already have captures.
+- Right-click a screenshot preview and choose Show in folder to select its saved PNG in File Explorer.
+
+### Improved
+
+- An available update in Settings now offers See what's new, which opens the release notes on snipsera.com.
+
+**Preview with an unsigned GitHub installer and portable ZIP.** Windows may warn when downloading or starting them. This build stays a preview until Microsoft approves its matching 2.0.0 update. The [Microsoft Store](https://apps.microsoft.com/detail/9NFL9VHL8GKV) offers the current approved version. Store signing does not sign the GitHub installer. Live desktop capture/input, a hands-on check of the new About page, welcome card and Show in folder in the installed app, Chrome scrolling, native drag-and-drop, clipboard transfer, material/DPI appearance and final clean Windows 11/installed-MSIX acceptance remain pending. The unsigned MSIX is for Store submission only.
+
 ## 1.0.9 — 2026-11-27
 
 Release. See padding and rounded corners take shape while you adjust them.
