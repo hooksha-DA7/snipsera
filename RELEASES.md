@@ -23,7 +23,7 @@ Snipsera now has a home at [snipsera.com](https://snipsera.com), and the app mak
 
 ### Download
 
-[EXE installer](https://github.com/hooksha-DA7/snipsera/releases/download/v2.0.0/Snipsera-2.0.0-setup-win-x64.exe) · [Portable ZIP](https://github.com/hooksha-DA7/snipsera/releases/download/v2.0.0/Snipsera-2.0.0-win-x64.zip) · [Source ZIP](https://github.com/hooksha-DA7/snipsera/releases/download/v2.0.0/Snipsera-2.0.0-source.zip) · [Checksums](https://github.com/hooksha-DA7/snipsera/releases/download/v2.0.0/SHA256SUMS.txt)
+[EXE installer](https://github.com/hooksha-DA7/snipsera/releases/download/v2.0.0/Snipsera-2.0.0-setup-win-x64.exe) · [Portable ZIP](https://github.com/hooksha-DA7/snipsera/releases/download/v2.0.0/Snipsera-2.0.0-win-x64.zip) · [Source ZIP](https://github.com/hooksha-DA7/snipsera/releases/download/v2.0.0/Snipsera-2.0.0-source.zip) · [Microsoft Store](https://apps.microsoft.com/detail/9NFL9VHL8GKV) · [Checksums](https://github.com/hooksha-DA7/snipsera/releases/download/v2.0.0/SHA256SUMS.txt)
 
 Run the EXE installer, or extract the portable ZIP and open **Snipsera.exe**. Windows 11 x64 is required; .NET is included. Quit an older copy from its tray menu first. The installer checks the Visual C++ x64 runtime needed for recording.
 

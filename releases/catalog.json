@@ -1512,16 +1512,18 @@
         "sha256": "a359493775d8193cff3e616db41d665410c3fe6bc11fc464011a540c693ab53f"
       },
       "store_submission_status": {
-        "status": "not-submitted",
-        "stage": "draft",
+        "status": "in-certification",
+        "stage": "certification",
         "product_id": "9NFL9VHL8GKV",
         "submission_id": "1152921505702530920",
         "submission_number": 9,
         "package_version": "2.0.0.0",
         "verified_date": "2026-11-28",
-        "publishing": "automatic after certification requested; not yet verified for this submission",
-        "source_url": "https://partner.microsoft.com/en-us/dashboard/products/9NFL9VHL8GKV/overview"
-      }
+        "publishing": "automatic after certification",
+        "source_url": "https://partner.microsoft.com/en-us/dashboard/products/9NFL9VHL8GKV/overview",
+        "submitted_date": "2026-11-28"
+      },
+      "store_url": "https://apps.microsoft.com/detail/9NFL9VHL8GKV"
     }
   ],
   "product": "Snipsera",
