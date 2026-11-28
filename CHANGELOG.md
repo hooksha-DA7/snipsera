@@ -4,7 +4,7 @@
 
 ## 2.0.0 — 2026-11-28
 
-Preview. Snipsera now has a home at [snipsera.com](https://snipsera.com), and the app makes it easier to find help, get started and find your files.
+Release. Snipsera now has a home at [snipsera.com](https://snipsera.com), and the app makes it easier to find help, get started and find your files.
 
 ### Added
 
@@ -17,7 +17,7 @@ Preview. Snipsera now has a home at [snipsera.com](https://snipsera.com), and th
 
 - An available update in Settings now offers See what's new, which opens the release notes on snipsera.com.
 
-**Preview with an unsigned GitHub installer and portable ZIP.** Windows may warn when downloading or starting them. This build stays a preview until Microsoft approves its matching 2.0.0 update. The [Microsoft Store](https://apps.microsoft.com/detail/9NFL9VHL8GKV) offers the current approved version. Store signing does not sign the GitHub installer. Live desktop capture/input, a hands-on check of the new About page, welcome card and Show in folder in the installed app, Chrome scrolling, native drag-and-drop, clipboard transfer, material/DPI appearance and final clean Windows 11/installed-MSIX acceptance remain pending. The unsigned MSIX is for Store submission only.
+**The GitHub installer and portable ZIP are unsigned.** Windows may warn when downloading or starting them. The matching update is available from [Microsoft Store](https://apps.microsoft.com/detail/9NFL9VHL8GKV). Store signing does not sign the GitHub installer. Live desktop capture/input, a hands-on check of the new About page, welcome card and Show in folder in the installed app, Chrome scrolling, native drag-and-drop, clipboard transfer, material/DPI appearance and final clean Windows 11/installed-MSIX acceptance remain pending. The unsigned MSIX is for Store submission only.
 
 ## 1.0.9 — 2026-11-27
 

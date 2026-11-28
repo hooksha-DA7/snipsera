@@ -2,7 +2,7 @@
 
 [Back to Snipsera](../README.md) · [Downloads](../RELEASES.md)
 
-These instructions cover **Snipsera 2.0.0**, including its About page, help links, first-run welcome and **Show in folder** for screenshots, plus the 1.0.9 live background preview.
+These instructions cover **Snipsera 2.0.0**, the current official release, including its About page, help links, first-run welcome and **Show in folder** for screenshots, plus the 1.0.9 live background preview.
 
 ## Run
 
